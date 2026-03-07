@@ -63,7 +63,19 @@
             font-weight: bold;
         }
 
-        /* --- НОВІ СТИЛІ ДЛЯ ВИКОНАНИХ ЗАВДАНЬ --- */
+        /* --- СТИЛІ ДЛЯ ЗАГОЛОВКІВ ПРЕДМЕТІВ --- */
+        .subject-group-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--button-color);
+            margin: 20px 0 10px 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--tg-theme-secondary-bg-color, #f4f4f5);
+            padding-bottom: 5px;
+        }
+
+        /* --- СТИЛІ ДЛЯ ВИКОНАНИХ ЗАВДАНЬ --- */
         details {
             margin-top: 25px;
             border-top: 1px solid var(--hint-color);
@@ -82,7 +94,7 @@
         }
 
         summary::-webkit-details-marker {
-            display: none; /* Ховаємо стандартний трикутник браузера */
+            display: none;
         }
 
         summary::after {
@@ -164,25 +176,56 @@
             return isCompleted;
         });
 
-        // Відображаємо активні
+        // Відображаємо активні з групуванням
         if (activeTasks.length === 0) {
             activeList.innerHTML = "<p style='text-align:center;'>Усі активні завдання виконано! 🎉</p>";
         } else {
-            activeTasks.forEach(task => activeList.appendChild(createTaskCard(task)));
+            renderGroupedTasks(activeTasks, activeList);
         }
 
-        // Відображаємо виконані
+        // Відображаємо виконані з групуванням
         if (completedTasks.length > 0) {
             completedSection.style.display = "block";
             completedCount.innerText = completedTasks.length;
-            completedTasks.forEach(task => completedList.appendChild(createTaskCard(task)));
+            renderGroupedTasks(completedTasks, completedList);
         } else {
             completedSection.style.display = "none";
         }
     }
 
-    function createTaskCard(task) {
-        // Бронебійне зчитування змінних
+    // Функція групування та сортування
+    function renderGroupedTasks(tasksArray, container) {
+        const grouped = {};
+        
+        // Розподіляємо по предметах
+        tasksArray.forEach(task => {
+            const subject = task.subject || task.Subject || "Інше";
+            if (!grouped[subject]) grouped[subject] = [];
+            grouped[subject].push(task);
+        });
+
+        for (const subject in grouped) {
+            // Сортуємо за дедлайном (найближчі дати зверху)
+            grouped[subject].sort((a, b) => {
+                const dateA = new Date(a.deadline || a.Deadline);
+                const dateB = new Date(b.deadline || b.Deadline);
+                return dateA - dateB;
+            });
+
+            // Додаємо заголовок предмета
+            const subjectHeader = document.createElement('div');
+            subjectHeader.className = 'subject-group-title';
+            subjectHeader.innerText = subject;
+            container.appendChild(subjectHeader);
+
+            // Додаємо картки завдань під предметом
+            grouped[subject].forEach(task => {
+                container.appendChild(createTaskCard(task, false)); 
+            });
+        }
+    }
+
+    function createTaskCard(task, showSubject = true) {
         const subject = task.subject || task.Subject;
         const title = task.title || task.Title;
         const deadlineStr = task.deadline || task.Deadline;
@@ -206,9 +249,13 @@
 
         const card = document.createElement('div');
         card.className = `task-card ${isCompleted ? 'completed' : ''}`;
+        
+        // Показуємо назву предмета в самій картці тільки якщо ми не згрупували їх
+        const subjectHtml = showSubject ? `<div class="task-subject">${subject}</div>` : '';
+
         card.innerHTML = `
             <div class="task-info">
-                <div class="task-subject">${subject}</div>
+                ${subjectHtml}
                 <div class="task-title">${title}</div>
                 <div class="task-deadline ${statusClass}">${isCompleted ? 'Виконано' : statusText}</div>
             </div>
