@@ -107,7 +107,8 @@
 
         tasks.forEach(task => {
             const now = new Date();
-            const deadline = new Date(task.Deadline);
+            // ТУТ УСІ ЗМІННІ З МАЛОЇ ЛІТЕРИ
+            const deadline = new Date(task.deadline); 
             const diffDays = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
 
             let statusClass = "status-ok";
@@ -122,19 +123,18 @@
             }
 
             const card = document.createElement('div');
-            card.className = `task-card ${task.IsCompleted ? 'completed' : ''}`;
+            card.className = `task-card ${task.isCompleted ? 'completed' : ''}`;
             card.innerHTML = `
                 <div class="task-info">
-                    <div class="task-subject">${task.Subject}</div>
-                    <div class="task-title">${task.Title}</div>
+                    <div class="task-subject">${task.subject}</div>
+                    <div class="task-title">${task.title}</div>
                     <div class="task-deadline ${statusClass}">${statusText}</div>
                 </div>
-                <div class="checkbox ${task.IsCompleted ? 'checked' : ''}" onclick="toggleTask(${task.TaskId}, ${task.IsCompleted})"></div>
+                <div class="checkbox ${task.isCompleted ? 'checked' : ''}" onclick="toggleTask(${task.taskId}, ${task.isCompleted})"></div>
             `;
             list.appendChild(card);
         });
     }
-
     function toggleTask(taskId, currentState) {
         const msg = currentState ? "Повернути завдання в роботу?" : "Ти дійсно виконав це завдання?";
         
