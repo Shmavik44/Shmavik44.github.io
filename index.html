@@ -62,6 +62,45 @@
             color: var(--button-color);
             font-weight: bold;
         }
+
+        /* --- НОВІ СТИЛІ ДЛЯ ВИКОНАНИХ ЗАВДАНЬ --- */
+        details {
+            margin-top: 25px;
+            border-top: 1px solid var(--hint-color);
+            padding-top: 10px;
+        }
+
+        summary {
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            font-weight: bold;
+            color: var(--hint-color);
+            cursor: pointer;
+        }
+
+        summary::-webkit-details-marker {
+            display: none; /* Ховаємо стандартний трикутник браузера */
+        }
+
+        summary::after {
+            content: "▼";
+            font-size: 12px;
+            transition: transform 0.3s;
+            color: var(--hint-color);
+        }
+
+        details[open] summary::after {
+            transform: rotate(180deg);
+        }
+
+        .completed-container .task-card {
+            background: transparent;
+            border: 1px solid var(--tg-theme-secondary-bg-color, #f4f4f5);
+            filter: grayscale(1);
+        }
     </style>
 </head>
 <body>
@@ -71,19 +110,22 @@
     <p style="color: var(--hint-color)">Твої навчальні завдання</p>
 </div>
 
-<div id="taskList">
+<div id="activeTaskList">
     <p style="text-align: center;">Завантаження...</p>
 </div>
+
+<details id="completedSection" style="display: none;">
+    <summary>Виконані завдання (<span id="completedCount">0</span>)</summary>
+    <div id="completedTaskList" class="completed-container"></div>
+</details>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
 
-    // ТУТ ВКАЖИ АДРЕСУ СВОГО СЕРВЕРА (наприклад, з Render або ту, що дає хостинг)
     const API_URL = "https://telegram-proxy-bot-desz.onrender.com/api";
-    
-    const userId = tg.initDataUnsafe.user?.id || 1492389359; // Тестовий ID, якщо відкриваємо не в ТГ
+    const userId = tg.initDataUnsafe.user?.id || 1492389359; 
     document.getElementById('userName').innerText = `Привіт, ${tg.initDataUnsafe.user?.first_name || 'Студент'}!`;
 
     async function loadTasks() {
@@ -92,57 +134,110 @@
             const tasks = await response.json();
             renderTasks(tasks);
         } catch (e) {
-            document.getElementById('taskList').innerHTML = "<p>Не вдалося завантажити завдання :(</p>";
+            document.getElementById('activeTaskList').innerHTML = "<p>Не вдалося завантажити завдання :(</p>";
         }
     }
 
     function renderTasks(tasks) {
-        const list = document.getElementById('taskList');
-        list.innerHTML = "";
+        const activeList = document.getElementById('activeTaskList');
+        const completedList = document.getElementById('completedTaskList');
+        const completedSection = document.getElementById('completedSection');
+        const completedCount = document.getElementById('completedCount');
+
+        activeList.innerHTML = "";
+        completedList.innerHTML = "";
 
         if (tasks.length === 0) {
-            list.innerHTML = "<p style='text-align:center;'>Завдань поки немає. Відпочивай! 🎉</p>";
+            activeList.innerHTML = "<p style='text-align:center;'>Завдань поки немає. Відпочивай! 🎉</p>";
+            completedSection.style.display = "none";
             return;
         }
 
-        tasks.forEach(task => {
-            const now = new Date();
-            // ТУТ УСІ ЗМІННІ З МАЛОЇ ЛІТЕРИ
-            const deadline = new Date(task.deadline); 
-            const diffDays = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
-
-            let statusClass = "status-ok";
-            let statusText = `Залишилось днів: ${diffDays}`;
-
-            if (diffDays < 0) {
-                statusClass = "status-overdue";
-                statusText = "ПРОТЕРМІНОВАНО!";
-            } else if (diffDays <= 2) {
-                statusClass = "status-soon";
-                statusText = `Дедлайн скоро! (${diffDays} дн.)`;
-            }
-
-            const card = document.createElement('div');
-            card.className = `task-card ${task.isCompleted ? 'completed' : ''}`;
-            card.innerHTML = `
-                <div class="task-info">
-                    <div class="task-subject">${task.subject}</div>
-                    <div class="task-title">${task.title}</div>
-                    <div class="task-deadline ${statusClass}">${statusText}</div>
-                </div>
-                <div class="checkbox ${task.isCompleted ? 'checked' : ''}" onclick="toggleTask(${task.taskId}, ${task.isCompleted})"></div>
-            `;
-            list.appendChild(card);
+        // Бронебійне визначення статусу
+        const activeTasks = tasks.filter(t => {
+            const isCompleted = t.isCompleted !== undefined ? t.isCompleted : t.IsCompleted;
+            return !isCompleted;
         });
+        
+        const completedTasks = tasks.filter(t => {
+            const isCompleted = t.isCompleted !== undefined ? t.isCompleted : t.IsCompleted;
+            return isCompleted;
+        });
+
+        // Відображаємо активні
+        if (activeTasks.length === 0) {
+            activeList.innerHTML = "<p style='text-align:center;'>Усі активні завдання виконано! 🎉</p>";
+        } else {
+            activeTasks.forEach(task => activeList.appendChild(createTaskCard(task)));
+        }
+
+        // Відображаємо виконані
+        if (completedTasks.length > 0) {
+            completedSection.style.display = "block";
+            completedCount.innerText = completedTasks.length;
+            completedTasks.forEach(task => completedList.appendChild(createTaskCard(task)));
+        } else {
+            completedSection.style.display = "none";
+        }
     }
+
+    function createTaskCard(task) {
+        // Бронебійне зчитування змінних
+        const subject = task.subject || task.Subject;
+        const title = task.title || task.Title;
+        const deadlineStr = task.deadline || task.Deadline;
+        const isCompleted = task.isCompleted !== undefined ? task.isCompleted : task.IsCompleted;
+        const taskId = task.taskId || task.TaskId;
+
+        const now = new Date();
+        const deadline = new Date(deadlineStr);
+        const diffDays = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+
+        let statusClass = "status-ok";
+        let statusText = `Залишилось днів: ${diffDays}`;
+
+        if (diffDays < 0) {
+            statusClass = "status-overdue";
+            statusText = "ПРОТЕРМІНОВАНО!";
+        } else if (diffDays <= 2) {
+            statusClass = "status-soon";
+            statusText = `Дедлайн скоро! (${diffDays} дн.)`;
+        }
+
+        const card = document.createElement('div');
+        card.className = `task-card ${isCompleted ? 'completed' : ''}`;
+        card.innerHTML = `
+            <div class="task-info">
+                <div class="task-subject">${subject}</div>
+                <div class="task-title">${title}</div>
+                <div class="task-deadline ${statusClass}">${isCompleted ? 'Виконано' : statusText}</div>
+            </div>
+            <div class="checkbox ${isCompleted ? 'checked' : ''}" onclick="toggleTask(${taskId}, ${isCompleted})"></div>
+        `;
+        return card;
+    }
+
     function toggleTask(taskId, currentState) {
+        if (!taskId) {
+            tg.showAlert("Помилка: ID завдання не знайдено!");
+            return;
+        }
+
         const msg = currentState ? "Повернути завдання в роботу?" : "Ти дійсно виконав це завдання?";
         
         tg.showConfirm(msg, async (confirmed) => {
             if (confirmed) {
                 tg.HapticFeedback.impactOccurred('medium');
-                await fetch(`${API_URL}/tasks/${userId}/complete/${taskId}`, { method: 'POST' });
-                loadTasks(); // Перезавантажуємо список
+                try {
+                    const response = await fetch(`${API_URL}/tasks/${userId}/complete/${taskId}`, { method: 'POST' });
+                    if (response.ok) {
+                        loadTasks(); 
+                    } else {
+                        tg.showAlert("Помилка на сервері! Статус: " + response.status);
+                    }
+                } catch (e) {
+                    tg.showAlert("Помилка зв'язку з сервером!");
+                }
             }
         });
     }
