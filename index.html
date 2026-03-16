@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мої завдання</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root {
             --bg-color: var(--tg-theme-bg-color, #ffffff);
             --text-color: var(--tg-theme-text-color, #222222);
             --hint-color: var(--tg-theme-hint-color, #999999);
             --button-color: var(--tg-theme-button-color, #2481cc);
+            --secondary-bg: var(--tg-theme-secondary-bg-color, #f4f4f5);
         }
 
         body {
@@ -18,45 +20,79 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
-            padding: 15px;
+            padding: 15px 15px 80px 15px; /* Знизу більше місця */
+            overflow-x: hidden;
         }
 
+        /* --- ШАПКА ТА ПРОГРЕС --- */
         .header { text-align: center; margin-bottom: 15px; }
         .header h3 { margin: 0 0 5px 0; font-size: 20px; }
         .header p { color: var(--hint-color); font-size: 13px; margin: 0; }
         
-        /* --- ПРОГРЕС-БАР --- */
-        .progress-wrapper { margin-bottom: 25px; }
+        .progress-wrapper { margin-bottom: 20px; }
         .progress-text { font-size: 13px; color: var(--hint-color); margin-bottom: 6px; text-align: center; font-weight: bold; }
-        .progress-track { background: var(--tg-theme-secondary-bg-color, #e0e0e0); border-radius: 10px; height: 8px; overflow: hidden; width: 80%; margin: 0 auto; }
-        .progress-fill { background: var(--button-color); height: 100%; width: 0%; transition: width 0.6s cubic-bezier(0.25, 0.8, 0.25, 1); border-radius: 10px; }
+        .progress-track { background: var(--secondary-bg); border-radius: 10px; height: 8px; overflow: hidden; width: 80%; margin: 0 auto; }
+        .progress-fill { background: var(--button-color); height: 100%; width: 0%; transition: width 0.8s cubic-bezier(0.25, 0.8, 0.25, 1); border-radius: 10px; }
+
+        /* --- ФІЛЬТРИ --- */
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .filter-btn {
+            background: var(--secondary-bg);
+            color: var(--hint-color);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filter-btn.active {
+            background: var(--button-color);
+            color: #ffffff;
+        }
+
+        /* --- СКЕЛЕТНЕ ЗАВАНТАЖЕННЯ --- */
+        .skeleton-card {
+            background: var(--secondary-bg);
+            border-radius: 12px;
+            height: 70px;
+            margin-bottom: 12px;
+            animation: pulse 1.5s infinite ease-in-out;
+            opacity: 0.6;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+            100% { opacity: 0.4; }
+        }
 
         /* --- КАРТКИ ЗАВДАНЬ --- */
         .task-card {
-            background: var(--tg-theme-secondary-bg-color, #f4f4f5);
+            background: var(--secondary-bg);
             border-radius: 12px;
             padding: 15px;
             margin-bottom: 12px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            /* Базовий бортик для кольорових маркерів */
             border-left: 5px solid transparent; 
-            /* Плавність для анімації натискання */
             transition: all 0.3s ease; 
         }
 
-        /* Кольорові статуси для бортиків */
         .card-overdue { border-left-color: #e53935; }
         .card-soon { border-left-color: #ffa000; }
         .card-ok { border-left-color: #43a047; }
-        
         .completed { opacity: 0.5; text-decoration: line-through; border-left-color: var(--hint-color); }
 
-        /* Анімація зникнення картки */
         .completing {
             opacity: 0 !important;
-            transform: translateX(-20px) scale(0.95);
+            transform: translateX(-30px) scale(0.95);
         }
 
         .task-info { flex-grow: 1; }
@@ -79,11 +115,12 @@
             justify-content: center;
             margin-left: 15px;
             min-width: 24px;
+            transition: all 0.2s;
         }
-
+        .checkbox.checked { background: var(--button-color); }
         .checkbox.checked::after {
             content: "✓";
-            color: var(--button-color);
+            color: #ffffff;
             font-weight: bold;
         }
 
@@ -94,43 +131,65 @@
             margin: 20px 0 10px 5px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            border-bottom: 1px solid var(--tg-theme-secondary-bg-color, #f4f4f5);
+            border-bottom: 1px solid var(--secondary-bg);
             padding-bottom: 5px;
         }
 
-        details {
-            margin-top: 25px;
-            border-top: 1px solid var(--hint-color);
-            padding-top: 10px;
-        }
-
-        summary {
-            list-style: none;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            font-weight: bold;
-            color: var(--hint-color);
-            cursor: pointer;
-        }
-
+        /* --- ВИКОНАНІ ЗАВДАННЯ --- */
+        details { margin-top: 25px; border-top: 1px solid var(--hint-color); padding-top: 10px; }
+        summary { display: flex; justify-content: space-between; align-items: center; padding: 10px; font-weight: bold; color: var(--hint-color); cursor: pointer; list-style: none; }
         summary::-webkit-details-marker { display: none; }
-        summary::after {
-            content: "▼";
-            font-size: 12px;
-            transition: transform 0.3s;
-            color: var(--hint-color);
-        }
-
+        summary::after { content: "▼"; font-size: 12px; transition: transform 0.3s; color: var(--hint-color); }
         details[open] summary::after { transform: rotate(180deg); }
+        .completed-container .task-card { background: transparent; border: 1px solid var(--secondary-bg); filter: grayscale(1); border-left-width: 1px; }
 
-        .completed-container .task-card {
-            background: transparent;
-            border: 1px solid var(--tg-theme-secondary-bg-color, #f4f4f5);
-            filter: grayscale(1);
-            border-left-width: 1px; /* Прибираємо жирний кольоровий борт для виконаних */
+        /* --- КАСТОМНІ МОДАЛКИ (TOAST & CONFIRM) --- */
+        .toast {
+            position: fixed;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #43a047;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
         }
+        .toast.show { top: 20px; }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s;
+            z-index: 2000;
+            backdrop-filter: blur(3px);
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-content {
+            background: var(--bg-color);
+            padding: 20px;
+            border-radius: 16px;
+            width: 80%;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            transform: translateY(20px);
+            transition: transform 0.3s;
+        }
+        .modal-overlay.active .modal-content { transform: translateY(0); }
+        .modal-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; }
+        .modal-buttons { display: flex; gap: 10px; justify-content: center; }
+        .modal-btn {
+            flex: 1; padding: 10px; border: none; border-radius: 8px;
+            font-size: 14px; font-weight: bold; cursor: pointer;
+        }
+        .btn-cancel { background: var(--secondary-bg); color: var(--text-color); }
+        .btn-confirm { background: var(--button-color); color: #ffffff; }
+
     </style>
 </head>
 <body>
@@ -147,14 +206,34 @@
     </div>
 </div>
 
+<div class="filters" id="filtersBlock" style="display: none;">
+    <button class="filter-btn active" onclick="applyFilter('all', this)">Всі</button>
+    <button class="filter-btn" onclick="applyFilter('overdue', this)">Борги 🟥</button>
+    <button class="filter-btn" onclick="applyFilter('soon', this)">Горять 🟨</button>
+</div>
+
 <div id="activeTaskList">
-    <p style="text-align: center;">Завантаження...</p>
+    <div class="skeleton-card"></div>
+    <div class="skeleton-card"></div>
+    <div class="skeleton-card"></div>
 </div>
 
 <details id="completedSection" style="display: none;">
     <summary>Виконані завдання (<span id="completedCount">0</span>)</summary>
     <div id="completedTaskList" class="completed-container"></div>
 </details>
+
+<div id="toast" class="toast">Завдання виконано! 🎉</div>
+
+<div id="confirmModal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-title" id="modalText">Ти дійсно виконав це завдання?</div>
+        <div class="modal-buttons">
+            <button class="modal-btn btn-cancel" onclick="closeModal()">Ще роблю</button>
+            <button class="modal-btn btn-confirm" id="modalConfirmBtn">Так, готово!</button>
+        </div>
+    </div>
+</div>
 
 <script>
     const tg = window.Telegram.WebApp;
@@ -165,17 +244,36 @@
     const userId = tg.initDataUnsafe.user?.id || 1492389359; 
     document.getElementById('userName').innerText = `Привіт, ${tg.initDataUnsafe.user?.first_name || 'Студент'}!`;
 
+    let globalTasks = []; // Зберігаємо всі завантажені таски
+    let currentFilter = 'all';
+    let pendingTaskId = null;
+    let pendingTaskState = null;
+
     async function loadTasks() {
         try {
             const response = await fetch(`${API_URL}/tasks/${userId}`);
-            const tasks = await response.json();
-            renderTasks(tasks);
+            globalTasks = await response.json();
+            document.getElementById('filtersBlock').style.display = "flex";
+            renderTasks();
         } catch (e) {
-            document.getElementById('activeTaskList').innerHTML = "<p>Не вдалося завантажити завдання :(</p>";
+            document.getElementById('activeTaskList').innerHTML = "<p style='text-align:center;'>Не вдалося завантажити завдання :(</p>";
         }
     }
 
-    function renderTasks(tasks) {
+    function applyFilter(filterType, btnElement) {
+        currentFilter = filterType;
+        
+        // Перемикаємо активну кнопку
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        btnElement.classList.add('active');
+        
+        // Змушуємо телефон легенько завібрувати при зміні фільтру
+        tg.HapticFeedback.selectionChanged();
+        
+        renderTasks();
+    }
+
+    function renderTasks() {
         const activeList = document.getElementById('activeTaskList');
         const completedList = document.getElementById('completedTaskList');
         const completedSection = document.getElementById('completedSection');
@@ -187,27 +285,42 @@
         activeList.innerHTML = "";
         completedList.innerHTML = "";
 
-        if (tasks.length === 0) {
+        if (globalTasks.length === 0) {
             activeList.innerHTML = "<p style='text-align:center;'>Завдань поки немає. Відпочивай! 🎉</p>";
+            document.getElementById('filtersBlock').style.display = "none";
             completedSection.style.display = "none";
             progressWrapper.style.display = "none";
             return;
         }
 
-        const activeTasks = tasks.filter(t => !(t.isCompleted !== undefined ? t.isCompleted : t.IsCompleted));
-        const completedTasks = tasks.filter(t => (t.isCompleted !== undefined ? t.isCompleted : t.IsCompleted));
+        let activeTasks = globalTasks.filter(t => !(t.isCompleted !== undefined ? t.isCompleted : t.IsCompleted));
+        const completedTasks = globalTasks.filter(t => (t.isCompleted !== undefined ? t.isCompleted : t.IsCompleted));
 
-        // --- ОНОВЛЕННЯ ПРОГРЕС-БАРУ ---
+        // Оновлення прогрес-бару
         progressWrapper.style.display = "block";
-        const percent = Math.round((completedTasks.length / tasks.length) * 100);
-        progressText.innerText = `Мій прогрес: ${completedTasks.length} з ${tasks.length} (${percent}%)`;
-        // Маленька затримка для красивої анімації заповнення при завантаженні
-        setTimeout(() => {
-            progressBar.style.width = `${percent}%`;
-        }, 100);
+        const percent = Math.round((completedTasks.length / globalTasks.length) * 100);
+        progressText.innerText = `Мій прогрес: ${completedTasks.length} з ${globalTasks.length} (${percent}%)`;
+        setTimeout(() => { progressBar.style.width = `${percent}%`; }, 100);
+
+        // Застосування фільтрів до активних завдань
+        const now = new Date();
+        if (currentFilter === 'overdue') {
+            activeTasks = activeTasks.filter(t => {
+                const deadline = new Date(t.deadline || t.Deadline);
+                return (deadline - now) < 0;
+            });
+        } else if (currentFilter === 'soon') {
+            activeTasks = activeTasks.filter(t => {
+                const deadline = new Date(t.deadline || t.Deadline);
+                const diffDays = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+                return diffDays >= 0 && diffDays <= 2;
+            });
+        }
 
         if (activeTasks.length === 0) {
-            activeList.innerHTML = "<p style='text-align:center;'>Усі активні завдання виконано! 🎉</p>";
+            if (currentFilter === 'overdue') activeList.innerHTML = "<p style='text-align:center;'>У тебе немає боргів! Ти супер! 🚀</p>";
+            else if (currentFilter === 'soon') activeList.innerHTML = "<p style='text-align:center;'>На найближчі дні все чисто! 😎</p>";
+            else activeList.innerHTML = "<p style='text-align:center;'>Усі активні завдання виконано! 🎉</p>";
         } else {
             renderGroupedTasks(activeTasks, activeList);
         }
@@ -257,12 +370,11 @@
 
         const now = new Date();
         const deadline = new Date(deadlineStr);
-        
         const timeDiff = deadline - now;
         const diffDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
 
         let statusClass = "status-ok";
-        let cardBorderClass = "card-ok"; // Колір лівого краю
+        let cardBorderClass = "card-ok";
         let statusText = `Залишилось днів: ${diffDays}`;
 
         if (timeDiff < 0) {
@@ -276,7 +388,7 @@
         }
 
         const card = document.createElement('div');
-        card.id = `task-${taskId}`; // Додаємо ID для пошуку при анімації
+        card.id = `task-${taskId}`;
         card.className = `task-card ${cardBorderClass} ${isCompleted ? 'completed' : ''}`;
         
         const subjectHtml = showSubject ? `<div class="task-subject">${subject}</div>` : '';
@@ -287,48 +399,87 @@
                 <div class="task-title">${title}</div>
                 <div class="task-deadline ${statusClass}">${isCompleted ? 'Виконано' : statusText}</div>
             </div>
-            <div class="checkbox ${isCompleted ? 'checked' : ''}" onclick="toggleTask(${taskId}, ${isCompleted})"></div>
+            <div class="checkbox ${isCompleted ? 'checked' : ''}" onclick="openModal(${taskId}, ${isCompleted})"></div>
         `;
         return card;
     }
 
-    function toggleTask(taskId, currentState) {
-        if (!taskId) return;
-
-        const msg = currentState ? "Повернути завдання в роботу?" : "Ти дійсно виконав це завдання?";
-        
-        tg.showConfirm(msg, async (confirmed) => {
-            if (confirmed) {
-                tg.HapticFeedback.impactOccurred('medium');
-                
-                // Додаємо клас анімації зникнення перед відправкою на сервер
-                const cardElement = document.getElementById(`task-${taskId}`);
-                if (cardElement) {
-                    cardElement.classList.add('completing');
-                }
-
-                try {
-                    const response = await fetch(`${API_URL}/tasks/${userId}/complete/${taskId}`, { method: 'POST' });
-                    if (response.ok) {
-                        // Робимо малу паузу (300мс), щоб анімація встигла програтись, і оновлюємо список
-                        setTimeout(() => {
-                            loadTasks(); 
-                        }, 300);
-                    } else {
-                        tg.showAlert("Помилка на сервері!");
-                        if (cardElement) cardElement.classList.remove('completing'); // Відміняємо анімацію при помилці
-                    }
-                } catch (e) {
-                    tg.showAlert("Помилка зв'язку з сервером!");
-                    if (cardElement) cardElement.classList.remove('completing');
-                }
-            }
-        });
+    // --- ВЛАСНІ МОДАЛЬНІ ВІКНА ТА ТОСТИ ---
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        toast.innerText = message;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
     }
+
+    function openModal(taskId, currentState) {
+        pendingTaskId = taskId;
+        pendingTaskState = currentState;
+        tg.HapticFeedback.impactOccurred('light');
+
+        const modal = document.getElementById('confirmModal');
+        const modalText = document.getElementById('modalText');
+        const confirmBtn = document.getElementById('modalConfirmBtn');
+
+        if (currentState) {
+            modalText.innerText = "Повернути завдання в роботу?";
+            confirmBtn.innerText = "Так, повернути";
+        } else {
+            modalText.innerText = "Ти дійсно виконав це завдання?";
+            confirmBtn.innerText = "Так, готово!";
+        }
+
+        modal.classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('confirmModal').classList.remove('active');
+        pendingTaskId = null;
+    }
+
+    // Функція, яка спрацьовує при натисканні "Так, готово!"
+    document.getElementById('modalConfirmBtn').addEventListener('click', async () => {
+        if (!pendingTaskId) return;
+        
+        const taskId = pendingTaskId;
+        const currentState = pendingTaskState;
+        closeModal();
+
+        tg.HapticFeedback.impactOccurred('medium');
+        
+        // Анімація зникнення картки
+        const cardElement = document.getElementById(`task-${taskId}`);
+        if (cardElement) cardElement.classList.add('completing');
+
+        try {
+            const response = await fetch(`${API_URL}/tasks/${userId}/complete/${taskId}`, { method: 'POST' });
+            if (response.ok) {
+                // Якщо ми ВЗЯЛИ нове завдання (не скасували) - стріляємо конфеті!
+                if (!currentState) {
+                    confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.6 },
+                        colors: ['#43a047', '#2481cc', '#ffa000']
+                    });
+                    showToast("Завдання виконано! 🎉");
+                } else {
+                    showToast("Завдання повернуто в роботу");
+                }
+
+                setTimeout(() => { loadTasks(); }, 400); // Оновлюємо список після анімацій
+            } else {
+                showToast("❌ Помилка на сервері!");
+                if (cardElement) cardElement.classList.remove('completing');
+            }
+        } catch (e) {
+            showToast("❌ Помилка зв'язку!");
+            if (cardElement) cardElement.classList.remove('completing');
+        }
+    });
 
     loadTasks();
 </script>
 
 </body>
 </html>
-
