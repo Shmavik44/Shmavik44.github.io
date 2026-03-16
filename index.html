@@ -21,11 +21,17 @@
             padding: 15px;
         }
 
-        /* --- Оновлена шапка --- */
         .header { text-align: center; margin-bottom: 15px; }
         .header h3 { margin: 0 0 5px 0; font-size: 20px; }
         .header p { color: var(--hint-color); font-size: 13px; margin: 0; }
         
+        /* --- ПРОГРЕС-БАР --- */
+        .progress-wrapper { margin-bottom: 25px; }
+        .progress-text { font-size: 13px; color: var(--hint-color); margin-bottom: 6px; text-align: center; font-weight: bold; }
+        .progress-track { background: var(--tg-theme-secondary-bg-color, #e0e0e0); border-radius: 10px; height: 8px; overflow: hidden; width: 80%; margin: 0 auto; }
+        .progress-fill { background: var(--button-color); height: 100%; width: 0%; transition: width 0.6s cubic-bezier(0.25, 0.8, 0.25, 1); border-radius: 10px; }
+
+        /* --- КАРТКИ ЗАВДАНЬ --- */
         .task-card {
             background: var(--tg-theme-secondary-bg-color, #f4f4f5);
             border-radius: 12px;
@@ -34,7 +40,23 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            transition: opacity 0.3s;
+            /* Базовий бортик для кольорових маркерів */
+            border-left: 5px solid transparent; 
+            /* Плавність для анімації натискання */
+            transition: all 0.3s ease; 
+        }
+
+        /* Кольорові статуси для бортиків */
+        .card-overdue { border-left-color: #e53935; }
+        .card-soon { border-left-color: #ffa000; }
+        .card-ok { border-left-color: #43a047; }
+        
+        .completed { opacity: 0.5; text-decoration: line-through; border-left-color: var(--hint-color); }
+
+        /* Анімація зникнення картки */
+        .completing {
+            opacity: 0 !important;
+            transform: translateX(-20px) scale(0.95);
         }
 
         .task-info { flex-grow: 1; }
@@ -45,8 +67,6 @@
         .status-overdue { color: #e53935; font-weight: bold; }
         .status-soon { color: #ffa000; font-weight: bold; }
         .status-ok { color: #43a047; }
-        
-        .completed { opacity: 0.5; text-decoration: line-through; }
 
         .checkbox {
             width: 24px;
@@ -58,6 +78,7 @@
             align-items: center;
             justify-content: center;
             margin-left: 15px;
+            min-width: 24px;
         }
 
         .checkbox.checked::after {
@@ -94,10 +115,7 @@
             cursor: pointer;
         }
 
-        summary::-webkit-details-marker {
-            display: none;
-        }
-
+        summary::-webkit-details-marker { display: none; }
         summary::after {
             content: "▼";
             font-size: 12px;
@@ -105,14 +123,13 @@
             color: var(--hint-color);
         }
 
-        details[open] summary::after {
-            transform: rotate(180deg);
-        }
+        details[open] summary::after { transform: rotate(180deg); }
 
         .completed-container .task-card {
             background: transparent;
             border: 1px solid var(--tg-theme-secondary-bg-color, #f4f4f5);
             filter: grayscale(1);
+            border-left-width: 1px; /* Прибираємо жирний кольоровий борт для виконаних */
         }
     </style>
 </head>
@@ -121,6 +138,13 @@
 <div class="header">
     <h3 id="userName">Привіт!</h3>
     <p>Твої навчальні завдання</p>
+</div>
+
+<div class="progress-wrapper" id="progressWrapper" style="display: none;">
+    <div class="progress-text" id="progressText">Мій прогрес: 0%</div>
+    <div class="progress-track">
+        <div class="progress-fill" id="progressBar"></div>
+    </div>
 </div>
 
 <div id="activeTaskList">
@@ -156,6 +180,9 @@
         const completedList = document.getElementById('completedTaskList');
         const completedSection = document.getElementById('completedSection');
         const completedCount = document.getElementById('completedCount');
+        const progressWrapper = document.getElementById('progressWrapper');
+        const progressText = document.getElementById('progressText');
+        const progressBar = document.getElementById('progressBar');
 
         activeList.innerHTML = "";
         completedList.innerHTML = "";
@@ -163,18 +190,21 @@
         if (tasks.length === 0) {
             activeList.innerHTML = "<p style='text-align:center;'>Завдань поки немає. Відпочивай! 🎉</p>";
             completedSection.style.display = "none";
+            progressWrapper.style.display = "none";
             return;
         }
 
-        const activeTasks = tasks.filter(t => {
-            const isCompleted = t.isCompleted !== undefined ? t.isCompleted : t.IsCompleted;
-            return !isCompleted;
-        });
-        
-        const completedTasks = tasks.filter(t => {
-            const isCompleted = t.isCompleted !== undefined ? t.isCompleted : t.IsCompleted;
-            return isCompleted;
-        });
+        const activeTasks = tasks.filter(t => !(t.isCompleted !== undefined ? t.isCompleted : t.IsCompleted));
+        const completedTasks = tasks.filter(t => (t.isCompleted !== undefined ? t.isCompleted : t.IsCompleted));
+
+        // --- ОНОВЛЕННЯ ПРОГРЕС-БАРУ ---
+        progressWrapper.style.display = "block";
+        const percent = Math.round((completedTasks.length / tasks.length) * 100);
+        progressText.innerText = `Мій прогрес: ${completedTasks.length} з ${tasks.length} (${percent}%)`;
+        // Маленька затримка для красивої анімації заповнення при завантаженні
+        setTimeout(() => {
+            progressBar.style.width = `${percent}%`;
+        }, 100);
 
         if (activeTasks.length === 0) {
             activeList.innerHTML = "<p style='text-align:center;'>Усі активні завдання виконано! 🎉</p>";
@@ -228,24 +258,26 @@
         const now = new Date();
         const deadline = new Date(deadlineStr);
         
-        // --- ФІКС: ТОЧНА РІЗНИЦЯ В МІЛІСЕКУНДАХ ---
         const timeDiff = deadline - now;
         const diffDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
 
         let statusClass = "status-ok";
+        let cardBorderClass = "card-ok"; // Колір лівого краю
         let statusText = `Залишилось днів: ${diffDays}`;
 
-        // Перевіряємо по мілісекундах: якщо менше 0, значить час вийшов!
         if (timeDiff < 0) {
             statusClass = "status-overdue";
+            cardBorderClass = "card-overdue";
             statusText = "ПРОТЕРМІНОВАНО!";
         } else if (diffDays <= 2) {
             statusClass = "status-soon";
+            cardBorderClass = "card-soon";
             statusText = `Дедлайн скоро! (${diffDays} дн.)`;
         }
 
         const card = document.createElement('div');
-        card.className = `task-card ${isCompleted ? 'completed' : ''}`;
+        card.id = `task-${taskId}`; // Додаємо ID для пошуку при анімації
+        card.className = `task-card ${cardBorderClass} ${isCompleted ? 'completed' : ''}`;
         
         const subjectHtml = showSubject ? `<div class="task-subject">${subject}</div>` : '';
 
@@ -261,25 +293,34 @@
     }
 
     function toggleTask(taskId, currentState) {
-        if (!taskId) {
-            tg.showAlert("Помилка: ID завдання не знайдено!");
-            return;
-        }
+        if (!taskId) return;
 
         const msg = currentState ? "Повернути завдання в роботу?" : "Ти дійсно виконав це завдання?";
         
         tg.showConfirm(msg, async (confirmed) => {
             if (confirmed) {
                 tg.HapticFeedback.impactOccurred('medium');
+                
+                // Додаємо клас анімації зникнення перед відправкою на сервер
+                const cardElement = document.getElementById(`task-${taskId}`);
+                if (cardElement) {
+                    cardElement.classList.add('completing');
+                }
+
                 try {
                     const response = await fetch(`${API_URL}/tasks/${userId}/complete/${taskId}`, { method: 'POST' });
                     if (response.ok) {
-                        loadTasks(); 
+                        // Робимо малу паузу (300мс), щоб анімація встигла програтись, і оновлюємо список
+                        setTimeout(() => {
+                            loadTasks(); 
+                        }, 300);
                     } else {
-                        tg.showAlert("Помилка на сервері! Статус: " + response.status);
+                        tg.showAlert("Помилка на сервері!");
+                        if (cardElement) cardElement.classList.remove('completing'); // Відміняємо анімацію при помилці
                     }
                 } catch (e) {
                     tg.showAlert("Помилка зв'язку з сервером!");
+                    if (cardElement) cardElement.classList.remove('completing');
                 }
             }
         });
