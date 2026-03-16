@@ -339,7 +339,7 @@
         // --- ЛОГІКА РЕЖИМУ "ПАНІКА" ---
         if (overdueCount >= 5) {
             mainHeader.classList.add('panic-mode');
-            userNameText.innerText = "🚨 ПАНІКА!";
+            userNameText.innerText = "🚨 УВАГА!";
             headerSubtitle.innerText = `У тебе горять борги: ${overdueCount} шт. Бігом робити!`;
             tg.HapticFeedback.notificationOccurred('error'); 
         } else {
