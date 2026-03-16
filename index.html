@@ -21,7 +21,10 @@
             padding: 15px;
         }
 
-        .header { text-align: center; margin-bottom: 20px; }
+        /* --- Оновлена шапка --- */
+        .header { text-align: center; margin-bottom: 15px; }
+        .header h3 { margin: 0 0 5px 0; font-size: 20px; }
+        .header p { color: var(--hint-color); font-size: 13px; margin: 0; }
         
         .task-card {
             background: var(--tg-theme-secondary-bg-color, #f4f4f5);
@@ -63,7 +66,6 @@
             font-weight: bold;
         }
 
-        /* --- СТИЛІ ДЛЯ ЗАГОЛОВКІВ ПРЕДМЕТІВ --- */
         .subject-group-title {
             font-size: 13px;
             font-weight: bold;
@@ -75,7 +77,6 @@
             padding-bottom: 5px;
         }
 
-        /* --- СТИЛІ ДЛЯ ВИКОНАНИХ ЗАВДАНЬ --- */
         details {
             margin-top: 25px;
             border-top: 1px solid var(--hint-color);
@@ -118,8 +119,8 @@
 <body>
 
 <div class="header">
-    <h2 id="userName">Привіт!</h2>
-    <p style="color: var(--hint-color)">Твої навчальні завдання</p>
+    <h3 id="userName">Привіт!</h3>
+    <p>Твої навчальні завдання</p>
 </div>
 
 <div id="activeTaskList">
@@ -165,7 +166,6 @@
             return;
         }
 
-        // Бронебійне визначення статусу
         const activeTasks = tasks.filter(t => {
             const isCompleted = t.isCompleted !== undefined ? t.isCompleted : t.IsCompleted;
             return !isCompleted;
@@ -176,14 +176,12 @@
             return isCompleted;
         });
 
-        // Відображаємо активні з групуванням
         if (activeTasks.length === 0) {
             activeList.innerHTML = "<p style='text-align:center;'>Усі активні завдання виконано! 🎉</p>";
         } else {
             renderGroupedTasks(activeTasks, activeList);
         }
 
-        // Відображаємо виконані з групуванням
         if (completedTasks.length > 0) {
             completedSection.style.display = "block";
             completedCount.innerText = completedTasks.length;
@@ -193,11 +191,9 @@
         }
     }
 
-    // Функція групування та сортування
     function renderGroupedTasks(tasksArray, container) {
         const grouped = {};
         
-        // Розподіляємо по предметах
         tasksArray.forEach(task => {
             const subject = task.subject || task.Subject || "Інше";
             if (!grouped[subject]) grouped[subject] = [];
@@ -205,20 +201,17 @@
         });
 
         for (const subject in grouped) {
-            // Сортуємо за дедлайном (найближчі дати зверху)
             grouped[subject].sort((a, b) => {
                 const dateA = new Date(a.deadline || a.Deadline);
                 const dateB = new Date(b.deadline || b.Deadline);
                 return dateA - dateB;
             });
 
-            // Додаємо заголовок предмета
             const subjectHeader = document.createElement('div');
             subjectHeader.className = 'subject-group-title';
             subjectHeader.innerText = subject;
             container.appendChild(subjectHeader);
 
-            // Додаємо картки завдань під предметом
             grouped[subject].forEach(task => {
                 container.appendChild(createTaskCard(task, false)); 
             });
@@ -234,12 +227,16 @@
 
         const now = new Date();
         const deadline = new Date(deadlineStr);
-        const diffDays = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+        
+        // --- ФІКС: ТОЧНА РІЗНИЦЯ В МІЛІСЕКУНДАХ ---
+        const timeDiff = deadline - now;
+        const diffDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
 
         let statusClass = "status-ok";
         let statusText = `Залишилось днів: ${diffDays}`;
 
-        if (diffDays < 0) {
+        // Перевіряємо по мілісекундах: якщо менше 0, значить час вийшов!
+        if (timeDiff < 0) {
             statusClass = "status-overdue";
             statusText = "ПРОТЕРМІНОВАНО!";
         } else if (diffDays <= 2) {
@@ -250,7 +247,6 @@
         const card = document.createElement('div');
         card.className = `task-card ${isCompleted ? 'completed' : ''}`;
         
-        // Показуємо назву предмета в самій картці тільки якщо ми не згрупували їх
         const subjectHtml = showSubject ? `<div class="task-subject">${subject}</div>` : '';
 
         card.innerHTML = `
@@ -294,3 +290,4 @@
 
 </body>
 </html>
+
