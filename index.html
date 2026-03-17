@@ -32,15 +32,14 @@
             padding: 10px;
             border-radius: 12px;
             border: 2px solid transparent;
+            position: relative; 
         }
-        .header h3 { margin: 0 0 5px 0; font-size: 20px; transition: color 0.3s; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .header h3 { margin: 0 0 5px 0; font-size: 20px; transition: color 0.3s; }
         .header p { color: var(--hint-color); font-size: 13px; margin: 0; transition: color 0.3s; }
 
-        .panic-mode {
-            background-color: rgba(229, 57, 53, 0.1);
-            border-color: #e53935;
-            animation: panicPulse 1.5s infinite;
-        }
+        .header-badges { position: absolute; right: 15px; top: 10px; display: flex; gap: 2px; }
+
+        .panic-mode { background-color: rgba(229, 57, 53, 0.1); border-color: #e53935; animation: panicPulse 1.5s infinite; }
         .panic-mode h3, .panic-mode p { color: #e53935 !important; font-weight: bold; }
         @keyframes panicPulse {
             0% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.4); }
@@ -49,18 +48,9 @@
         }
 
         /* --- АЧІВКИ ТА СТАТИСТИКА --- */
-        .stats-card {
-            background: var(--secondary-bg);
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
+        .stats-card { background: var(--secondary-bg); border-radius: 12px; padding: 12px; margin-bottom: 20px; text-align: center; }
         .stats-row { display: flex; justify-content: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
-        .badge {
-            background: rgba(255, 152, 0, 0.15); color: #e65100; padding: 4px 10px;
-            border-radius: 12px; font-size: 12px; font-weight: bold; display: inline-flex; align-items: center; gap: 4px;
-        }
+        .badge { background: rgba(255, 152, 0, 0.15); color: #e65100; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; }
         .badge-blue { background: rgba(36, 129, 204, 0.15); color: var(--button-color); }
         .badge-green { background: rgba(67, 160, 71, 0.15); color: #2e7d32; }
         .badge-red { background: rgba(229, 57, 53, 0.15); color: #c62828; }
@@ -72,13 +62,31 @@
         .progress-track { background: var(--secondary-bg); border-radius: 10px; height: 8px; overflow: hidden; width: 80%; margin: 0 auto; }
         .progress-fill { background: var(--button-color); height: 100%; width: 0%; transition: width 0.8s cubic-bezier(0.25, 0.8, 0.25, 1); border-radius: 10px; }
 
-        /* --- ФІЛЬТРИ --- */
-        .filters { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
+        /* --- ЛИПКІ ФІЛЬТРИ --- */
+        .filters-container {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 10px 0;
+            /* Ефект розмиття як в iOS */
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            margin: 0 -15px 15px -15px;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+        /* Адаптація фону для темної теми Телеграму */
+        @media (prefers-color-scheme: dark) {
+            .filters-container { background: rgba(33, 33, 33, 0.85); }
+        }
+
         .filter-btn {
             background: var(--secondary-bg); color: var(--hint-color); border: none; padding: 8px 16px;
             border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s;
         }
-        .filter-btn.active { background: var(--button-color); color: #ffffff; }
+        .filter-btn.active { background: var(--button-color); color: #ffffff; box-shadow: 0 2px 8px rgba(36, 129, 204, 0.3); }
 
         /* --- СКЕЛЕТНЕ ЗАВАНТАЖЕННЯ --- */
         .skeleton-card { background: var(--secondary-bg); border-radius: 12px; height: 70px; margin-bottom: 12px; animation: pulse 1.5s infinite ease-in-out; opacity: 0.6; }
@@ -87,18 +95,24 @@
         /* --- КАРТКИ ЗАВДАНЬ --- */
         .task-card {
             background: var(--secondary-bg); border-radius: 12px; padding: 15px; margin-bottom: 12px;
-            display: flex; align-items: center; justify-content: space-between; border-left: 5px solid transparent; transition: all 0.3s ease; 
+            display: flex; align-items: center; justify-content: space-between; border-left: 5px solid transparent; 
+            transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04); /* Легка тінь для об'єму */
         }
+        
+        /* Тактильний відгук при натисканні */
+        .task-card:active { transform: scale(0.97); }
+
         .card-overdue { border-left-color: #e53935; }
         .card-soon { border-left-color: #ffa000; }
         .card-ok { border-left-color: #43a047; }
-        .completed { opacity: 0.5; text-decoration: line-through; border-left-color: var(--hint-color); }
+        .completed { opacity: 0.5; text-decoration: line-through; border-left-color: var(--hint-color); box-shadow: none; }
         .completing { opacity: 0 !important; transform: translateX(-30px) scale(0.95); }
 
         .task-info { flex-grow: 1; }
         .task-subject { font-size: 12px; color: var(--hint-color); font-weight: bold; text-transform: uppercase; }
         .task-title { font-size: 16px; margin: 4px 0; }
-        .task-deadline { font-size: 13px; }
+        .task-deadline { font-size: 13px; margin-top: 2px; }
 
         .status-overdue { color: #e53935; font-weight: bold; }
         .status-soon { color: #ffa000; font-weight: bold; }
@@ -124,12 +138,13 @@
         details[open] summary::after { transform: rotate(180deg); }
         .completed-container .task-card { background: transparent; border: 1px solid var(--secondary-bg); filter: grayscale(1); border-left-width: 1px; }
 
-        /* --- КАСТОМНІ МОДАЛКИ --- */
+        /* --- КАСТОМНІ МОДАЛКИ (ВИРІВНЯНИЙ ТОСТ) --- */
         .toast {
             position: fixed; bottom: -80px; left: 50%; transform: translateX(-50%);
             background: #43a047; color: white; padding: 12px 24px; border-radius: 30px;
             font-size: 14px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1000;
+            display: flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; 
         }
         .toast.show { bottom: 30px; }
 
@@ -156,6 +171,7 @@
 <div class="header" id="mainHeader">
     <h3 id="userName">Привіт!</h3>
     <p id="headerSubtitle">Твої навчальні завдання</p>
+    <div id="headerBadges" class="header-badges"></div>
 </div>
 
 <div class="stats-card" id="statsCard" style="display: none;">
@@ -173,7 +189,7 @@
     </div>
 </div>
 
-<div class="filters" id="filtersBlock" style="display: none;">
+<div class="filters-container" id="filtersBlock" style="display: none;">
     <button class="filter-btn active" onclick="applyFilter('all', this)">Всі</button>
     <button class="filter-btn" onclick="applyFilter('overdue', this)">Борги 🟥</button>
     <button class="filter-btn" onclick="applyFilter('soon', this)">Горять 🟨</button>
@@ -190,7 +206,7 @@
     <div id="completedTaskList" class="completed-container"></div>
 </details>
 
-<div id="toast" class="toast">Завдання виконано! 🎉</div>
+<div id="toast" class="toast"><span>Завдання виконано!</span> <span>🎉</span></div>
 
 <div id="confirmModal" class="modal-overlay">
     <div class="modal-content">
@@ -206,6 +222,12 @@
     const tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
+
+    // Якщо застосунок використовується в темній темі, фіксимо фон під фільтрами
+    const tgTheme = window.Telegram.WebApp.colorScheme;
+    if (tgTheme === 'dark') {
+        document.querySelector('.filters-container').style.background = 'rgba(33, 33, 33, 0.85)';
+    }
 
     const API_URL = "https://telegram-proxy-bot-desz.onrender.com/api";
     const userId = tg.initDataUnsafe.user?.id || 1492389359; 
@@ -237,6 +259,19 @@
         renderTasks();
     }
 
+    // Красиве форматування дати
+    function formatBeautifulDate(dateString, diffDays) {
+        const date = new Date(dateString);
+        const options = { day: 'numeric', month: 'long' };
+        const formatted = date.toLocaleDateString('uk-UA', options);
+        
+        if (diffDays < 0) return `До ${formatted} (ПРОТЕРМІНОВАНО!)`;
+        if (diffDays === 0) return `До ${formatted} (Сьогодні!)`;
+        if (diffDays === 1) return `До ${formatted} (Завтра)`;
+        
+        return `До ${formatted} (через ${diffDays} дн.)`;
+    }
+
     function renderTasks() {
         const activeList = document.getElementById('activeTaskList');
         const completedList = document.getElementById('completedTaskList');
@@ -250,6 +285,7 @@
         const mainHeader = document.getElementById('mainHeader');
         const userNameText = document.getElementById('userName');
         const headerSubtitle = document.getElementById('headerSubtitle');
+        const headerBadges = document.getElementById('headerBadges');
 
         const streakBadge = document.getElementById('streakBadge');
         const levelBadge = document.getElementById('levelBadge');
@@ -265,9 +301,9 @@
             completedSection.style.display = "none";
             progressWrapper.style.display = "none";
             
-            // Якщо завдань немає взагалі, просто виводимо ім'я
             let badgesHtml = userId === 1492389359 ? '<span style="font-size: 18px;" title="Адмін">👑</span>' : '';
-            userNameText.innerHTML = `Привіт, ${firstName}! ${badgesHtml}`;
+            userNameText.innerText = `Привіт, ${firstName}!`;
+            headerBadges.innerHTML = badgesHtml;
             return;
         }
 
@@ -278,13 +314,10 @@
         const overdueCount = activeTasks.filter(t => (new Date(t.deadline || t.Deadline) - now) < 0).length;
         const percent = Math.round((completedTasks.length / globalTasks.length) * 100);
 
-        // --- ЛОГІКА АЧІВОК ---
         let badges = [];
         
-        // Адмін
         if (userId === 1492389359) badges.push('<span style="font-size: 18px;" title="Адмін">👑</span>');
 
-        // Броня (Перевірка Вищої математики)
         const mathTasks = globalTasks.filter(t => {
             const subj = (t.subject || t.Subject || "").toLowerCase();
             return subj.includes("вища математика") || subj.includes("математика");
@@ -293,7 +326,6 @@
             badges.push('<span style="font-size: 18px;" title="Броня">🛡️</span>');
         }
 
-        // Рання пташка / В останній вагон
         let hasEarlyBird = false;
         let hasLastWagon = false;
         
@@ -301,22 +333,19 @@
             const deadline = new Date(t.deadline || t.Deadline);
             const diffHours = (deadline - now) / (1000 * 60 * 60);
             
-            if (diffHours > 72) hasEarlyBird = true; // Виконав за 3 дні до зараз
-            if (diffHours > 0 && diffHours < 12) hasLastWagon = true; // Дедлайн сьогодні, але вже закрито
+            if (diffHours > 72) hasEarlyBird = true; 
+            if (diffHours > 0 && diffHours < 12) hasLastWagon = true; 
         });
 
         if (hasEarlyBird) badges.push('<span style="font-size: 18px;" title="Рання пташка">⚡</span>');
         if (hasLastWagon) badges.push('<span style="font-size: 18px;" title="В останній вагон">🏃</span>');
 
-        const badgeHtml = badges.length > 0 ? ` <span style="margin-left: 5px;">${badges.join('')}</span>` : '';
+        headerBadges.innerHTML = badges.join('');
 
-        // --- СТАТИСТИКА (Рівні та Борги) ---
         if (overdueCount === 0) {
-            streakBadge.className = 'badge badge-green';
-            streakBadge.innerHTML = '🔥 Без боргів';
+            streakBadge.className = 'badge badge-green'; streakBadge.innerHTML = '🔥 Без боргів';
         } else {
-            streakBadge.className = 'badge badge-red';
-            streakBadge.innerHTML = `🧊 Боргів: ${overdueCount}`;
+            streakBadge.className = 'badge badge-red'; streakBadge.innerHTML = `🧊 Боргів: ${overdueCount}`;
         }
 
         if (percent === 100) {
@@ -336,15 +365,14 @@
             analyticsText.innerHTML = 'Ти ще не починав. Давай, зроби хоча б одне завдання!';
         }
 
-        // --- РЕЖИМ "УВАГА" (ЗАМІСТЬ ПАНІКИ) ---
         if (overdueCount >= 5) {
             mainHeader.classList.add('panic-mode');
-            userNameText.innerHTML = `🚨 УВАГА!${badgeHtml}`;
+            userNameText.innerText = `🚨 УВАГА!`;
             headerSubtitle.innerText = `У тебе горять борги: ${overdueCount} шт. Бігом робити!`;
             tg.HapticFeedback.notificationOccurred('error'); 
         } else {
             mainHeader.classList.remove('panic-mode');
-            userNameText.innerHTML = `Привіт, ${firstName}!${badgeHtml}`;
+            userNameText.innerText = `Привіт, ${firstName}!`;
             headerSubtitle.innerText = "Твої навчальні завдання";
         }
 
@@ -414,12 +442,16 @@
         const timeDiff = new Date(deadlineStr) - new Date();
         const diffDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
 
-        let statusClass = "status-ok", cardBorderClass = "card-ok", statusText = `Залишилось днів: ${diffDays}`;
+        let statusClass = "status-ok";
+        let cardBorderClass = "card-ok";
+        
+        // Використовуємо нове красиве форматування дати
+        let statusText = formatBeautifulDate(deadlineStr, diffDays);
 
         if (timeDiff < 0) {
-            statusClass = "status-overdue"; cardBorderClass = "card-overdue"; statusText = "ПРОТЕРМІНОВАНО!";
+            statusClass = "status-overdue"; cardBorderClass = "card-overdue";
         } else if (diffDays <= 2) {
-            statusClass = "status-soon"; cardBorderClass = "card-soon"; statusText = `Дедлайн скоро! (${diffDays} дн.)`;
+            statusClass = "status-soon"; cardBorderClass = "card-soon";
         }
 
         const card = document.createElement('div');
@@ -439,7 +471,7 @@
 
     function showToast(message) {
         const toast = document.getElementById('toast');
-        toast.innerText = message;
+        toast.querySelector('span').innerText = message; 
         toast.classList.add('show');
         clearTimeout(toastTimeout);
         toastTimeout = setTimeout(() => toast.classList.remove('show'), 3000);
@@ -472,9 +504,9 @@
             const response = await fetch(`${API_URL}/tasks/${userId}/complete/${taskId}`, { method: 'POST' });
             if (response.ok) {
                 if (!currentState) {
-                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors: ['#43a047', '#2481cc', '#ffa000'] });
-                    showToast("Завдання виконано! 🎉");
-                } else { showToast("Завдання повернуто в роботу"); }
+                    confetti({ particleCount: 100, spread: 80, origin: { y: 0.95, x: 0.5 }, zIndex: 3000, colors: ['#43a047', '#2481cc', '#ffa000'] });
+                    showToast("Завдання виконано!");
+                } else { showToast("Повернуто в роботу"); }
                 setTimeout(() => { loadTasks(); }, 400);
             } else {
                 showToast("❌ Помилка на сервері!");
