@@ -343,7 +343,7 @@
         if (overdueCount >= 5) {
             mainHeader.classList.add('panic-mode');
             userNameText.innerText = `🚨 УВАГА!`;
-            headerSubtitle.innerText = `У тебе горять борги: ${overdueCount} шт. Бігом робити!`;
+            headerSubtitle.innerText = `У тебе купа боргів: ${overdueCount} шт. Бігом робити!`;
             tg.HapticFeedback.notificationOccurred('error'); 
         } else {
             mainHeader.classList.remove('panic-mode');
