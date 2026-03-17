@@ -373,7 +373,7 @@
         if (overdueCount >= 5) {
             mainHeader.classList.add('panic-mode');
             userNameText.innerText = `🚨 УВАГА!`;
-            headerSubtitle.innerText = `У тебе горять борги: ${overdueCount} шт. Бігом робити!`;
+            headerSubtitle.innerText = `У тебе купа боргів: ${overdueCount} шт. Бігом робити!`;
             tg.HapticFeedback.notificationOccurred('error'); 
         } else {
             mainHeader.classList.remove('panic-mode');
@@ -517,7 +517,7 @@
 
         if (isLocked) {
             modal.classList.add('danger');
-            modalText.innerText = "⚠️ ТЕРМІН ЗДАЧІ ВИЙШОВ!\n\nПрийом цієї роботи офіційно закрито. Відмічайте це завдання як виконане ТІЛЬКИ у випадку, якщо ви фактично здали його викладачу до дедлайну (для відновлення бази).";
+            modalText.innerText = "⚠️ ТЕРМІН ЗДАЧІ ВИЙШОВ!\n\nПрийом цієї роботи офіційно закрито. Відмічайте це завдання як виконане ТІЛЬКИ у випадку, якщо ви фактично здали його викладачу до дедлайну";
             confirmBtn.innerText = "Підтвердити здачу";
             cancelBtn.innerText = "Скасувати";
         } else {
