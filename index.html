@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
@@ -64,23 +64,11 @@
 
         /* --- ЛИПКІ ФІЛЬТРИ --- */
         .filters-container {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            padding: 10px 0;
-            /* Ефект розмиття як в iOS */
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            margin: 0 -15px 15px -15px;
-            display: flex;
-            justify-content: center;
-            gap: 8px;
+            position: sticky; top: 0; z-index: 100; padding: 10px 0;
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            margin: 0 -15px 15px -15px; display: flex; justify-content: center; gap: 8px;
         }
-        /* Адаптація фону для темної теми Телеграму */
-        @media (prefers-color-scheme: dark) {
-            .filters-container { background: rgba(33, 33, 33, 0.85); }
-        }
+        @media (prefers-color-scheme: dark) { .filters-container { background: rgba(33, 33, 33, 0.85); } }
 
         .filter-btn {
             background: var(--secondary-bg); color: var(--hint-color); border: none; padding: 8px 16px;
@@ -97,10 +85,8 @@
             background: var(--secondary-bg); border-radius: 12px; padding: 15px; margin-bottom: 12px;
             display: flex; align-items: center; justify-content: space-between; border-left: 5px solid transparent; 
             transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04); /* Легка тінь для об'єму */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04); 
         }
-        
-        /* Тактильний відгук при натисканні */
         .task-card:active { transform: scale(0.97); }
 
         .card-overdue { border-left-color: #e53935; }
@@ -141,9 +127,9 @@
         /* --- КАСТОМНІ МОДАЛКИ (ВИРІВНЯНИЙ ТОСТ) --- */
         .toast {
             position: fixed; bottom: -80px; left: 50%; transform: translateX(-50%);
-            background: #43a047; color: white; padding: 12px 24px; border-radius: 30px;
+            color: white; padding: 12px 24px; border-radius: 30px;
             font-size: 14px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1000;
+            transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.3s ease; z-index: 1000;
             display: flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; 
         }
         .toast.show { bottom: 30px; }
@@ -206,7 +192,7 @@
     <div id="completedTaskList" class="completed-container"></div>
 </details>
 
-<div id="toast" class="toast"><span>Завдання виконано!</span> <span>🎉</span></div>
+<div id="toast" class="toast"></div>
 
 <div id="confirmModal" class="modal-overlay">
     <div class="modal-content">
@@ -223,7 +209,6 @@
     tg.ready();
     tg.expand();
 
-    // Якщо застосунок використовується в темній темі, фіксимо фон під фільтрами
     const tgTheme = window.Telegram.WebApp.colorScheme;
     if (tgTheme === 'dark') {
         document.querySelector('.filters-container').style.background = 'rgba(33, 33, 33, 0.85)';
@@ -257,19 +242,6 @@
         btnElement.classList.add('active');
         tg.HapticFeedback.selectionChanged();
         renderTasks();
-    }
-
-    // Красиве форматування дати
-    function formatBeautifulDate(dateString, diffDays) {
-        const date = new Date(dateString);
-        const options = { day: 'numeric', month: 'long' };
-        const formatted = date.toLocaleDateString('uk-UA', options);
-        
-        if (diffDays < 0) return `До ${formatted} (ПРОТЕРМІНОВАНО!)`;
-        if (diffDays === 0) return `До ${formatted} (Сьогодні!)`;
-        if (diffDays === 1) return `До ${formatted} (Завтра)`;
-        
-        return `До ${formatted} (через ${diffDays} дн.)`;
     }
 
     function renderTasks() {
@@ -315,7 +287,6 @@
         const percent = Math.round((completedTasks.length / globalTasks.length) * 100);
 
         let badges = [];
-        
         if (userId === 1492389359) badges.push('<span style="font-size: 18px;" title="Адмін">👑</span>');
 
         const mathTasks = globalTasks.filter(t => {
@@ -332,7 +303,6 @@
         completedTasks.forEach(t => {
             const deadline = new Date(t.deadline || t.Deadline);
             const diffHours = (deadline - now) / (1000 * 60 * 60);
-            
             if (diffHours > 72) hasEarlyBird = true; 
             if (diffHours > 0 && diffHours < 12) hasLastWagon = true; 
         });
@@ -442,16 +412,22 @@
         const timeDiff = new Date(deadlineStr) - new Date();
         const diffDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
 
+        const dateObj = new Date(deadlineStr);
+        const formattedDate = dateObj.toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' });
+
         let statusClass = "status-ok";
         let cardBorderClass = "card-ok";
         
-        // Використовуємо нове красиве форматування дати
-        let statusText = formatBeautifulDate(deadlineStr, diffDays);
+        let statusText = `Залишилось днів: ${diffDays} (до ${formattedDate})`;
 
         if (timeDiff < 0) {
-            statusClass = "status-overdue"; cardBorderClass = "card-overdue";
+            statusClass = "status-overdue"; 
+            cardBorderClass = "card-overdue";
+            statusText = `ПРОТЕРМІНОВАНО! (${formattedDate})`;
         } else if (diffDays <= 2) {
-            statusClass = "status-soon"; cardBorderClass = "card-soon";
+            statusClass = "status-soon"; 
+            cardBorderClass = "card-soon";
+            statusText = `Дедлайн скоро! (${diffDays} дн.) (до ${formattedDate})`;
         }
 
         const card = document.createElement('div');
@@ -469,9 +445,17 @@
         return card;
     }
 
-    function showToast(message) {
+    // Оновлена функція з динамічним смайлом та кольором
+    function showToast(message, emoji = "🎉", isSad = false) {
         const toast = document.getElementById('toast');
-        toast.querySelector('span').innerText = message; 
+        toast.innerHTML = `<span>${message}</span> <span>${emoji}</span>`;
+        
+        if (isSad) {
+            toast.style.backgroundColor = '#607d8b'; // Сумний сіро-синій колір
+        } else {
+            toast.style.backgroundColor = '#43a047'; // Радісний зелений
+        }
+        
         toast.classList.add('show');
         clearTimeout(toastTimeout);
         toastTimeout = setTimeout(() => toast.classList.remove('show'), 3000);
@@ -505,15 +489,17 @@
             if (response.ok) {
                 if (!currentState) {
                     confetti({ particleCount: 100, spread: 80, origin: { y: 0.95, x: 0.5 }, zIndex: 3000, colors: ['#43a047', '#2481cc', '#ffa000'] });
-                    showToast("Завдання виконано!");
-                } else { showToast("Повернуто в роботу"); }
+                    showToast("Завдання виконано!", "🎉", false);
+                } else { 
+                    showToast("Ееех, знову в роботу...", "😔", true); 
+                }
                 setTimeout(() => { loadTasks(); }, 400);
             } else {
-                showToast("❌ Помилка на сервері!");
+                showToast("Помилка на сервері!", "❌", true);
                 if (cardElement) cardElement.classList.remove('completing');
             }
         } catch (e) {
-            showToast("❌ Помилка зв'язку!");
+            showToast("Помилка зв'язку!", "❌", true);
             if (cardElement) cardElement.classList.remove('completing');
         }
     });
