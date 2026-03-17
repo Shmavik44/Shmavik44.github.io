@@ -20,11 +20,11 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
-            padding: 15px 15px 90px 15px; /* Збільшив відступ знизу для тосту */
+            padding: 15px 15px 90px 15px;
             overflow-x: hidden;
         }
 
-        /* --- ШАПКА ТА РЕЖИМ ПАНІКИ --- */
+        /* --- ШАПКА ТА РЕЖИМ УВАГИ --- */
         .header { 
             text-align: center; 
             margin-bottom: 10px; 
@@ -33,7 +33,7 @@
             border-radius: 12px;
             border: 2px solid transparent;
         }
-        .header h3 { margin: 0 0 5px 0; font-size: 20px; transition: color 0.3s; }
+        .header h3 { margin: 0 0 5px 0; font-size: 20px; transition: color 0.3s; display: flex; align-items: center; justify-content: center; gap: 5px; }
         .header p { color: var(--hint-color); font-size: 13px; margin: 0; transition: color 0.3s; }
 
         .panic-mode {
@@ -56,33 +56,15 @@
             margin-bottom: 20px;
             text-align: center;
         }
-        .stats-row {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 8px;
-            flex-wrap: wrap;
-        }
+        .stats-row { display: flex; justify-content: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
         .badge {
-            background: rgba(255, 152, 0, 0.15);
-            color: #e65100;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
+            background: rgba(255, 152, 0, 0.15); color: #e65100; padding: 4px 10px;
+            border-radius: 12px; font-size: 12px; font-weight: bold; display: inline-flex; align-items: center; gap: 4px;
         }
         .badge-blue { background: rgba(36, 129, 204, 0.15); color: var(--button-color); }
         .badge-green { background: rgba(67, 160, 71, 0.15); color: #2e7d32; }
         .badge-red { background: rgba(229, 57, 53, 0.15); color: #c62828; }
-        
-        .analytics-text {
-            font-size: 12px;
-            color: var(--hint-color);
-            line-height: 1.4;
-        }
+        .analytics-text { font-size: 12px; color: var(--hint-color); line-height: 1.4; }
         
         /* --- ПРОГРЕС-БАР --- */
         .progress-wrapper { margin-bottom: 15px; }
@@ -99,24 +81,18 @@
         .filter-btn.active { background: var(--button-color); color: #ffffff; }
 
         /* --- СКЕЛЕТНЕ ЗАВАНТАЖЕННЯ --- */
-        .skeleton-card {
-            background: var(--secondary-bg); border-radius: 12px; height: 70px; margin-bottom: 12px;
-            animation: pulse 1.5s infinite ease-in-out; opacity: 0.6;
-        }
+        .skeleton-card { background: var(--secondary-bg); border-radius: 12px; height: 70px; margin-bottom: 12px; animation: pulse 1.5s infinite ease-in-out; opacity: 0.6; }
         @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 0.8; } 100% { opacity: 0.4; } }
 
         /* --- КАРТКИ ЗАВДАНЬ --- */
         .task-card {
             background: var(--secondary-bg); border-radius: 12px; padding: 15px; margin-bottom: 12px;
-            display: flex; align-items: center; justify-content: space-between;
-            border-left: 5px solid transparent; transition: all 0.3s ease; 
+            display: flex; align-items: center; justify-content: space-between; border-left: 5px solid transparent; transition: all 0.3s ease; 
         }
-
         .card-overdue { border-left-color: #e53935; }
         .card-soon { border-left-color: #ffa000; }
         .card-ok { border-left-color: #43a047; }
         .completed { opacity: 0.5; text-decoration: line-through; border-left-color: var(--hint-color); }
-
         .completing { opacity: 0 !important; transform: translateX(-30px) scale(0.95); }
 
         .task-info { flex-grow: 1; }
@@ -148,17 +124,14 @@
         details[open] summary::after { transform: rotate(180deg); }
         .completed-container .task-card { background: transparent; border: 1px solid var(--secondary-bg); filter: grayscale(1); border-left-width: 1px; }
 
-        /* --- ВЛАСНІ МОДАЛКИ (ВНИЗУ ЕКРАНА!) --- */
+        /* --- КАСТОМНІ МОДАЛКИ --- */
         .toast {
-            position: fixed; 
-            bottom: -80px; /* Змінено з top на bottom */
-            left: 50%; 
-            transform: translateX(-50%);
+            position: fixed; bottom: -80px; left: 50%; transform: translateX(-50%);
             background: #43a047; color: white; padding: 12px 24px; border-radius: 30px;
             font-size: 14px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1000;
         }
-        .toast.show { bottom: 30px; } /* Виїжджає знизу */
+        .toast.show { bottom: 30px; }
 
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -176,7 +149,6 @@
         .modal-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; }
         .btn-cancel { background: var(--secondary-bg); color: var(--text-color); }
         .btn-confirm { background: var(--button-color); color: #ffffff; }
-
     </style>
 </head>
 <body>
@@ -239,13 +211,11 @@
     const userId = tg.initDataUnsafe.user?.id || 1492389359; 
     const firstName = tg.initDataUnsafe.user?.first_name || 'Студент';
     
-    document.getElementById('userName').innerText = `Привіт, ${firstName}!`;
-
     let globalTasks = [];
     let currentFilter = 'all';
     let pendingTaskId = null;
     let pendingTaskState = null;
-    let toastTimeout; // Таймер для тосту, щоб не зависав!
+    let toastTimeout; 
 
     async function loadTasks() {
         try {
@@ -281,7 +251,6 @@
         const userNameText = document.getElementById('userName');
         const headerSubtitle = document.getElementById('headerSubtitle');
 
-        // Елементи ачівок
         const streakBadge = document.getElementById('streakBadge');
         const levelBadge = document.getElementById('levelBadge');
         const analyticsText = document.getElementById('analyticsText');
@@ -295,6 +264,10 @@
             document.getElementById('statsCard').style.display = "none";
             completedSection.style.display = "none";
             progressWrapper.style.display = "none";
+            
+            // Якщо завдань немає взагалі, просто виводимо ім'я
+            let badgesHtml = userId === 1492389359 ? '<span style="font-size: 18px;" title="Адмін">👑</span>' : '';
+            userNameText.innerHTML = `Привіт, ${firstName}! ${badgesHtml}`;
             return;
         }
 
@@ -305,7 +278,39 @@
         const overdueCount = activeTasks.filter(t => (new Date(t.deadline || t.Deadline) - now) < 0).length;
         const percent = Math.round((completedTasks.length / globalTasks.length) * 100);
 
-        // --- ЛОГІКА АЧІВОК ТА СТАТИСТИКИ ---
+        // --- ЛОГІКА АЧІВОК ---
+        let badges = [];
+        
+        // Адмін
+        if (userId === 1492389359) badges.push('<span style="font-size: 18px;" title="Адмін">👑</span>');
+
+        // Броня (Перевірка Вищої математики)
+        const mathTasks = globalTasks.filter(t => {
+            const subj = (t.subject || t.Subject || "").toLowerCase();
+            return subj.includes("вища математика") || subj.includes("математика");
+        });
+        if (mathTasks.length > 0 && mathTasks.every(t => (t.isCompleted !== undefined ? t.isCompleted : t.IsCompleted))) {
+            badges.push('<span style="font-size: 18px;" title="Броня">🛡️</span>');
+        }
+
+        // Рання пташка / В останній вагон
+        let hasEarlyBird = false;
+        let hasLastWagon = false;
+        
+        completedTasks.forEach(t => {
+            const deadline = new Date(t.deadline || t.Deadline);
+            const diffHours = (deadline - now) / (1000 * 60 * 60);
+            
+            if (diffHours > 72) hasEarlyBird = true; // Виконав за 3 дні до зараз
+            if (diffHours > 0 && diffHours < 12) hasLastWagon = true; // Дедлайн сьогодні, але вже закрито
+        });
+
+        if (hasEarlyBird) badges.push('<span style="font-size: 18px;" title="Рання пташка">⚡</span>');
+        if (hasLastWagon) badges.push('<span style="font-size: 18px;" title="В останній вагон">🏃</span>');
+
+        const badgeHtml = badges.length > 0 ? ` <span style="margin-left: 5px;">${badges.join('')}</span>` : '';
+
+        // --- СТАТИСТИКА (Рівні та Борги) ---
         if (overdueCount === 0) {
             streakBadge.className = 'badge badge-green';
             streakBadge.innerHTML = '🔥 Без боргів';
@@ -315,36 +320,31 @@
         }
 
         if (percent === 100) {
-            levelBadge.innerHTML = '👑 Легенда';
-            levelBadge.className = 'badge badge-green';
+            levelBadge.innerHTML = '👑 Легенда'; levelBadge.className = 'badge badge-green';
             analyticsText.innerHTML = '<b>Ідеально!</b> Ти розніс усі таски. Краще не буває.';
         } else if (percent >= 80) {
-            levelBadge.innerHTML = '🚀 Турбо-студент';
-            levelBadge.className = 'badge badge-blue';
+            levelBadge.innerHTML = '🚀 Турбо-студент'; levelBadge.className = 'badge badge-blue';
             analyticsText.innerHTML = 'Ти йдеш краще за більшість групи! Так тримати.';
         } else if (percent >= 50) {
-            levelBadge.innerHTML = '💪 Стабільний';
-            levelBadge.className = 'badge badge-blue';
+            levelBadge.innerHTML = '💪 Стабільний'; levelBadge.className = 'badge badge-blue';
             analyticsText.innerHTML = 'Більша половина вже закрита. Головне не зупинятись!';
         } else if (percent > 0) {
-            levelBadge.innerHTML = '🐢 Початківець';
-            levelBadge.className = 'badge';
+            levelBadge.innerHTML = '🐢 Початківець'; levelBadge.className = 'badge';
             analyticsText.innerHTML = 'Треба трохи піднажати, щоб не назбирати сніговий ком.';
         } else {
-            levelBadge.innerHTML = '💤 AFK';
-            levelBadge.className = 'badge badge-red';
+            levelBadge.innerHTML = '💤😴'; levelBadge.className = 'badge badge-red';
             analyticsText.innerHTML = 'Ти ще не починав. Давай, зроби хоча б одне завдання!';
         }
 
-        // --- ЛОГІКА РЕЖИМУ "ПАНІКА" ---
+        // --- РЕЖИМ "УВАГА" (ЗАМІСТЬ ПАНІКИ) ---
         if (overdueCount >= 5) {
             mainHeader.classList.add('panic-mode');
-            userNameText.innerText = "🚨 УВАГА!";
+            userNameText.innerHTML = `🚨 УВАГА!${badgeHtml}`;
             headerSubtitle.innerText = `У тебе горять борги: ${overdueCount} шт. Бігом робити!`;
             tg.HapticFeedback.notificationOccurred('error'); 
         } else {
             mainHeader.classList.remove('panic-mode');
-            userNameText.innerText = `Привіт, ${firstName}!`;
+            userNameText.innerHTML = `Привіт, ${firstName}!${badgeHtml}`;
             headerSubtitle.innerText = "Твої навчальні завдання";
         }
 
@@ -437,13 +437,10 @@
         return card;
     }
 
-    // --- ПОКРАЩЕНИЙ ТОСТ (ВНИЗУ, НЕ ЗАВИСАЄ) ---
     function showToast(message) {
         const toast = document.getElementById('toast');
         toast.innerText = message;
         toast.classList.add('show');
-        
-        // Збиваємо старий таймер, якщо швидко натиснули двічі
         clearTimeout(toastTimeout);
         toastTimeout = setTimeout(() => toast.classList.remove('show'), 3000);
     }
@@ -494,4 +491,3 @@
 
 </body>
 </html>
-        
