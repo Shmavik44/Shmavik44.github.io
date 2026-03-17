@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
@@ -26,13 +26,8 @@
 
         /* --- ШАПКА ТА РЕЖИМ УВАГИ --- */
         .header { 
-            text-align: center; 
-            margin-bottom: 10px; 
-            transition: all 0.4s ease;
-            padding: 10px;
-            border-radius: 12px;
-            border: 2px solid transparent;
-            position: relative; 
+            text-align: center; margin-bottom: 10px; transition: all 0.4s ease;
+            padding: 10px; border-radius: 12px; border: 2px solid transparent; position: relative; 
         }
         .header h3 { margin: 0 0 5px 0; font-size: 20px; transition: color 0.3s; }
         .header p { color: var(--hint-color); font-size: 13px; margin: 0; transition: color 0.3s; }
@@ -104,12 +99,17 @@
         .status-soon { color: #ffa000; font-weight: bold; }
         .status-ok { color: #43a047; }
 
+        /* --- ЧЕКБОКС ТА ЗАМОК --- */
         .checkbox {
             width: 24px; height: 24px; border: 2px solid var(--button-color); border-radius: 6px; cursor: pointer;
             display: flex; align-items: center; justify-content: center; margin-left: 15px; min-width: 24px; transition: all 0.2s;
         }
         .checkbox.checked { background: var(--button-color); }
         .checkbox.checked::after { content: "✓"; color: #ffffff; font-weight: bold; }
+        
+        .checkbox.locked {
+            border-color: #e53935; background: rgba(229, 57, 53, 0.1); font-size: 12px;
+        }
 
         .subject-group-title {
             font-size: 13px; font-weight: bold; color: var(--button-color); margin: 20px 0 10px 5px;
@@ -124,7 +124,7 @@
         details[open] summary::after { transform: rotate(180deg); }
         .completed-container .task-card { background: transparent; border: 1px solid var(--secondary-bg); filter: grayscale(1); border-left-width: 1px; }
 
-        /* --- КАСТОМНІ МОДАЛКИ (ВИРІВНЯНИЙ ТОСТ) --- */
+        /* --- КАСТОМНІ МОДАЛКИ --- */
         .toast {
             position: fixed; bottom: -80px; left: 50%; transform: translateX(-50%);
             color: white; padding: 12px 24px; border-radius: 30px;
@@ -142,14 +142,19 @@
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .modal-content {
             background: var(--bg-color); padding: 20px; border-radius: 16px; width: 80%;
-            text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transform: translateY(20px); transition: transform 0.3s;
+            text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transform: translateY(20px); transition: all 0.3s;
         }
         .modal-overlay.active .modal-content { transform: translateY(0); }
-        .modal-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; }
+        .modal-title { font-size: 16px; font-weight: bold; margin-bottom: 15px; white-space: pre-wrap; line-height: 1.4; }
         .modal-buttons { display: flex; gap: 10px; justify-content: center; }
-        .modal-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .modal-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
         .btn-cancel { background: var(--secondary-bg); color: var(--text-color); }
         .btn-confirm { background: var(--button-color); color: #ffffff; }
+
+        /* Стилі для режиму грізного попередження (Замок) */
+        .modal-overlay.danger .modal-content { border: 2px solid #e53935; }
+        .modal-overlay.danger .modal-title { color: #e53935; }
+        .modal-overlay.danger .btn-confirm { background: #e53935; }
     </style>
 </head>
 <body>
@@ -198,7 +203,7 @@
     <div class="modal-content">
         <div class="modal-title" id="modalText">Ти дійсно виконав це завдання?</div>
         <div class="modal-buttons">
-            <button class="modal-btn btn-cancel" onclick="closeModal()">Ще роблю</button>
+            <button class="modal-btn btn-cancel" id="modalCancelBtn" onclick="closeModal()">Ще роблю</button>
             <button class="modal-btn btn-confirm" id="modalConfirmBtn">Так, готово!</button>
         </div>
     </div>
@@ -404,10 +409,17 @@
 
     function createTaskCard(task, showSubject = true) {
         const subject = task.subject || task.Subject;
-        const title = task.title || task.Title;
+        let title = task.title || task.Title;
         const deadlineStr = task.deadline || task.Deadline;
         const isCompleted = task.isCompleted !== undefined ? task.isCompleted : task.IsCompleted;
         const taskId = task.taskId || task.TaskId;
+
+        // Перевіряємо, чи є в назві тег [lock]
+        let isStrict = false;
+        if (title.includes('[lock]')) {
+            isStrict = true;
+            title = title.replace('[lock]', '').trim(); // Приховуємо тег від користувача
+        }
 
         const timeDiff = new Date(deadlineStr) - new Date();
         const diffDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
@@ -415,19 +427,25 @@
         const dateObj = new Date(deadlineStr);
         const formattedDate = dateObj.toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' });
 
-        let statusClass = "status-ok";
-        let cardBorderClass = "card-ok";
-        
+        let statusClass = "status-ok", cardBorderClass = "card-ok";
         let statusText = `Залишилось днів: ${diffDays} (до ${formattedDate})`;
 
+        // Якщо це строге завдання, протерміноване і НЕ виконане - вішаємо замок
+        const isLocked = (timeDiff < 0) && !isCompleted && isStrict;
+
         if (timeDiff < 0) {
-            statusClass = "status-overdue"; 
-            cardBorderClass = "card-overdue";
-            statusText = `ПРОТЕРМІНОВАНО! (${formattedDate})`;
+            statusClass = "status-overdue"; cardBorderClass = "card-overdue";
+            statusText = `ПРОТЕРМІНОВАНО! (до ${formattedDate})`;
         } else if (diffDays <= 2) {
-            statusClass = "status-soon"; 
-            cardBorderClass = "card-soon";
+            statusClass = "status-soon"; cardBorderClass = "card-soon";
             statusText = `Дедлайн скоро! (${diffDays} дн.) (до ${formattedDate})`;
+        }
+
+        let checkboxClass = isCompleted ? 'checked' : '';
+        let checkboxContent = '';
+        if (isLocked) {
+            checkboxClass += ' locked';
+            checkboxContent = '🔒';
         }
 
         const card = document.createElement('div');
@@ -440,20 +458,19 @@
                 <div class="task-title">${title}</div>
                 <div class="task-deadline ${statusClass}">${isCompleted ? 'Виконано' : statusText}</div>
             </div>
-            <div class="checkbox ${isCompleted ? 'checked' : ''}" onclick="openModal(${taskId}, ${isCompleted})"></div>
+            <div class="checkbox ${checkboxClass}" onclick="openModal(${taskId}, ${isCompleted}, ${isLocked})">${checkboxContent}</div>
         `;
         return card;
     }
 
-    // Оновлена функція з динамічним смайлом та кольором
     function showToast(message, emoji = "🎉", isSad = false) {
         const toast = document.getElementById('toast');
         toast.innerHTML = `<span>${message}</span> <span>${emoji}</span>`;
         
         if (isSad) {
-            toast.style.backgroundColor = '#607d8b'; // Сумний сіро-синій колір
+            toast.style.backgroundColor = '#607d8b'; 
         } else {
-            toast.style.backgroundColor = '#43a047'; // Радісний зелений
+            toast.style.backgroundColor = '#43a047'; 
         }
         
         toast.classList.add('show');
@@ -461,13 +478,28 @@
         toastTimeout = setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
-    function openModal(taskId, currentState) {
+    function openModal(taskId, currentState, isLocked = false) {
         pendingTaskId = taskId; pendingTaskState = currentState;
         tg.HapticFeedback.impactOccurred('light');
 
-        document.getElementById('modalText').innerText = currentState ? "Повернути завдання в роботу?" : "Ти дійсно виконав це завдання?";
-        document.getElementById('modalConfirmBtn').innerText = currentState ? "Так, повернути" : "Так, готово!";
-        document.getElementById('confirmModal').classList.add('active');
+        const modal = document.getElementById('confirmModal');
+        const modalText = document.getElementById('modalText');
+        const confirmBtn = document.getElementById('modalConfirmBtn');
+        const cancelBtn = document.getElementById('modalCancelBtn');
+
+        if (isLocked) {
+            modal.classList.add('danger');
+            modalText.innerText = "⚠️ ТЕРМІН ЗДАЧІ ВИЙШОВ!\n\nПрийом цієї роботи офіційно закрито. Ви можете відмітити її як виконану ТІЛЬКИ у випадку, якщо робота була здана викладачу до настання дедлайну (для синхронізації бази даних).";
+            confirmBtn.innerText = "Підтвердити здачу";
+            cancelBtn.innerText = "Скасувати";
+        } else {
+            modal.classList.remove('danger');
+            modalText.innerText = currentState ? "Повернути завдання в роботу?" : "Ти дійсно виконав це завдання?";
+            confirmBtn.innerText = currentState ? "Так, повернути" : "Так, готово!";
+            cancelBtn.innerText = "Ще роблю";
+        }
+
+        modal.classList.add('active');
     }
 
     function closeModal() {
