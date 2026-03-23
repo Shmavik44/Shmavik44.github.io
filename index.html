@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root { --bg-color: var(--tg-theme-bg-color, #ffffff); --text-color: var(--tg-theme-text-color, #222222); --hint-color: var(--tg-theme-hint-color, #999999); --button-color: var(--tg-theme-button-color, #2481cc); --secondary-bg: var(--tg-theme-secondary-bg-color, #f4f4f5); }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 15px 15px 100px 15px; } /* Збільшено відступ знизу для чолки */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 15px 15px 100px 15px; } 
         
         .header { text-align: center; margin-bottom: 10px; padding: 15px 10px; position: relative; border-radius: 12px; background: var(--secondary-bg); }
         .header h3 { margin: 0 0 5px 0; font-size: 20px; }
@@ -19,7 +19,6 @@
         .panic-mode { background-color: rgba(229, 57, 53, 0.1); border: 2px solid #e53935; }
         .panic-mode h3, .panic-mode p { color: #e53935 !important; font-weight: bold; }
         
-        /* СТАТИСТИКА */
         .stats-card { background: var(--secondary-bg); border-radius: 12px; padding: 12px; margin-bottom: 15px; text-align: center; }
         .stats-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
         .badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
@@ -35,7 +34,6 @@
         .progress-track { background: var(--secondary-bg); border-radius: 10px; height: 8px; width: 80%; margin: 0 auto; overflow: hidden; }
         .progress-fill { background: var(--button-color); height: 100%; width: 0%; transition: width 0.8s ease; }
 
-        /* ФІЛЬТРИ ЗАВДАНЬ (Тепер тільки 3 кнопки) */
         .filters-container { position: sticky; top: 0; z-index: 100; padding: 10px 0; background: var(--bg-color); opacity: 0.95; margin: 0 -15px 15px -15px; display: flex; justify-content: center; gap: 6px; flex-wrap: wrap;}
         .filter-btn { background: var(--secondary-bg); color: var(--hint-color); border: none; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer; transition: background 0.2s;}
         .filter-btn.active { background: var(--button-color); color: #ffffff; }
@@ -66,22 +64,9 @@
         summary::-webkit-details-marker { display: none; }
         .completed-container .task-card { background: transparent; border: 1px solid var(--secondary-bg); filter: grayscale(1); border-left-width: 1px; }
 
-        /* НОВЕ НИЖНЄ МЕНЮ (Чолка) */
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            background: var(--bg-color);
-            border-top: 1px solid var(--secondary-bg);
-            display: flex; justify-content: space-around;
-            padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
-            z-index: 4000;
-            box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
-        }
-        .nav-item {
-            display: flex; flex-direction: column; align-items: center;
-            background: none; border: none; width: 25%;
-            color: var(--hint-color); font-size: 11px; font-weight: bold;
-            cursor: pointer; gap: 4px; transition: color 0.2s;
-        }
+        /* НИЖНЄ МЕНЮ */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-color); border-top: 1px solid var(--secondary-bg); display: flex; justify-content: space-around; padding: 8px 0 calc(8px + env(safe-area-inset-bottom)); z-index: 4000; box-shadow: 0 -4px 15px rgba(0,0,0,0.05); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; background: none; border: none; width: 25%; color: var(--hint-color); font-size: 11px; font-weight: bold; cursor: pointer; gap: 4px; transition: color 0.2s; }
         .nav-item.active { color: var(--button-color); }
         .nav-item .icon { font-size: 22px; margin-bottom: 2px; }
 
@@ -184,7 +169,6 @@
                 <a href="https://drive.google.com/drive/folders/1-23dkVNqF_iwxF7kTcWTt5NKgGtHpatl?usp=drive_link" class="lib-link">📁 Google Drive</a>
             </div>
         </details>
-
         <details class="lib-folder">
             <summary>💻 Програмування/ТА</summary>
             <div class="lib-links">
@@ -197,7 +181,6 @@
                 <a href="https://drive.google.com/drive/folders/1ygfMY4tFCtGkx-a0ENohczI4Vv0K_iN5" class="lib-link"> 📁 Google Drive </a>
             </div>
         </details>
-
         <details class="lib-folder">
             <summary>⚡ Фізика</summary>
             <div class="lib-links">
@@ -217,7 +200,6 @@
             </div>
             <div class="coin-balance" id="coinBalance">💰 0</div>
         </div>
-        
         <div id="titlesList"></div>
     </div>
 </div>
@@ -271,9 +253,10 @@
         "12. Скірко Анна", "13. Узун Дмитро", "14. Фулга Іван", "15. Ханчопуло Ольга"
     ];
 
-    let myCoins = parseInt(localStorage.getItem('myCoins')) || 0;
-    let myTitles = JSON.parse(localStorage.getItem('myTitles')) || ['Студент 🤓'];
-    let activeTitle = localStorage.getItem('activeTitle') || 'Студент 🤓';
+    // ДАНІ КОРИСТУВАЧА З СЕРВЕРА
+    let myCoins = 0;
+    let myTitles = ['Студент 🤓'];
+    let activeTitle = 'Студент 🤓';
 
     const availableTitles = [
         { name: "Студент 🤓", price: 0, desc: "Стандартний статус" },
@@ -300,20 +283,15 @@
         }
     }
 
-    // --- РОЗУМНЕ ПЕРЕМИКАННЯ ВКЛАДОК (ЧОЛКА) ---
     function switchTab(tabId, btnElement) {
         tg.HapticFeedback.selectionChanged();
-        
-        // Підсвічуємо обрану кнопку
         document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
         if(btnElement) btnElement.classList.add('active');
 
-        // Закриваємо всі повноекранні вікна
         document.getElementById('libraryModal').classList.remove('active');
         document.getElementById('shopModal').classList.remove('active');
         document.getElementById('adminModal').classList.remove('active');
 
-        // Відкриваємо потрібну
         if (tabId === 'shopModal') openShop(); 
         else if (tabId === 'adminModal') openAdmin();
         else if (tabId !== 'home') document.getElementById(tabId).classList.add('active');
@@ -321,7 +299,6 @@
 
     function closeModal(id) { 
         document.getElementById(id).classList.remove('active'); 
-        // Якщо закрили хрестиком, повертаємо підсвітку на кнопку "Завдання"
         if (['libraryModal', 'shopModal', 'adminModal'].includes(id)) {
             document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
             document.getElementById('navHome').classList.add('active');
@@ -345,16 +322,20 @@
         document.getElementById('shopModal').classList.add('active');
     }
 
-    function buyTitle(name, price) {
+    async function buyTitle(name, price) {
         if (myTitles.includes(name)) {
-            activeTitle = name; localStorage.setItem('activeTitle', name);
-            updateHeaderInfo(); openShop(); tg.HapticFeedback.notificationOccurred('success');
+            // Надіти титул
+            await fetch(`${API_URL}/user/${userId}/title`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'equip', title: name }) });
+            activeTitle = name; updateHeaderInfo(); openShop(); tg.HapticFeedback.notificationOccurred('success');
         } else {
             if (myCoins >= price) {
-                myCoins -= price; myTitles.push(name); activeTitle = name;
-                localStorage.setItem('myCoins', myCoins); localStorage.setItem('myTitles', JSON.stringify(myTitles)); localStorage.setItem('activeTitle', name);
-                updateHeaderInfo(); openShop();
-                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); tg.HapticFeedback.notificationOccurred('success');
+                // Купити титул
+                const res = await fetch(`${API_URL}/user/${userId}/title`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'buy', title: name, price: price }) });
+                if(res.ok) {
+                    myCoins -= price; myTitles.push(name); activeTitle = name;
+                    updateHeaderInfo(); openShop();
+                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); tg.HapticFeedback.notificationOccurred('success');
+                } else showToast("Помилка покупки!");
             } else {
                 tg.showAlert(`Бракує коїнів! Треба ще ${price - myCoins} 🪙.`); tg.HapticFeedback.notificationOccurred('error');
             }
@@ -362,8 +343,18 @@
     }
 
     async function loadData() {
-        updateHeaderInfo();
         try {
+            // 1. Завантажуємо Інфу про гравця (Гроші і Статуси)
+            const userRes = await fetch(`${API_URL}/user/${userId}`);
+            if(userRes.ok) {
+                const userData = await userRes.json();
+                myCoins = userData.coins || 0; 
+                activeTitle = userData.activeTitle || 'Студент 🤓';
+                myTitles = userData.unlockedTitles ? userData.unlockedTitles.split(',') : ['Студент 🤓'];
+            }
+            updateHeaderInfo();
+
+            // 2. Завантажуємо Таски
             const tasksRes = await fetch(`${API_URL}/tasks/${userId}`);
             if (tasksRes.ok) {
                 globalTasks = await tasksRes.json();
@@ -372,6 +363,7 @@
                 renderTasks();
             }
 
+            // 3. Завантажуємо Рейтинг
             const rankRes = await fetch(`${API_URL}/rank/${userId}`);
             if (rankRes.ok) {
                 const rankData = await rankRes.json();
@@ -387,7 +379,6 @@
         }
     }
 
-    // ТЕПЕР ФІЛЬТРИ ТІЛЬКИ ДЛЯ ЗАВДАНЬ
     function applyFilter(filterType, btnElement) {
         currentFilter = filterType;
         document.querySelectorAll('#filtersBlock .filter-btn').forEach(btn => btn.classList.remove('active'));
@@ -416,11 +407,36 @@
             progressWrapper.style.display = "none"; completedSection.style.display = "none"; return;
         }
 
-        let activeTasks = globalTasks.filter(t => !(t.isCompleted !== undefined ? t.isCompleted : t.IsCompleted));
-        const completedTasks = globalTasks.filter(t => (t.isCompleted !== undefined ? t.isCompleted : t.IsCompleted));
+        // АДАПТАЦІЯ ПІД НОВИЙ ФОРМАТ СЕРВЕРА (t.isCompleted)
+        let activeTasks = globalTasks.filter(t => !t.isCompleted);
+        const completedTasks = globalTasks.filter(t => t.isCompleted);
         const percent = Math.round((completedTasks.length / globalTasks.length) * 100);
         const now = new Date();
-        const overdueCount = activeTasks.filter(t => (new Date(t.deadline || t.Deadline) - now) < 0).length;
+        const overdueCount = activeTasks.filter(t => (new Date(t.deadline) - now) < 0).length;
+
+        // --- ЛОГІКА АЧІВОК (ЩИТ І БЛИСКАВКА) ---
+        let badges = [];
+        if (adminIds.includes(userId)) badges.push('<span style="font-size: 18px;" title="Адмін">👑</span>');
+
+        // Перевіряємо броню (Вища математика)
+        const mathTasks = globalTasks.filter(t => (t.subject || "").toLowerCase().includes("математика"));
+        if (mathTasks.length > 0 && mathTasks.every(t => t.isCompleted)) {
+            badges.push('<span style="font-size: 18px;" title="Броня Вишмату">🛡️</span>');
+        }
+
+        // Перевіряємо ранню пташку (Здано за 72+ год до дедлайну)
+        let hasEarlyBird = false;
+        completedTasks.forEach(t => {
+            if (t.completionDate && t.deadline) {
+                const compDate = new Date(t.completionDate);
+                const deadDate = new Date(t.deadline);
+                const diffHours = (deadDate - compDate) / (1000 * 60 * 60);
+                if (diffHours > 72) hasEarlyBird = true;
+            }
+        });
+        if (hasEarlyBird) badges.push('<span style="font-size: 18px;" title="Рання пташка">⚡</span>');
+        
+        document.getElementById('headerBadges').innerHTML = badges.join('');
 
         if (overdueCount === 0) { streakBadge.className = 'badge badge-green'; streakBadge.innerHTML = '🔥 Без боргів'; } 
         else { streakBadge.className = 'badge badge-red'; streakBadge.innerHTML = `🧊 Боргів: ${overdueCount}`; }
@@ -438,8 +454,8 @@
         progressText.innerText = `Мій прогрес: ${completedTasks.length} з ${globalTasks.length} (${percent}%)`;
         setTimeout(() => { progressBar.style.width = `${percent}%`; }, 100);
 
-        if (currentFilter === 'overdue') activeTasks = activeTasks.filter(t => (new Date(t.deadline || t.Deadline) - now) < 0);
-        else if (currentFilter === 'soon') activeTasks = activeTasks.filter(t => { const diffDays = Math.ceil((new Date(t.deadline || t.Deadline) - now) / (1000 * 60 * 60 * 24)); return diffDays >= 0 && diffDays <= 2; });
+        if (currentFilter === 'overdue') activeTasks = activeTasks.filter(t => (new Date(t.deadline) - now) < 0);
+        else if (currentFilter === 'soon') activeTasks = activeTasks.filter(t => { const diffDays = Math.ceil((new Date(t.deadline) - now) / (1000 * 60 * 60 * 24)); return diffDays >= 0 && diffDays <= 2; });
 
         if (activeTasks.length === 0) {
             if (currentFilter === 'overdue') activeList.innerHTML = "<p style='text-align:center;'>У тебе немає боргів! Ти супер! 🚀</p>";
@@ -457,18 +473,17 @@
 
     function renderGroupedTasks(tasksArray, container) {
         const grouped = {};
-        tasksArray.forEach(task => { const subject = task.subject || task.Subject || "Інше"; if (!grouped[subject]) grouped[subject] = []; grouped[subject].push(task); });
+        tasksArray.forEach(task => { const subject = task.subject || "Інше"; if (!grouped[subject]) grouped[subject] = []; grouped[subject].push(task); });
         for (const subject in grouped) {
-            grouped[subject].sort((a, b) => new Date(a.deadline || a.Deadline) - new Date(b.deadline || b.Deadline));
+            grouped[subject].sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
             const subjectHeader = document.createElement('div'); subjectHeader.className = 'subject-group-title'; subjectHeader.innerText = subject; container.appendChild(subjectHeader);
             grouped[subject].forEach(task => { container.appendChild(createTaskCard(task)); });
         }
     }
 
     function createTaskCard(task) {
-        let title = task.title || task.Title; const deadlineStr = task.deadline || task.Deadline;
-        const isCompleted = task.isCompleted !== undefined ? task.isCompleted : task.IsCompleted;
-        const taskId = task.taskId || task.TaskId;
+        let title = task.title; const deadlineStr = task.deadline;
+        const isCompleted = task.isCompleted; const taskId = task.taskId;
         let isStrict = false; if (title.includes('[lock]')) { isStrict = true; title = title.replace('[lock]', '').trim(); }
 
         const timeDiff = new Date(deadlineStr) - new Date();
@@ -487,7 +502,7 @@
         const card = document.createElement('div'); card.id = `task-${taskId}`; card.className = `task-card ${borderClass} ${isCompleted ? 'completed' : ''}`;
         card.innerHTML = `
             <div class="task-info">
-                <div class="task-subject">${task.subject || task.Subject}</div>
+                <div class="task-subject">${task.subject}</div>
                 <div class="task-title">${title}</div>
                 <div class="task-deadline ${statusClass}">${isCompleted ? 'Виконано' : statusText}</div>
             </div>
@@ -531,10 +546,9 @@
             
             if (response.ok) {
                 if (!state) {
-                    myCoins += 10; localStorage.setItem('myCoins', myCoins); updateHeaderInfo();
                     confetti({ particleCount: 100, origin: { y: 0.6 } }); showToast("Виконано! +10 🪙");
                 } else showToast("Повернуто в роботу");
-                setTimeout(loadData, 400);
+                setTimeout(loadData, 400); // Оновлює і таски, і коїни, і титули з сервера
             } else { showToast("Помилка на сервері ❌"); if (cardElement) cardElement.classList.remove('completing'); }
         } catch (e) { showToast("Помилка зв'язку ❌"); if (cardElement) cardElement.classList.remove('completing'); }
     });
@@ -579,10 +593,32 @@
         else { btn.classList.remove('absent'); btn.classList.add('present'); btn.innerText = "🟢 Є"; tg.HapticFeedback.impactOccurred('medium'); }
     }
 
-    function saveAttendance() {
+    // НОВА ФУНКЦІЯ: Відправляє присутність на сервер
+    async function saveAttendance() {
         const subject = document.getElementById('subjectSelect').value;
         if(!subject) { tg.showAlert("Немає предмету для збереження!"); return; }
-        tg.HapticFeedback.notificationOccurred('success'); tg.showAlert(`✅ Журнал з предмету "${subject}" збережено!`); closeModal('adminModal');
+
+        const records = [];
+        document.querySelectorAll('.student-row').forEach(row => {
+            records.push({ 
+                name: row.querySelector('span').innerText, 
+                isPresent: row.querySelector('.toggle-btn').classList.contains('present') 
+            });
+        });
+
+        try {
+            const response = await fetch(`${API_URL}/attendance`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ subject: subject, records: records })
+            });
+
+            if (response.ok) {
+                tg.HapticFeedback.notificationOccurred('success'); 
+                tg.showAlert(`✅ Журнал з предмету "${subject}" збережено в базу!`); 
+                closeModal('adminModal');
+            } else { showToast("Помилка збереження ❌"); }
+        } catch (e) { showToast("Помилка зв'язку ❌"); }
     }
 
     loadData();
