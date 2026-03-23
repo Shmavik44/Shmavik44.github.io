@@ -492,7 +492,7 @@
                 if (!state) {
                     myCoins += 10; localStorage.setItem('myCoins', myCoins); updateHeaderInfo();
                     confetti({ particleCount: 100, origin: { y: 0.6 } }); showToast("Виконано! +10 🪙");
-                } else showToast("Повернуто в роботу");
+                } else showToast("Ехх... знову у роботу");
                 setTimeout(loadData, 400);
             } else { showToast("Помилка на сервері ❌"); if (cardElement) cardElement.classList.remove('completing'); }
         } catch (e) { showToast("Помилка зв'язку ❌"); if (cardElement) cardElement.classList.remove('completing'); }
