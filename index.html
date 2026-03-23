@@ -8,12 +8,14 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         :root { --bg-color: var(--tg-theme-bg-color, #ffffff); --text-color: var(--tg-theme-text-color, #222222); --hint-color: var(--tg-theme-hint-color, #999999); --button-color: var(--tg-theme-button-color, #2481cc); --secondary-bg: var(--tg-theme-secondary-bg-color, #f4f4f5); }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 15px 15px 90px 15px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 15px 15px 100px 15px; } /* Збільшено відступ знизу для чолки */
+        
         .header { text-align: center; margin-bottom: 10px; padding: 15px 10px; position: relative; border-radius: 12px; background: var(--secondary-bg); }
         .header h3 { margin: 0 0 5px 0; font-size: 20px; }
         .header p { color: var(--hint-color); font-size: 13px; margin: 0; }
         .header-badges { position: absolute; right: 15px; top: 10px; display: flex; gap: 2px; }
         .user-title { display: inline-block; background: rgba(255, 152, 0, 0.2); color: #e65100; padding: 3px 8px; border-radius: 8px; font-size: 12px; font-weight: bold; margin-top: 5px; }
+        
         .panic-mode { background-color: rgba(229, 57, 53, 0.1); border: 2px solid #e53935; }
         .panic-mode h3, .panic-mode p { color: #e53935 !important; font-weight: bold; }
         
@@ -33,12 +35,10 @@
         .progress-track { background: var(--secondary-bg); border-radius: 10px; height: 8px; width: 80%; margin: 0 auto; overflow: hidden; }
         .progress-fill { background: var(--button-color); height: 100%; width: 0%; transition: width 0.8s ease; }
 
+        /* ФІЛЬТРИ ЗАВДАНЬ (Тепер тільки 3 кнопки) */
         .filters-container { position: sticky; top: 0; z-index: 100; padding: 10px 0; background: var(--bg-color); opacity: 0.95; margin: 0 -15px 15px -15px; display: flex; justify-content: center; gap: 6px; flex-wrap: wrap;}
-        .filter-btn { background: var(--secondary-bg); color: var(--hint-color); border: none; padding: 8px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; transition: background 0.2s;}
+        .filter-btn { background: var(--secondary-bg); color: var(--hint-color); border: none; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer; transition: background 0.2s;}
         .filter-btn.active { background: var(--button-color); color: #ffffff; }
-        .shop-btn { background: rgba(255, 152, 0, 0.15); color: #e65100; }
-        .lib-btn { background: rgba(76, 175, 80, 0.15); color: #2e7d32; }
-        .admin-btn { background: rgba(156, 39, 176, 0.2); color: #9c27b0; display: none; }
 
         .skeleton-card { background: var(--secondary-bg); border-radius: 12px; height: 70px; margin-bottom: 12px; animation: pulse 1.5s infinite ease-in-out; opacity: 0.6; }
         @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 0.8; } 100% { opacity: 0.4; } }
@@ -66,10 +66,29 @@
         summary::-webkit-details-marker { display: none; }
         .completed-container .task-card { background: transparent; border: 1px solid var(--secondary-bg); filter: grayscale(1); border-left-width: 1px; }
 
+        /* НОВЕ НИЖНЄ МЕНЮ (Чолка) */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--bg-color);
+            border-top: 1px solid var(--secondary-bg);
+            display: flex; justify-content: space-around;
+            padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+            z-index: 4000;
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center;
+            background: none; border: none; width: 25%;
+            color: var(--hint-color); font-size: 11px; font-weight: bold;
+            cursor: pointer; gap: 4px; transition: color 0.2s;
+        }
+        .nav-item.active { color: var(--button-color); }
+        .nav-item .icon { font-size: 22px; margin-bottom: 2px; }
+
         /* Модалки */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 2000; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-content { background: var(--bg-color); padding: 20px; border-radius: 20px 20px 0 0; width: 100%; max-height: 85vh; overflow-y: auto; transform: translateY(100%); transition: transform 0.3s; box-sizing: border-box; }
+        .modal-content { background: var(--bg-color); padding: 20px; padding-bottom: 80px; border-radius: 20px 20px 0 0; width: 100%; max-height: 85vh; overflow-y: auto; transform: translateY(100%); transition: transform 0.3s; box-sizing: border-box; }
         .modal-overlay.active .modal-content { transform: translateY(0); }
         .modal-close { position: absolute; right: 20px; top: 20px; font-size: 24px; color: var(--hint-color); background: none; border: none; cursor: pointer; }
         .modal-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; color: var(--text-color); white-space: pre-wrap;}
@@ -89,8 +108,8 @@
         .lib-links { padding: 10px 15px; display: flex; flex-direction: column; gap: 10px; }
         .lib-link { display: flex; align-items: center; gap: 10px; color: var(--button-color); text-decoration: none; font-size: 14px; font-weight: bold; padding: 8px; border-radius: 8px; background: var(--bg-color); }
         
-        .toast { position: fixed; bottom: -80px; left: 50%; transform: translateX(-50%); color: white; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: bold; transition: bottom 0.4s ease; z-index: 3000; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
-        .toast.show { bottom: 30px; }
+        .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); color: white; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: bold; transition: bottom 0.4s ease; z-index: 5000; display: flex; align-items: center; gap: 6px; white-space: nowrap; opacity: 0;}
+        .toast.show { bottom: 100px; opacity: 1;}
 
         select.admin-select { width: 100%; padding: 10px; border-radius: 8px; background: var(--bg-color); color: var(--text-color); border: 1px solid var(--secondary-bg); margin-bottom: 15px; font-size: 16px; outline: none; }
         .student-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--secondary-bg); }
@@ -125,9 +144,7 @@
 <div class="filters-container" id="filtersBlock" style="display: none;">
     <button class="filter-btn active" onclick="applyFilter('all', this)">Всі</button>
     <button class="filter-btn" onclick="applyFilter('overdue', this)">Борги</button>
-    <button class="filter-btn lib-btn" onclick="openModal('libraryModal')">📚 Довідка</button>
-    <button class="filter-btn shop-btn" onclick="openShop()">🏷️ Магаз</button>
-    <button class="filter-btn admin-btn" id="adminBtn" onclick="openAdmin()">👑 Адмінка</button>
+    <button class="filter-btn" onclick="applyFilter('soon', this)">Горять</button>
 </div>
 
 <div id="activeTaskList">
@@ -139,6 +156,21 @@
     <summary>Виконані завдання (<span id="completedCount">0</span>)</summary>
     <div id="completedTaskList" class="completed-container"></div>
 </details>
+
+<div class="bottom-nav">
+    <button class="nav-item active" id="navHome" onclick="switchTab('home', this)">
+        <span class="icon">📋</span>Завдання
+    </button>
+    <button class="nav-item" id="navLib" onclick="switchTab('libraryModal', this)">
+        <span class="icon">📚</span>Довідка
+    </button>
+    <button class="nav-item" id="navShop" onclick="switchTab('shopModal', this)">
+        <span class="icon">🏷️</span>Магаз
+    </button>
+    <button class="nav-item" id="navAdminBtn" onclick="switchTab('adminModal', this)" style="display: none;">
+        <span class="icon">👑</span>Адмінка
+    </button>
+</div>
 
 <div id="libraryModal" class="modal-overlay">
     <div class="modal-content">
@@ -205,7 +237,7 @@
 </div>
 
 <div id="confirmModal" class="modal-overlay" style="align-items: center;">
-    <div class="modal-content" style="border-radius: 16px; width: 80%; transform: translateY(20px);">
+    <div class="modal-content" style="border-radius: 16px; width: 80%; transform: translateY(20px); padding-bottom: 20px;">
         <div class="modal-title" id="modalText" style="text-align: center;">Ти дійсно виконав це завдання?</div>
         <div style="display: flex; gap: 10px;">
             <button id="modalCancelBtn" class="filter-btn" style="flex:1; background: var(--secondary-bg); font-size: 14px;" onclick="closeModal('confirmModal')">Ще роблю</button>
@@ -220,13 +252,12 @@
     const tg = window.Telegram.WebApp;
     tg.ready(); tg.expand();
 
-    // СТАРІ НАДІЙНІ ПОСИЛАННЯ (Без криптографії)
     const API_URL = "https://telegram-proxy-bot-desz.onrender.com/api";
     const userId = tg.initDataUnsafe.user?.id || 1492389359; 
     const firstName = tg.initDataUnsafe.user?.first_name || 'Студент';
     
     const adminIds = [1492389359, 1654156923]; 
-    if (adminIds.includes(userId)) { document.getElementById('adminBtn').style.display = 'inline-block'; }
+    if (adminIds.includes(userId)) { document.getElementById('navAdminBtn').style.display = 'flex'; }
 
     let globalTasks = [];
     let currentFilter = 'all';
@@ -240,7 +271,6 @@
         "12. Скірко Анна", "13. Узун Дмитро", "14. Фулга Іван", "15. Ханчопуло Ольга"
     ];
 
-    // --- ЕКОНОМІКА ТА ТИТУЛИ ---
     let myCoins = parseInt(localStorage.getItem('myCoins')) || 0;
     let myTitles = JSON.parse(localStorage.getItem('myTitles')) || ['Студент 🤓'];
     let activeTitle = localStorage.getItem('activeTitle') || 'Студент 🤓';
@@ -270,6 +300,34 @@
         }
     }
 
+    // --- РОЗУМНЕ ПЕРЕМИКАННЯ ВКЛАДОК (ЧОЛКА) ---
+    function switchTab(tabId, btnElement) {
+        tg.HapticFeedback.selectionChanged();
+        
+        // Підсвічуємо обрану кнопку
+        document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+        if(btnElement) btnElement.classList.add('active');
+
+        // Закриваємо всі повноекранні вікна
+        document.getElementById('libraryModal').classList.remove('active');
+        document.getElementById('shopModal').classList.remove('active');
+        document.getElementById('adminModal').classList.remove('active');
+
+        // Відкриваємо потрібну
+        if (tabId === 'shopModal') openShop(); 
+        else if (tabId === 'adminModal') openAdmin();
+        else if (tabId !== 'home') document.getElementById(tabId).classList.add('active');
+    }
+
+    function closeModal(id) { 
+        document.getElementById(id).classList.remove('active'); 
+        // Якщо закрили хрестиком, повертаємо підсвітку на кнопку "Завдання"
+        if (['libraryModal', 'shopModal', 'adminModal'].includes(id)) {
+            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('navHome').classList.add('active');
+        }
+    }
+
     function openShop() {
         const list = document.getElementById('titlesList');
         list.innerHTML = "";
@@ -282,14 +340,9 @@
             if (isActive) btnHtml = `<button class="buy-btn active-title">Вибрано ✅</button>`;
             else if (isOwned) btnHtml = `<button class="buy-btn owned" onclick="buyTitle('${t.name}', 0)">Надіти</button>`;
 
-            list.innerHTML += `
-                <div class="shop-item">
-                    <div class="shop-info"><h4>${t.name}</h4><p>${t.desc}</p></div>
-                    ${btnHtml}
-                </div>
-            `;
+            list.innerHTML += `<div class="shop-item"><div class="shop-info"><h4>${t.name}</h4><p>${t.desc}</p></div>${btnHtml}</div>`;
         });
-        openModal('shopModal');
+        document.getElementById('shopModal').classList.add('active');
     }
 
     function buyTitle(name, price) {
@@ -308,7 +361,6 @@
         }
     }
 
-    // --- ЗАВАНТАЖЕННЯ ДАНИХ ---
     async function loadData() {
         updateHeaderInfo();
         try {
@@ -335,18 +387,15 @@
         }
     }
 
+    // ТЕПЕР ФІЛЬТРИ ТІЛЬКИ ДЛЯ ЗАВДАНЬ
     function applyFilter(filterType, btnElement) {
         currentFilter = filterType;
-        document.querySelectorAll('#filtersBlock .filter-btn').forEach(btn => { 
-            if (!btn.classList.contains('lib-btn') && !btn.classList.contains('shop-btn') && !btn.classList.contains('admin-btn')) 
-                btn.classList.remove('active');
-        });
+        document.querySelectorAll('#filtersBlock .filter-btn').forEach(btn => btn.classList.remove('active'));
         btnElement.classList.add('active');
         tg.HapticFeedback.selectionChanged();
         renderTasks();
     }
 
-    // --- ВІДОБРАЖЕННЯ ЗАВДАНЬ ТА СТАТИСТИКИ ---
     function renderTasks() {
         const activeList = document.getElementById('activeTaskList');
         const completedList = document.getElementById('completedTaskList');
@@ -364,8 +413,7 @@
 
         if (globalTasks.length === 0) {
             activeList.innerHTML = "<p style='text-align:center;'>Завдань немає. Відпочивай! 🎉</p>";
-            progressWrapper.style.display = "none"; completedSection.style.display = "none";
-            return;
+            progressWrapper.style.display = "none"; completedSection.style.display = "none"; return;
         }
 
         let activeTasks = globalTasks.filter(t => !(t.isCompleted !== undefined ? t.isCompleted : t.IsCompleted));
@@ -374,7 +422,6 @@
         const now = new Date();
         const overdueCount = activeTasks.filter(t => (new Date(t.deadline || t.Deadline) - now) < 0).length;
 
-        // Оновлюємо статистику (Борги і Статус)
         if (overdueCount === 0) { streakBadge.className = 'badge badge-green'; streakBadge.innerHTML = '🔥 Без боргів'; } 
         else { streakBadge.className = 'badge badge-red'; streakBadge.innerHTML = `🧊 Боргів: ${overdueCount}`; }
 
@@ -413,8 +460,7 @@
         tasksArray.forEach(task => { const subject = task.subject || task.Subject || "Інше"; if (!grouped[subject]) grouped[subject] = []; grouped[subject].push(task); });
         for (const subject in grouped) {
             grouped[subject].sort((a, b) => new Date(a.deadline || a.Deadline) - new Date(b.deadline || b.Deadline));
-            const subjectHeader = document.createElement('div'); subjectHeader.className = 'subject-group-title'; subjectHeader.innerText = subject;
-            container.appendChild(subjectHeader);
+            const subjectHeader = document.createElement('div'); subjectHeader.className = 'subject-group-title'; subjectHeader.innerText = subject; container.appendChild(subjectHeader);
             grouped[subject].forEach(task => { container.appendChild(createTaskCard(task)); });
         }
     }
@@ -450,12 +496,15 @@
         return card;
     }
 
+    function showToast(msg) {
+        const t = document.getElementById('toast'); t.innerHTML = `<span>${msg}</span>`; t.style.background = '#43a047';
+        t.classList.add('show'); clearTimeout(toastTimeout); toastTimeout = setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
     function openModal(modalId, taskId = null, state = null, isLocked = false) {
         if (modalId === 'confirmModal') {
             pendingTaskId = taskId; pendingTaskState = state;
-            const text = document.getElementById('modalText');
-            const btn = document.getElementById('modalConfirmBtn');
-            const cancel = document.getElementById('modalCancelBtn');
+            const text = document.getElementById('modalText'); const btn = document.getElementById('modalConfirmBtn'); const cancel = document.getElementById('modalCancelBtn');
             tg.HapticFeedback.impactOccurred('light');
 
             if(isLocked) {
@@ -469,14 +518,6 @@
         document.getElementById(modalId).classList.add('active');
     }
 
-    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-    function showToast(msg) {
-        const t = document.getElementById('toast'); t.innerHTML = `<span>${msg}</span>`; t.style.background = '#43a047';
-        t.classList.add('show'); clearTimeout(toastTimeout); toastTimeout = setTimeout(() => t.classList.remove('show'), 3000);
-    }
-
-    // --- КНОПКА ПІДТВЕРДЖЕННЯ ВИКОНАННЯ ---
     document.getElementById('modalConfirmBtn').addEventListener('click', async () => {
         if (!pendingTaskId) return;
         const taskId = pendingTaskId, state = pendingTaskState; closeModal('confirmModal');
@@ -492,13 +533,12 @@
                 if (!state) {
                     myCoins += 10; localStorage.setItem('myCoins', myCoins); updateHeaderInfo();
                     confetti({ particleCount: 100, origin: { y: 0.6 } }); showToast("Виконано! +10 🪙");
-                } else showToast("Ехх... знову у роботу");
+                } else showToast("Повернуто в роботу");
                 setTimeout(loadData, 400);
             } else { showToast("Помилка на сервері ❌"); if (cardElement) cardElement.classList.remove('completing'); }
         } catch (e) { showToast("Помилка зв'язку ❌"); if (cardElement) cardElement.classList.remove('completing'); }
     });
 
-    // --- ЛОГІКА АДМІНКИ ---
     function getTodaysSubjects() {
         const semesterStart = new Date('2026-03-02T00:00:00'); const now = new Date();
         const diffDays = Math.floor((now - semesterStart) / (1000 * 60 * 60 * 24));
@@ -531,7 +571,7 @@
         groupList.forEach((student) => {
             listHtml.innerHTML += `<div class="student-row"><span style="font-weight: bold;">${student}</span><button class="toggle-btn present" onclick="toggleAttendance(this)">🟢 Є</button></div>`;
         });
-        openModal('adminModal'); 
+        document.getElementById('adminModal').classList.add('active'); 
     }
 
     function toggleAttendance(btn) {
