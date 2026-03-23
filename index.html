@@ -42,6 +42,9 @@
         .lib-btn { background: rgba(76, 175, 80, 0.15); color: #2e7d32; }
         .admin-btn { background: rgba(156, 39, 176, 0.2); color: #9c27b0; display: none; }
 
+        .skeleton-card { background: var(--secondary-bg); border-radius: 12px; height: 70px; margin-bottom: 12px; animation: pulse 1.5s infinite ease-in-out; opacity: 0.6; }
+        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 0.8; } 100% { opacity: 0.4; } }
+
         .task-card { background: var(--secondary-bg); border-radius: 12px; padding: 15px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid transparent; transition: transform 0.2s, opacity 0.2s; }
         .card-overdue { border-left-color: #e53935; } .card-soon { border-left-color: #ffa000; } .card-ok { border-left-color: #43a047; }
         .completed { opacity: 0.5; text-decoration: line-through; border-left-color: var(--hint-color); }
@@ -128,7 +131,8 @@
 </div>
 
 <div id="activeTaskList">
-    <p style="text-align: center;">Завантаження...</p>
+    <div class="skeleton-card"></div>
+    <div class="skeleton-card"></div>
 </div>
 
 <details id="completedSection" style="display: none;">
@@ -198,8 +202,8 @@
     <div class="modal-content" style="border-radius: 16px; width: 80%; transform: translateY(20px);">
         <div class="modal-title" id="modalText" style="text-align: center;">Ти дійсно виконав це завдання?</div>
         <div style="display: flex; gap: 10px;">
-            <button class="filter-btn" style="flex:1; background: var(--secondary-bg); font-size: 14px;" onclick="closeModal('confirmModal')">Ще роблю</button>
-            <button class="filter-btn" style="flex:1; background: var(--button-color); color: white; border: none; font-size: 14px;" id="modalConfirmBtn">Так, готово!</button>
+            <button id="modalCancelBtn" class="filter-btn" style="flex:1; background: var(--secondary-bg); font-size: 14px;" onclick="closeModal('confirmModal')">Ще роблю</button>
+            <button id="modalConfirmBtn" class="filter-btn" style="flex:1; background: var(--button-color); color: white; border: none; font-size: 14px;">Так, готово!</button>
         </div>
     </div>
 </div>
@@ -210,7 +214,7 @@
     const tg = window.Telegram.WebApp;
     tg.ready(); tg.expand();
 
-    // СТАРІ БЕЗПЕЧНІ ПОСИЛАННЯ (Для сумісності з сервером)
+    // СТАРІ НАДІЙНІ ПОСИЛАННЯ
     const API_URL = "https://telegram-proxy-bot-desz.onrender.com/api";
     const userId = tg.initDataUnsafe.user?.id || 1492389359; 
     const firstName = tg.initDataUnsafe.user?.first_name || 'Студент';
@@ -342,7 +346,7 @@
         renderTasks();
     }
 
-    // --- ВІДОБРАЖЕННЯ ЗАВДАНЬ (ПОВНЕ) ---
+    // --- ВІДОБРАЖЕННЯ ЗАВДАНЬ ---
     function renderTasks() {
         const activeList = document.getElementById('activeTaskList');
         const completedList = document.getElementById('completedTaskList');
@@ -474,6 +478,7 @@
         t.classList.add('show'); clearTimeout(toastTimeout); toastTimeout = setTimeout(() => t.classList.remove('show'), 3000);
     }
 
+    // --- ОБРОБКА КНОПКИ ПІДТВЕРДЖЕННЯ ---
     document.getElementById('modalConfirmBtn').addEventListener('click', async () => {
         if (!pendingTaskId) return;
         const taskId = pendingTaskId, state = pendingTaskState; 
@@ -484,7 +489,6 @@
         if (cardElement) cardElement.classList.add('completing');
 
         try {
-            // ПОВНІСТЮ РОБОЧИЙ ЗАПИТ БЕЗ КРИПТОГРАФІЇ
             const response = await fetch(`${API_URL}/tasks/${userId}/complete/${taskId}`, { method: 'POST' });
             
             if (response.ok) {
