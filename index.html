@@ -57,7 +57,6 @@
         .task-title { font-size: 16px; margin: 4px 0; color: var(--text-color); }
         .task-deadline { font-size: 13px; margin-top: 2px; }
         
-        /* ПОВЕРНУВ ЗЕЛЕНИЙ КОЛІР ДЛЯ ТЕКСТУ */
         .status-overdue { color: #e53935; font-weight: bold; } 
         .status-soon { color: #ffa000; font-weight: bold; } 
         .status-ok { color: #43a047; } 
@@ -109,7 +108,7 @@
 <div class="stats-card" id="statsCard" style="display: none;">
     <div class="stats-row">
         <span id="streakBadge" class="badge badge-green">🔥 Без боргів</span>
-         <span id="levelBadge" class="badge badge-blue">🤓 Студент</span>
+        <span id="levelBadge" class="badge badge-blue">🤓 Студент</span>
         <span id="rankBadge" class="badge badge-blue">🏆 Завантаження...</span>
     </div>
     <div class="analytics-text" id="analyticsText">Аналізуємо твої успіхи...</div>
@@ -182,7 +181,6 @@
     let pendingTaskId = null; let pendingTaskState = null;
     let toastTimeout;
 
-    // СПИСОК ГРУПИ ДЛЯ АДМІНКИ
     const groupList = [
         "1. Базунов Дмитро", "2. Волков Микола", "3. Гриценко Микола", "4. Жук Тимофій", "5. Калашник Даниїл",
         "6. Клименко Іван", "8. Мартиненко Валерій", "9. Постернак Роман", "10. Притула Дмитро",
@@ -191,11 +189,8 @@
 
     async function loadData() {
         try {
-            // 🔒 ВИКОРИСТОВУЄМО ЗАХИЩЕНІ ЗАПИТИ ДО C# СЕРВЕРА
-            const headers = { 'Authorization': 'tma ' + tg.initData };
-            
-            // 1. Завантажуємо завдання
-            const tasksRes = await fetch(`${API_URL}/tasks`, { headers });
+            // Використовуємо старі безвідмовні посилання, які точно працюють з поточним бекендом!
+            const tasksRes = await fetch(`${API_URL}/tasks/${userId}`);
             if (tasksRes.ok) {
                 globalTasks = await tasksRes.json();
                 document.getElementById('filtersBlock').style.display = "flex";
@@ -203,7 +198,6 @@
                 renderTasks();
             }
 
-            // 2. Завантажуємо рейтинг
             const rankRes = await fetch(`${API_URL}/rank/${userId}`);
             if (rankRes.ok) {
                 const rankData = await rankRes.json();
@@ -212,7 +206,7 @@
                 document.getElementById('rankBadge').innerText = `${medal} ${rankData.rank} місце з ${rankData.total}`;
             }
         } catch (e) {
-            document.getElementById('activeTaskList').innerHTML = "<p style='text-align:center;'>Не вдалося завантажити дані 🔒</p>";
+            document.getElementById('activeTaskList').innerHTML = "<p style='text-align:center;'>Не вдалося завантажити дані ❌</p>";
         }
     }
 
@@ -224,7 +218,6 @@
         renderTasks();
     }
 
-    // --- ЛОГІКА РОЗКЛАДУ ДЛЯ АДМІНКИ ---
     function getTodaysSubjects() {
         const semesterStart = new Date('2026-03-02T00:00:00');
         const now = new Date();
@@ -232,7 +225,7 @@
         if (diffDays < 0) return [];
 
         const weekType = Math.floor(diffDays / 7) % 2 === 0 ? 1 : 2;
-        const day = now.getDay(); // 1 = Пн, 5 = Пт
+        const day = now.getDay(); 
 
         if (weekType === 1) {
             if (day === 1) return ["Основи здоров'я", "Українська мова", "Фізика"];
@@ -293,7 +286,6 @@
 
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-    // --- ПОВНІСТЮ ВІДНОВЛЕНЕ ВІДОБРАЖЕННЯ ЗАВДАНЬ, БОРГІВ ТА СТАТИСТИКИ ---
     function renderTasks() {
         const activeList = document.getElementById('activeTaskList');
         const completedList = document.getElementById('completedTaskList');
@@ -329,7 +321,6 @@
             return;
         }
 
-        // РАХУЄМО ВСЕ ПРАВИЛЬНО
         let activeTasks = globalTasks.filter(t => !(t.isCompleted !== undefined ? t.isCompleted : t.IsCompleted));
         const completedTasks = globalTasks.filter(t => (t.isCompleted !== undefined ? t.isCompleted : t.IsCompleted));
 
@@ -337,7 +328,6 @@
         const overdueCount = activeTasks.filter(t => (new Date(t.deadline || t.Deadline) - now) < 0).length;
         const percent = Math.round((completedTasks.length / globalTasks.length) * 100);
 
-        // --- ЛОГІКА АЧІВОК ---
         let badges = [];
         if (adminIds.includes(userId)) badges.push('<span style="font-size: 18px;" title="Адмін">👑</span>');
 
@@ -360,7 +350,6 @@
         if (hasLastWagon) badges.push('<span style="font-size: 18px;" title="В останній вагон">🏃</span>');
         headerBadges.innerHTML = badges.join('');
 
-        // --- ВІДНОВЛЕНА ЛОГІКА БОРГІВ ТА РІВНІВ ---
         if (overdueCount === 0) {
             streakBadge.className = 'badge badge-green'; streakBadge.innerHTML = '🔥 Без боргів';
         } else {
@@ -384,7 +373,6 @@
             analyticsText.innerHTML = 'Ти ще не починав. Давай, зроби хоча б одне завдання!';
         }
 
-        // --- ПАНІКА ---
         if (overdueCount >= 5) {
             mainHeader.classList.add('panic-mode'); userNameText.innerText = `🚨 УВАГА!`;
             headerSubtitle.innerText = `У тебе горять борги: ${overdueCount} шт. Бігом робити!`; tg.HapticFeedback.notificationOccurred('error'); 
@@ -397,7 +385,6 @@
         progressText.innerText = `Мій прогрес: ${completedTasks.length} з ${globalTasks.length} (${percent}%)`;
         setTimeout(() => { progressBar.style.width = `${percent}%`; }, 100);
 
-        // Фільтрація
         if (currentFilter === 'overdue') activeTasks = activeTasks.filter(t => (new Date(t.deadline || t.Deadline) - now) < 0);
         else if (currentFilter === 'soon') activeTasks = activeTasks.filter(t => {
             const diffDays = Math.ceil((new Date(t.deadline || t.Deadline) - now) / (1000 * 60 * 60 * 24));
@@ -412,7 +399,6 @@
             renderGroupedTasks(activeTasks, activeList);
         }
 
-        // ВІДНОВЛЕНЕ МАЛЮВАННЯ ВИКОНАНИХ ЗАВДАНЬ
         if (completedTasks.length > 0) {
             completedSection.style.display = "block";
             completedCount.innerText = completedTasks.length;
@@ -507,16 +493,15 @@
         if (cardElement) cardElement.classList.add('completing');
 
         try {
-            // 🔒 ЗАХИЩЕНИЙ ЗАПИТ
-            const response = await fetch(`${API_URL}/tasks/complete/${taskId}`, { 
-                method: 'POST', headers: { 'Authorization': 'tma ' + tg.initData }
-            });
+            // ТУТ ТАКОЖ ПОВЕРНУТО СТАРЕ НАДІЙНЕ ПОСИЛАННЯ
+            const response = await fetch(`${API_URL}/tasks/${userId}/complete/${taskId}`, { method: 'POST' });
+            
             if (response.ok) {
                 if (!state) {
                     confetti({ particleCount: 100, origin: { y: 0.6 } });
                     showToast("Завдання виконано!", "🎉", false);
                 } else showToast("Ееех, знову в роботу...", "😔", true);
-                setTimeout(loadData, 400); // Оновлюємо таски і рейтинг
+                setTimeout(loadData, 400);
             } else { showToast("Помилка на сервері", "❌", true); if (cardElement) cardElement.classList.remove('completing'); }
         } catch (e) { showToast("Помилка зв'язку", "❌", true); if (cardElement) cardElement.classList.remove('completing'); }
     });
