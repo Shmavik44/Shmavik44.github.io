@@ -189,7 +189,7 @@
 
     async function loadData() {
         try {
-            // Використовуємо старі безвідмовні посилання, які точно працюють з поточним бекендом!
+            // Використовуємо старі безвідмовні посилання!
             const tasksRes = await fetch(`${API_URL}/tasks/${userId}`);
             if (tasksRes.ok) {
                 globalTasks = await tasksRes.json();
@@ -201,9 +201,15 @@
             const rankRes = await fetch(`${API_URL}/rank/${userId}`);
             if (rankRes.ok) {
                 const rankData = await rankRes.json();
-                let medal = "🏆";
-                if(rankData.rank === 1) medal = "🥇"; else if(rankData.rank === 2) medal = "🥈"; else if(rankData.rank === 3) medal = "🥉";
-                document.getElementById('rankBadge').innerText = `${medal} ${rankData.rank} місце з ${rankData.total}`;
+                let rankText = "";
+                
+                // НОВА ЛОГІКА РЕЙТИНГУ
+                if (rankData.rank === 1) rankText = "🥇 1 місце";
+                else if (rankData.rank === 2) rankText = "🥈 2 місце";
+                else if (rankData.rank === 3) rankText = "🥉 3 місце";
+                else rankText = `👤 ${rankData.rank}/${rankData.total} місце`;
+
+                document.getElementById('rankBadge').innerText = rankText;
             }
         } catch (e) {
             document.getElementById('activeTaskList').innerHTML = "<p style='text-align:center;'>Не вдалося завантажити дані ❌</p>";
