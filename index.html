@@ -189,21 +189,25 @@
 
     async function loadData() {
         try {
-            // Використовуємо старі безвідмовні посилання!
-            const tasksRes = await fetch(`${API_URL}/tasks/${userId}`);
-            if (tasksRes.ok) {
-                globalTasks = await tasksRes.json();
-                document.getElementById('filtersBlock').style.display = "flex";
-                document.getElementById('statsCard').style.display = "block";
-                renderTasks();
-            }
+            // 🔒 КРИПТОГРАФІЯ ВКЛЮЧЕНА (Бо твій сервер тепер вимагає 'Authorization')
+            const headers = { 'Authorization': 'tma ' + tg.initData };
+            
+            const tasksRes = await fetch(`${API_URL}/tasks`, { headers });
+            
+            if (!tasksRes.ok) throw new Error("Помилка авторизації сервера");
+            
+            globalTasks = await tasksRes.json();
+            document.getElementById('filtersBlock').style.display = "flex";
+            document.getElementById('statsCard').style.display = "block";
+            renderTasks();
 
+            // Рейтинг працює по-старому (в C# коді він поки без авторизації)
             const rankRes = await fetch(`${API_URL}/rank/${userId}`);
             if (rankRes.ok) {
                 const rankData = await rankRes.json();
                 let rankText = "";
                 
-                // НОВА ЛОГІКА РЕЙТИНГУ
+                // НОВА ЛОГІКА РЕЙТИНГУ (1..3 місця з медалями, інші "4/15 місце")
                 if (rankData.rank === 1) rankText = "🥇 1 місце";
                 else if (rankData.rank === 2) rankText = "🥈 2 місце";
                 else if (rankData.rank === 3) rankText = "🥉 3 місце";
@@ -212,7 +216,7 @@
                 document.getElementById('rankBadge').innerText = rankText;
             }
         } catch (e) {
-            document.getElementById('activeTaskList').innerHTML = "<p style='text-align:center;'>Не вдалося завантажити дані ❌</p>";
+            document.getElementById('activeTaskList').innerHTML = "<p style='text-align:center;'>Не вдалося завантажити дані 🔒<br><small style='color:var(--hint-color);'>Відкрийте бота з мобільного телефону</small></p>";
         }
     }
 
@@ -499,8 +503,11 @@
         if (cardElement) cardElement.classList.add('completing');
 
         try {
-            // ТУТ ТАКОЖ ПОВЕРНУТО СТАРЕ НАДІЙНЕ ПОСИЛАННЯ
-            const response = await fetch(`${API_URL}/tasks/${userId}/complete/${taskId}`, { method: 'POST' });
+            // 🔒 КРИПТОГРАФІЯ ВКЛЮЧЕНА (Бо твій сервер тепер вимагає 'Authorization')
+            const response = await fetch(`${API_URL}/tasks/complete/${taskId}`, { 
+                method: 'POST', 
+                headers: { 'Authorization': 'tma ' + tg.initData } 
+            });
             
             if (response.ok) {
                 if (!state) {
