@@ -453,7 +453,7 @@
         else if (percent > 0) { levelBadge.innerHTML = '🐢 Початківець'; levelBadge.className = 'badge badge-orange'; analyticsText.innerHTML = 'Треба трохи піднажати, щоб не назбирати сніговий ком.'; } 
         else { levelBadge.innerHTML = '💤😴'; levelBadge.className = 'badge badge-red'; analyticsText.innerHTML = 'Ти ще не починав. Давай, зроби хоча б одне завдання!'; }
 
-        if (overdueCount >= 5) { document.getElementById('mainHeader').classList.add('panic-mode'); document.getElementById('userName').innerText = `🚨 УВАГА!`; document.getElementById('headerSubtitle').innerText = `У тебе горять борги: ${overdueCount} шт. Бігом робити!`; tg.HapticFeedback.notificationOccurred('error'); } 
+        if (overdueCount >= 7) { document.getElementById('mainHeader').classList.add('panic-mode'); document.getElementById('userName').innerText = `🚨 УВАГА!`; document.getElementById('headerSubtitle').innerText = `У тебе горять борги: ${overdueCount} шт. Бігом робити!`; tg.HapticFeedback.notificationOccurred('error'); } 
         else { document.getElementById('mainHeader').classList.remove('panic-mode'); document.getElementById('userName').innerText = `Привіт, ${firstName}!`; document.getElementById('headerSubtitle').innerText = "Твої навчальні завдання"; }
 
         progressWrapper.style.display = "block";
