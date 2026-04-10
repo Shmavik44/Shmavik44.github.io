@@ -19,7 +19,7 @@
         .panic-mode { background-color: rgba(229, 57, 53, 0.1); border: 2px solid #e53935; }
         .panic-mode h3, .panic-mode p { color: #e53935 !important; font-weight: bold; }
         
-        /* СТАТИСТИКА */
+        /* СТАТИСТИКА ТА ВІДЖЕТ */
         .stats-card { background: var(--secondary-bg); border-radius: 12px; padding: 12px; margin-bottom: 15px; text-align: center; }
         .stats-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
         .badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
@@ -28,8 +28,12 @@
         .badge-red { background: rgba(229, 57, 53, 0.15); color: #c62828; }
         .analytics-text { font-size: 12px; color: var(--hint-color); line-height: 1.4; margin-top: 5px; }
         
-        .coin-balance { font-size: 14px; font-weight: bold; color: #ff8f00; background: rgba(255, 193, 7, 0.2); padding: 5px 10px; border-radius: 10px; display: inline-block; }
+        /* ЛАЙВ ВІДЖЕТ */
+        .live-widget { background: linear-gradient(90deg, rgba(67, 160, 71, 0.1), rgba(67, 160, 71, 0.05)); border-left: 4px solid #43a047; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; display: none; align-items: center; justify-content: space-between; }
+        .live-pulse { width: 10px; height: 10px; background-color: #43a047; border-radius: 50%; box-shadow: 0 0 0 0 rgba(67, 160, 71, 0.7); animation: pulse-green 2s infinite; margin-right: 10px;}
+        @keyframes pulse-green { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(67, 160, 71, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(67, 160, 71, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(67, 160, 71, 0); } }
 
+        .coin-balance { font-size: 14px; font-weight: bold; color: #ff8f00; background: rgba(255, 193, 7, 0.2); padding: 5px 10px; border-radius: 10px; display: inline-block; }
         .progress-wrapper { margin-bottom: 15px; }
         .progress-text { font-size: 13px; color: var(--hint-color); margin-bottom: 6px; text-align: center; font-weight: bold; }
         .progress-track { background: var(--secondary-bg); border-radius: 10px; height: 8px; width: 80%; margin: 0 auto; overflow: hidden; }
@@ -39,20 +43,15 @@
         .filter-btn { background: var(--secondary-bg); color: var(--hint-color); border: none; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer; transition: background 0.2s;}
         .filter-btn.active { background: var(--button-color); color: #ffffff; }
 
-        .skeleton-card { background: var(--secondary-bg); border-radius: 12px; height: 70px; margin-bottom: 12px; animation: pulse 1.5s infinite ease-in-out; opacity: 0.6; }
-        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 0.8; } 100% { opacity: 0.4; } }
-
         .task-card { background: var(--secondary-bg); border-radius: 12px; padding: 15px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid transparent; transition: transform 0.2s, opacity 0.2s; }
         .card-overdue { border-left-color: #e53935; } .card-soon { border-left-color: #ffa000; } .card-ok { border-left-color: #43a047; }
         .completed { opacity: 0.5; text-decoration: line-through; border-left-color: var(--hint-color); }
-        .completing { opacity: 0 !important; transform: translateX(-30px) scale(0.95); }
+        .completing { opacity: 0 !important; transform: translateX(-30px); }
         
         .task-info { flex-grow: 1; }
         .task-subject { font-size: 12px; color: var(--hint-color); font-weight: bold; text-transform: uppercase; }
         .task-title { font-size: 16px; margin: 4px 0; color: var(--text-color); }
         .task-deadline { font-size: 13px; margin-top: 2px; }
-        
-        .status-overdue { color: #e53935; font-weight: bold; } .status-soon { color: #ffa000; font-weight: bold; } .status-ok { color: #43a047; } 
         
         .checkbox { width: 24px; height: 24px; border: 2px solid var(--button-color); border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-left: 15px; min-width: 24px; cursor: pointer;}
         .checkbox.checked { background: var(--button-color); } .checkbox.checked::after { content: "✓"; color: #ffffff; font-weight: bold; }
@@ -71,7 +70,7 @@
         .nav-item.active { color: var(--button-color); }
         .nav-item .icon { font-size: 22px; margin-bottom: 2px; }
 
-        /* Модалки */
+        /* Модалки (ВИПРАВЛЕНИЙ ХРЕСТИК) */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 2000; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .modal-content { background: var(--bg-color); padding: 20px; padding-bottom: 80px; border-radius: 20px 20px 0 0; width: 100%; max-height: 85vh; overflow-y: auto; transform: translateY(100%); transition: transform 0.3s; box-sizing: border-box; }
@@ -79,8 +78,18 @@
         .modal-close { position: absolute; right: 15px; top: 15px; font-size: 26px; color: var(--hint-color); background: none; border: none; cursor: pointer; padding: 5px; z-index: 10; line-height: 1; }
         .modal-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; color: var(--text-color); white-space: pre-wrap; padding-right: 35px; }
 
-          /* Магазин Титулів та Бонуси (НОВЕ) */
+        /* МАГАЗИН ТА ЛУТБОКСИ */
         .shop-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-right: 35px; }
+        
+        .lootbox-card { background: linear-gradient(135deg, #6a11cb, #2575fc); color: white; border-radius: 12px; padding: 15px; margin-bottom: 20px; text-align: center; position: relative; overflow: hidden; box-shadow: 0 4px 10px rgba(37, 117, 252, 0.3); }
+        .lootbox-title { font-size: 16px; font-weight: bold; margin: 0 0 5px 0; }
+        .lootbox-desc { font-size: 12px; opacity: 0.9; margin: 0 0 10px 0; }
+        .lootbox-btn { background: #ffeb3b; color: #000; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; font-size: 14px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.1s; }
+        .lootbox-btn:active { transform: scale(0.95); }
+        
+        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px) rotate(-5deg); } 50% { transform: translateX(5px) rotate(5deg); } 75% { transform: translateX(-5px) rotate(-5deg); } 100% { transform: translateX(0); } }
+        .shake-anim { animation: shake 0.4s ease-in-out; }
+
         .bonus-card { background: linear-gradient(135deg, rgba(255, 152, 0, 0.1), rgba(255, 87, 34, 0.15)); border: 1px solid rgba(255, 152, 0, 0.3); border-radius: 12px; padding: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
         .bonus-btn { background: #ff8f00; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; transition: transform 0.2s; }
         .bonus-btn:active { transform: scale(0.95); }
@@ -93,7 +102,6 @@
         .buy-btn.owned { background: var(--button-color); }
         .buy-btn.active-title { background: #43a047; }
 
-        /* Шпори */
         .lib-folder { background: var(--secondary-bg); border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
         .lib-folder summary { padding: 15px; font-size: 15px; color: var(--text-color); background: rgba(0,0,0,0.03); }
         .lib-links { padding: 10px 15px; display: flex; flex-direction: column; gap: 10px; }
@@ -132,6 +140,17 @@
     <div class="progress-track"><div class="progress-fill" id="progressBar"></div></div>
 </div>
 
+<div id="liveWidget" class="live-widget">
+    <div style="display: flex; align-items: center;">
+        <div class="live-pulse"></div>
+        <div>
+            <div style="font-size: 11px; color: #43a047; font-weight: bold; text-transform: uppercase;">Зараз іде пара</div>
+            <div id="liveSubject" style="font-size: 14px; font-weight: bold; color: var(--text-color);">Завантаження...</div>
+        </div>
+    </div>
+    <div id="liveTimeLeft" style="font-size: 13px; color: var(--hint-color); font-weight: bold;"></div>
+</div>
+
 <div class="filters-container" id="filtersBlock" style="display: none;">
     <button class="filter-btn active" onclick="applyFilter('all', this)">Всі</button>
     <button class="filter-btn" onclick="applyFilter('overdue', this)">Борги</button>
@@ -139,8 +158,7 @@
 </div>
 
 <div id="activeTaskList">
-    <div class="skeleton-card"></div>
-    <div class="skeleton-card"></div>
+    <div class="skeleton-card"></div><div class="skeleton-card"></div>
 </div>
 
 <details id="completedSection" style="display: none;">
@@ -149,56 +167,22 @@
 </details>
 
 <div class="bottom-nav">
-    <button class="nav-item active" id="navHome" onclick="switchTab('home', this)">
-        <span class="icon">📋</span>Завдання
-    </button>
-    <button class="nav-item" id="navLib" onclick="switchTab('libraryModal', this)">
-        <span class="icon">📚</span>Довідка
-    </button>
-    <button class="nav-item" id="navShop" onclick="switchTab('shopModal', this)">
-        <span class="icon">🏷️</span>Магаз
-    </button>
-    <button class="nav-item" id="navAdminBtn" onclick="switchTab('adminModal', this)" style="display: none;">
-        <span class="icon">👑</span>Адмінка
-    </button>
+    <button class="nav-item active" id="navHome" onclick="switchTab('home', this)"><span class="icon">📋</span>Завдання</button>
+    <button class="nav-item" id="navLib" onclick="switchTab('libraryModal', this)"><span class="icon">📚</span>Довідка</button>
+    <button class="nav-item" id="navShop" onclick="switchTab('shopModal', this)"><span class="icon">🏷️</span>Магаз</button>
+    <button class="nav-item" id="navAdminBtn" onclick="switchTab('adminModal', this)" style="display: none;"><span class="icon">👑</span>Адмінка</button>
 </div>
 
 <div id="libraryModal" class="modal-overlay">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('libraryModal')">×</button>
-        <div class="modal-title">📚 Довідка (не забувай що треба пошта КПІ)</div>
-        <p style="font-size: 13px; color: var(--hint-color); margin-bottom: 15px;">Усі корисні посилання, методички та лекції в одному місці.</p>
-
-        <details class="lib-folder">
-            <summary>📐 Вища математика</summary>
-            <div class="lib-links">
-                <a href="https://drive.google.com/drive/folders/1-23dkVNqF_iwxF7kTcWTt5NKgGtHpatl?usp=drive_link" class="lib-link">📁 Google Drive</a>
-            </div>
-        </details>
-        <details class="lib-folder">
-            <summary>💻 Програмування/ТА</summary>
-            <div class="lib-links">
-                <a href="https://classroom.google.com/c/ODQyMzQzMzEzOTA5?cjc=qe2644u4" class="lib-link">📘 Класрум</a>
-            </div>
-        </details>
-         <details class="lib-folder">
-            <summary>💻 ЧМ</summary>
-            <div class="lib-links">
-                <a href="https://drive.google.com/drive/folders/1ygfMY4tFCtGkx-a0ENohczI4Vv0K_iN5" class="lib-link"> 📁 Google Drive </a>
-            </div>
-        </details>
-        <details class="lib-folder">
-            <summary>⚡ Фізика</summary>
-            <div class="lib-links">
-                <a href="https://classroom.google.com/c/ODA1MTI2MTMyMTk4" class="lib-link">📘 Класрум</a>
-            </div>
-        </details>
-         <details class="lib-folder">
-            <summary>Англ</summary>
-            <div class="lib-links">
-                <a href="https://classroom.google.com/c/ODE5MDkxODI0Mjgx" class="lib-link">📘 Класрум</a>
-            </div>
-        </details>
+        <div class="modal-title">📚 Довідка</div>
+        <p style="font-size: 13px; color: var(--hint-color); margin-bottom: 15px;">Усі корисні посилання.</p>
+        <details class="lib-folder"><summary>📐 Вища математика</summary><div class="lib-links"><a href="https://drive.google.com/drive/folders/1-23dkVNqF_iwxF7kTcWTt5NKgGtHpatl?usp=drive_link" class="lib-link">📁 Google Drive</a></div></details>
+        <details class="lib-folder"><summary>💻 Програмування/ТА</summary><div class="lib-links"><a href="https://classroom.google.com/c/ODQyMzQzMzEzOTA5?cjc=qe2644u4" class="lib-link">📘 Класрум</a></div></details>
+        <details class="lib-folder"><summary>💻 ЧМ</summary><div class="lib-links"><a href="https://drive.google.com/drive/folders/1ygfMY4tFCtGkx-a0ENohczI4Vv0K_iN5" class="lib-link"> 📁 Google Drive </a></div></details>
+        <details class="lib-folder"><summary>⚡ Фізика</summary><div class="lib-links"><a href="https://classroom.google.com/c/ODA1MTI2MTMyMTk4" class="lib-link">📘 Класрум</a></div></details>
+        <details class="lib-folder"><summary>Англ</summary><div class="lib-links"><a href="https://classroom.google.com/c/ODE5MDkxODI0Mjgx" class="lib-link">📘 Класрум</a></div></details>
     </div>
 </div>
 
@@ -211,6 +195,12 @@
                 <p style="margin:0; font-size:12px; color:var(--hint-color);">Заробляй коїни за завдання!</p>
             </div>
             <div class="coin-balance" id="coinBalance">💰 0</div>
+        </div>
+
+        <div class="lootbox-card" id="lootboxCard">
+            <h3 class="lootbox-title">🎲 Лудо-Марафон</h3>
+            <p class="lootbox-desc">Крути рулетку за 50 🪙. Може випасти джекпот або ексклюзивний титул!</p>
+            <button class="lootbox-btn" onclick="openLootbox()">Відкрити (50 🪙)</button>
         </div>
 
         <div class="bonus-card" id="dailyBonusCard">
@@ -230,11 +220,7 @@
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('adminModal')">×</button>
         <div class="modal-title">👑 Панель Старости</div>
-        
-        <p style="font-size: 13px; color: var(--hint-color); margin-bottom: 5px;">Вибери поточну пару:</p>
         <select id="subjectSelect" class="admin-select"></select>
-
-        <p style="font-size: 13px; color: var(--hint-color);">Зелений - присутній, Червоний - відсутній.</p>
         <div class="rollcall-list" id="rollcallList"></div>
         <button class="save-btn" onclick="saveAttendance()">💾 Зберегти в базу</button>
     </div>
@@ -253,26 +239,17 @@
 <div id="toast" class="toast"></div>
 <script>
     const tg = window.Telegram.WebApp;
-    tg.ready(); 
-    tg.expand();
+    tg.ready(); tg.expand();
 
-    // Твій сервер на Render
     const API_URL = "https://telegram-proxy-bot-desz.onrender.com/api";
-    
     const userId = tg.initDataUnsafe.user?.id || 1492389359; 
     const firstName = tg.initDataUnsafe.user?.first_name || 'Студент';
     
-    // Адміни бачать кнопку "Адмінка" та коронку
     const adminIds = [1492389359, 1654156923]; 
-    if (adminIds.includes(userId)) { 
-        document.getElementById('navAdminBtn').style.display = 'flex'; 
-    }
+    if (adminIds.includes(userId)) { document.getElementById('navAdminBtn').style.display = 'flex'; }
 
-    let globalTasks = [];
-    let currentFilter = 'all';
-    let pendingTaskId = null; 
-    let pendingTaskState = null;
-    let toastTimeout;
+    let globalTasks = []; let currentFilter = 'all';
+    let pendingTaskId = null; let pendingTaskState = null; let toastTimeout;
 
     const groupList = [
         "1. Базунов Дмитро", "2. Волков Микола", "3. Гриценко Микола", "4. Жук Тимофій", "5. Калашник Даниїл",
@@ -280,23 +257,21 @@
         "12. Скірко Анна", "13. Узун Дмитро", "14. Фулга Іван", "15. Ханчопуло Ольга"
     ];
 
-    // ДАНІ КОРИСТУВАЧА З СЕРВЕРА
     let myCoins = 0;
     let myTitles = ['Студент 🤓'];
     let activeTitle = 'Студент 🤓';
     let streakCount = 0;
     let canClaimBonus = false;
 
-    // ОНОВЛЕНІ ТИТУЛИ З ДОРОГИМИ ІМЕНАМИ
     const availableTitles = [
         { name: "Студент 🤓", price: 0, desc: "Стандартний статус" },
         { name: "Новачок 🐣", price: 20, desc: "Тільки почав свій шлях" },
-        { name: "Любитель кави ☕", price: 80, desc: "Працює на кофеїні" },
-        { name: "Спить на парах 😴", price: 150, desc: "Режим енергозбереження" },
-        { name: "Дедлайн-кілер 🥷", price: 200, desc: "Здає за хвилину до кінця" },
-        { name: "Майстер Вишмату 🧙‍♂️", price: 299, desc: "Бачить матриці наскрізь" },
-        { name: "Код-машина 🤖", price: 300, desc: "Пише без багів (майже)" },
-        { name: "Шукач автоматів 🎯", price: 400, desc: "Робить все заради 60 балів" },
+        { name: "Любитель кави ☕", price: 50, desc: "Працює на кофеїні" },
+        { name: "Спить на парах 😴", price: 100, desc: "Режим енергозбереження" },
+        { name: "Дедлайн-кілер 🥷", price: 150, desc: "Здає за хвилину до кінця" },
+        { name: "Майстер Вишмату 🧙‍♂️", price: 200, desc: "Бачить матриці наскрізь" },
+        { name: "Код-машина 🤖", price: 250, desc: "Пише без багів (майже)" },
+        { name: "Шукач автоматів 🎯", price: 300, desc: "Робить все заради 60 балів" },
         { name: "Гроза Деканату ⚡", price: 500, desc: "Елітний статус" },
         { name: "Кібер-Мозок 🧠", price: 800, desc: "Компілює код у голові" },
         { name: "Магнат КПІ 🎩", price: 1500, desc: "Купив кафедру за коїни" },
@@ -309,18 +284,12 @@
         document.getElementById('coinBalance').innerText = `💰 ${myCoins}`;
         
         const titleBadge = document.getElementById('userTitleBadge');
-        if (activeTitle && activeTitle !== "Студент 🤓") { 
-            titleBadge.innerText = activeTitle; 
-            titleBadge.style.display = "inline-block"; 
-        } else { 
-            titleBadge.style.display = "none"; 
-        }
+        if (activeTitle && activeTitle !== "Студент 🤓") { titleBadge.innerText = activeTitle; titleBadge.style.display = "inline-block"; } 
+        else { titleBadge.style.display = "none"; }
     }
 
-    // --- РОЗУМНЕ ПЕРЕМИКАННЯ ВКЛАДОК (ЧОЛКА) ---
     function switchTab(tabId, btnElement) {
         tg.HapticFeedback.selectionChanged();
-        
         document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
         if(btnElement) btnElement.classList.add('active');
 
@@ -335,190 +304,168 @@
 
     function closeModal(id) { 
         document.getElementById(id).classList.remove('active'); 
-        
         if (['libraryModal', 'shopModal', 'adminModal'].includes(id)) {
             document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
             document.getElementById('navHome').classList.add('active');
         }
     }
 
-    // --- ЛОГІКА БОНУСУ (ЩОДЕННИЙ ВОГНИК) ---
+    // --- ЛОГІКА БОНУСУ ТА ЛУТБОКСІВ ---
     async function claimDailyBonus() {
         if (!canClaimBonus) return;
         tg.HapticFeedback.impactOccurred('medium');
-        
         try {
             const res = await fetch(`${API_URL}/bonus/${userId}`, { method: 'POST' });
             if (res.ok) {
                 const data = await res.json();
-                myCoins = data.coins; 
-                streakCount = data.streak; 
-                canClaimBonus = false;
+                myCoins = data.coins; streakCount = data.streak; canClaimBonus = false;
                 
-                updateHeaderInfo(); 
-                openShop(); // Оновлює візуал кнопки
+                updateHeaderInfo(); openShop(); 
                 confetti({ particleCount: 150, spread: 80, origin: { y: 0.5 }, colors: ['#ff9800', '#ff5722', '#ffc107'] }); 
                 showToast(`Забрано +${data.reward} 🪙! Твій вогник: ${streakCount} 🔥`);
-            } else { 
-                showToast("Бонус вже отримано сьогодні ❌"); 
+            } else { showToast("Бонус вже отримано сьогодні ❌"); }
+        } catch(e) { showToast("Помилка зв'язку ❌"); }
+    }
+
+    async function openLootbox() {
+        if (myCoins < 50) {
+            tg.showAlert("Бракує коїнів! Потрібно 50 🪙.");
+            tg.HapticFeedback.notificationOccurred('error');
+            return;
+        }
+
+        const lootboxCard = document.getElementById('lootboxCard');
+        lootboxCard.classList.add('shake-anim');
+        tg.HapticFeedback.impactOccurred('heavy');
+
+        try {
+            const res = await fetch(`${API_URL}/lootbox/${userId}`, { method: 'POST' });
+            setTimeout(() => lootboxCard.classList.remove('shake-anim'), 400); // Знімаємо анімацію
+            
+            if (res.ok) {
+                const data = await res.json();
+                myCoins = data.coins;
+                myTitles = data.unlockedTitles ? data.unlockedTitles.split(',') : ['Студент 🤓'];
+                updateHeaderInfo(); openShop(); // Оновлюємо інтерфейс магазину
+                
+                if (data.prizeType === 'legendary') {
+                    confetti({ particleCount: 300, spread: 100, origin: { y: 0.5 } });
+                    tg.showAlert(`😱 ШОК! Тобі випала ЛЕГЕНДА: ${data.message}`);
+                } else if (data.prizeType === 'epic') {
+                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                    showToast(data.message);
+                } else if (data.prizeType === 'medium' || data.prizeType === 'small') {
+                    showToast(data.message);
+                } else {
+                    showToast(data.message);
+                }
+            } else {
+                showToast("Помилка рулетки ❌");
             }
-        } catch(e) { 
-            showToast("Помилка зв'язку ❌"); 
+        } catch (e) {
+            lootboxCard.classList.remove('shake-anim');
+            showToast("Помилка зв'язку ❌");
         }
     }
 
-    // --- МАГАЗИН ТИТУЛІВ ---
     function openShop() {
-        const list = document.getElementById('titlesList'); 
-        list.innerHTML = "";
+        const list = document.getElementById('titlesList'); list.innerHTML = "";
         
         document.getElementById('streakDisplay').innerText = `🔥 Вогник: ${streakCount} днів`;
         const btn = document.getElementById('claimBonusBtn');
-        
         if (canClaimBonus) {
-            btn.innerText = "Забрати 🎁"; 
-            btn.disabled = false; 
-            btn.style.background = "#ff8f00";
+            btn.innerText = "Забрати 🎁"; btn.disabled = false; btn.style.background = "#ff8f00";
         } else {
-            btn.innerText = "Отримано ✅"; 
-            btn.disabled = true; 
-            btn.style.background = "var(--hint-color)";
+            btn.innerText = "Отримано ✅"; btn.disabled = true; btn.style.background = "var(--hint-color)";
         }
 
+        // Рендеримо магазин
         availableTitles.forEach((t) => {
-            const isOwned = myTitles.includes(t.name); 
-            const isActive = activeTitle === t.name;
-            
+            const isOwned = myTitles.includes(t.name); const isActive = activeTitle === t.name;
             let btnHtml = `<button class="buy-btn" onclick="buyTitle('${t.name}', ${t.price})">${t.price} 🪙</button>`;
             
-            if (isActive) btnHtml = `<button class="buy-btn active-title">Вибрано ✅</button>`;
-            else if (isOwned) btnHtml = `<button class="buy-btn owned" onclick="buyTitle('${t.name}', 0)">Надіти</button>`;
-            
-            list.innerHTML += `
-                <div class="shop-item">
-                    <div class="shop-info">
-                        <h4>${t.name}</h4>
-                        <p>${t.desc}</p>
-                    </div>
-                    ${btnHtml}
-                </div>`;
+            if (t.name === "Син маминої подруги 🦸‍♂️") {
+                if(isOwned) {
+                    if (isActive) btnHtml = `<button class="buy-btn active-title">Вибрано ✅</button>`;
+                    else btnHtml = `<button class="buy-btn owned" onclick="buyTitle('${t.name}', 0)">Надіти</button>`;
+                    list.innerHTML += `<div class="shop-item" style="border: 2px solid #ffeb3b;"><div class="shop-info"><h4>${t.name}</h4><p>${t.desc}</p></div>${btnHtml}</div>`;
+                }
+            } else {
+                if (isActive) btnHtml = `<button class="buy-btn active-title">Вибрано ✅</button>`;
+                else if (isOwned) btnHtml = `<button class="buy-btn owned" onclick="buyTitle('${t.name}', 0)">Надіти</button>`;
+                list.innerHTML += `<div class="shop-item"><div class="shop-info"><h4>${t.name}</h4><p>${t.desc}</p></div>${btnHtml}</div>`;
+            }
         });
         document.getElementById('shopModal').classList.add('active');
     }
 
     async function buyTitle(name, price) {
         if (myTitles.includes(name)) {
-            await fetch(`${API_URL}/user/${userId}/title`, { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ action: 'equip', title: name }) 
-            });
-            activeTitle = name; 
-            updateHeaderInfo(); 
-            openShop(); 
-            tg.HapticFeedback.notificationOccurred('success');
+            await fetch(`${API_URL}/user/${userId}/title`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'equip', title: name }) });
+            activeTitle = name; updateHeaderInfo(); openShop(); tg.HapticFeedback.notificationOccurred('success');
         } else {
             if (myCoins >= price) {
-                const res = await fetch(`${API_URL}/user/${userId}/title`, { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ action: 'buy', title: name, price: price }) 
-                });
-                
+                const res = await fetch(`${API_URL}/user/${userId}/title`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'buy', title: name, price: price }) });
                 if(res.ok) {
-                    myCoins -= price; 
-                    myTitles.push(name); 
-                    activeTitle = name; 
-                    updateHeaderInfo(); 
-                    openShop();
-                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); 
-                    tg.HapticFeedback.notificationOccurred('success');
+                    myCoins -= price; myTitles.push(name); activeTitle = name; updateHeaderInfo(); openShop();
+                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); tg.HapticFeedback.notificationOccurred('success');
                 } else showToast("Помилка покупки!");
             } else {
-                tg.showAlert(`Бракує коїнів! Треба ще ${price - myCoins} 🪙.`); 
-                tg.HapticFeedback.notificationOccurred('error');
+                tg.showAlert(`Бракує коїнів! Треба ще ${price - myCoins} 🪙.`); tg.HapticFeedback.notificationOccurred('error');
             }
         }
     }
 
-    // --- ЗАВАНТАЖЕННЯ ДАНИХ З СЕРВЕРА ---
     async function loadData() {
         try {
             const userRes = await fetch(`${API_URL}/user/${userId}`);
             if(userRes.ok) {
                 const userData = await userRes.json();
-                myCoins = userData.coins || 0; 
-                activeTitle = userData.activeTitle || 'Студент 🤓';
+                myCoins = userData.coins || 0; activeTitle = userData.activeTitle || 'Студент 🤓';
                 myTitles = userData.unlockedTitles ? userData.unlockedTitles.split(',') : ['Студент 🤓'];
-                streakCount = userData.streak || 0; 
-                canClaimBonus = userData.canClaim;
+                streakCount = userData.streak || 0; canClaimBonus = userData.canClaim;
             }
             updateHeaderInfo();
 
             const tasksRes = await fetch(`${API_URL}/tasks/${userId}`);
             if (tasksRes.ok) {
                 globalTasks = await tasksRes.json();
-                document.getElementById('filtersBlock').style.display = "flex"; 
-                document.getElementById('statsCard').style.display = "block"; 
-                renderTasks();
+                document.getElementById('filtersBlock').style.display = "flex"; document.getElementById('statsCard').style.display = "block"; renderTasks();
             }
 
             const rankRes = await fetch(`${API_URL}/rank/${userId}`);
             if (rankRes.ok) {
                 const rankData = await rankRes.json();
                 let rankText = "";
-                if (rankData.rank === 1) rankText = "🥇 1 місце"; 
-                else if (rankData.rank === 2) rankText = "🥈 2 місце"; 
-                else if (rankData.rank === 3) rankText = "🥉 3 місце"; 
-                else rankText = `👤 ${rankData.rank}/${rankData.total} місце`;
+                if (rankData.rank === 1) rankText = "🥇 1 місце"; else if (rankData.rank === 2) rankText = "🥈 2 місце"; else if (rankData.rank === 3) rankText = "🥉 3 місце"; else rankText = `👤 ${rankData.rank}/${rankData.total} місце`;
                 document.getElementById('rankBadge').innerText = rankText;
             }
-        } catch (e) { 
-            document.getElementById('activeTaskList').innerHTML = "<p style='text-align:center;'>Не вдалося завантажити дані ❌</p>"; 
-        }
+        } catch (e) { document.getElementById('activeTaskList').innerHTML = "<p style='text-align:center;'>Не вдалося завантажити дані ❌</p>"; }
     }
 
-    // --- ФІЛЬТРИ ЗАВДАНЬ ---
     function applyFilter(filterType, btnElement) {
-        currentFilter = filterType; 
-        document.querySelectorAll('#filtersBlock .filter-btn').forEach(btn => btn.classList.remove('active'));
-        btnElement.classList.add('active'); 
-        tg.HapticFeedback.selectionChanged(); 
-        renderTasks();
+        currentFilter = filterType; document.querySelectorAll('#filtersBlock .filter-btn').forEach(btn => btn.classList.remove('active'));
+        btnElement.classList.add('active'); tg.HapticFeedback.selectionChanged(); renderTasks();
     }
 
-    // --- ВІДОБРАЖЕННЯ ЗАВДАНЬ ---
     function renderTasks() {
-        const activeList = document.getElementById('activeTaskList'); 
-        const completedList = document.getElementById('completedTaskList');
-        const completedSection = document.getElementById('completedSection'); 
-        const progressWrapper = document.getElementById('progressWrapper');
-        const progressText = document.getElementById('progressText'); 
-        const progressBar = document.getElementById('progressBar');
-        const streakBadge = document.getElementById('streakBadge'); 
-        const levelBadge = document.getElementById('levelBadge'); 
-        const analyticsText = document.getElementById('analyticsText');
-        
-        activeList.innerHTML = ""; 
-        completedList.innerHTML = "";
+        const activeList = document.getElementById('activeTaskList'); const completedList = document.getElementById('completedTaskList');
+        const completedSection = document.getElementById('completedSection'); const progressWrapper = document.getElementById('progressWrapper');
+        const progressText = document.getElementById('progressText'); const progressBar = document.getElementById('progressBar');
+        const streakBadge = document.getElementById('streakBadge'); const levelBadge = document.getElementById('levelBadge'); const analyticsText = document.getElementById('analyticsText');
+        activeList.innerHTML = ""; completedList.innerHTML = "";
 
         if (globalTasks.length === 0) {
-            activeList.innerHTML = "<p style='text-align:center;'>Завдань немає. Відпочивай! 🎉</p>"; 
-            progressWrapper.style.display = "none"; 
-            completedSection.style.display = "none"; 
-            return;
+            activeList.innerHTML = "<p style='text-align:center;'>Завдань немає. Відпочивай! 🎉</p>"; progressWrapper.style.display = "none"; completedSection.style.display = "none"; return;
         }
 
-        let activeTasks = globalTasks.filter(t => !t.isCompleted); 
-        const completedTasks = globalTasks.filter(t => t.isCompleted);
-        const percent = Math.round((completedTasks.length / globalTasks.length) * 100); 
-        const now = new Date();
+        let activeTasks = globalTasks.filter(t => !t.isCompleted); const completedTasks = globalTasks.filter(t => t.isCompleted);
+        const percent = Math.round((completedTasks.length / globalTasks.length) * 100); const now = new Date();
         const overdueCount = activeTasks.filter(t => (new Date(t.deadline) - now) < 0).length;
 
-        // --- ЛОГІКА АЧІВОК (ЩИТ І БЛИСКАВКА) ---
+        // АЧІВКИ
         let badges = [];
         if (adminIds.includes(userId)) badges.push('<span style="font-size: 18px;" title="Адмін">👑</span>');
-        
         const mathTasks = globalTasks.filter(t => (t.subject || "").toLowerCase().includes("математика"));
         if (mathTasks.length > 0 && mathTasks.every(t => t.isCompleted)) badges.push('<span style="font-size: 18px;" title="Броня Вишмату">🛡️</span>');
         
@@ -530,10 +477,8 @@
             }
         });
         if (hasEarlyBird) badges.push('<span style="font-size: 18px;" title="Рання пташка">⚡</span>');
-        
         document.getElementById('headerBadges').innerHTML = badges.join('');
 
-        // --- ОНОВЛЕННЯ СТАТИСТИКИ ---
         if (overdueCount === 0) { streakBadge.className = 'badge badge-green'; streakBadge.innerHTML = '🔥 Без боргів'; } 
         else { streakBadge.className = 'badge badge-red'; streakBadge.innerHTML = `🧊 Боргів: ${overdueCount}`; }
 
@@ -593,20 +538,12 @@
         return card;
     }
 
-    function showToast(msg) { 
-        const t = document.getElementById('toast'); 
-        t.innerHTML = `<span>${msg}</span>`; 
-        t.style.background = '#43a047'; 
-        t.classList.add('show'); 
-        clearTimeout(toastTimeout); 
-        toastTimeout = setTimeout(() => t.classList.remove('show'), 3000); 
-    }
+    function showToast(msg) { const t = document.getElementById('toast'); t.innerHTML = `<span>${msg}</span>`; t.style.background = '#43a047'; t.classList.add('show'); clearTimeout(toastTimeout); toastTimeout = setTimeout(() => t.classList.remove('show'), 3000); }
 
     function openModal(modalId, taskId = null, state = null, isLocked = false) {
         if (modalId === 'confirmModal') {
             pendingTaskId = taskId; pendingTaskState = state;
-            const text = document.getElementById('modalText'); const btn = document.getElementById('modalConfirmBtn'); const cancel = document.getElementById('modalCancelBtn'); 
-            tg.HapticFeedback.impactOccurred('light');
+            const text = document.getElementById('modalText'); const btn = document.getElementById('modalConfirmBtn'); const cancel = document.getElementById('modalCancelBtn'); tg.HapticFeedback.impactOccurred('light');
 
             if(isLocked) {
                 document.getElementById('confirmModal').classList.add('danger'); text.innerText = "⚠️ Роботу закрито.\nВідмічай ТІЛЬКИ якщо здав викладачу до дедлайну!"; btn.innerText = "Я здав вчасно!"; cancel.innerText = "Не здавав";
@@ -619,9 +556,7 @@
 
     document.getElementById('modalConfirmBtn').addEventListener('click', async () => {
         if (!pendingTaskId) return;
-        const taskId = pendingTaskId, state = pendingTaskState; 
-        closeModal('confirmModal'); 
-        tg.HapticFeedback.impactOccurred('medium');
+        const taskId = pendingTaskId, state = pendingTaskState; closeModal('confirmModal'); tg.HapticFeedback.impactOccurred('medium');
         
         const cardElement = document.getElementById(`task-${taskId}`);
         if (cardElement) cardElement.classList.add('completing');
@@ -634,6 +569,66 @@
             } else { showToast("Помилка на сервері ❌"); if (cardElement) cardElement.classList.remove('completing'); }
         } catch (e) { showToast("Помилка зв'язку ❌"); if (cardElement) cardElement.classList.remove('completing'); }
     });
+
+    // --- ЛАЙВ ВІДЖЕТ "ЩО ЗАРАЗ?" ---
+    function updateLiveWidget() {
+        const semesterStart = new Date('2026-03-02T00:00:00');
+        const now = new Date();
+        const diffDays = Math.floor((now - semesterStart) / (1000 * 60 * 60 * 24));
+        
+        if (diffDays < 0) return; // Семестр ще не почався
+
+        const weekType = Math.floor(diffDays / 7) % 2 === 0 ? 1 : 2; 
+        const day = now.getDay(); 
+        
+        // Поточний час у хвилинах від початку доби (для розрахунку пар)
+        const currentMinutes = now.getHours() * 60 + now.getMinutes();
+        
+        // Розклад пар (старт і кінець у хвилинах)
+        const timeSlots = [
+            { start: 8*60+30, end: 10*60+25, num: 1 },  // 08:30 - 10:25
+            { start: 10*60+25, end: 12*60+20, num: 2 }, // 10:25 - 12:20
+            { start: 12*60+20, end: 14*60+10, num: 3 }, // 12:20 - 14:10 (в середньому)
+            { start: 14*60+15, end: 16*60+10, num: 4 }  // 14:15 - 16:10
+        ];
+
+        let currentSlot = timeSlots.find(slot => currentMinutes >= slot.start && currentMinutes < slot.end);
+        
+        const widget = document.getElementById('liveWidget');
+        const subjText = document.getElementById('liveSubject');
+        const timeText = document.getElementById('liveTimeLeft');
+
+        if (!currentSlot || day === 0 || day === 6) {
+            widget.style.display = 'none'; // Немає пари зараз або вихідний
+            return;
+        }
+
+        let subjectName = "Пара";
+        // Мапа предметів (спрощена на основі розкладу C#)
+        if (weekType === 1) {
+            if (day === 1) subjectName = ["Спимо", "Основи здоров'я", "Українська мова", "Фізика"][currentSlot.num-1];
+            if (day === 2) subjectName = ["Фізика", "Теорія алгоритмів", "Українська мова", ""][currentSlot.num-1];
+            if (day === 3) subjectName = ["Програмування", "Англійська мова", "Чисельні методи", ""][currentSlot.num-1];
+            if (day === 4) subjectName = ["Програмування", "Чисельні методи", "Вища математика", "Вища математика"][currentSlot.num-1];
+            if (day === 5) subjectName = ["Спимо", "Теорія алгоритмів", "Вища математика", ""][currentSlot.num-1];
+        } else {
+            if (day === 1) subjectName = ["Спимо", "Основи здоров'я", "Фізика", "Фізика"][currentSlot.num-1];
+            if (day === 2) subjectName = ["Фізика", "Теорія алгоритмів", "Теорія алгоритмів", ""][currentSlot.num-1];
+            if (day === 3) subjectName = ["Програмування", "Англійська мова", "Чисельні методи", "Англійська мова"][currentSlot.num-1];
+            if (day === 4) subjectName = ["Програмування", "Чисельні методи", "Вища математика", "Вища математика"][currentSlot.num-1];
+            if (day === 5) subjectName = ["Спимо", "Теорія алгоритмів", "Вища математика", ""][currentSlot.num-1];
+        }
+
+        if (!subjectName || subjectName === "" || subjectName === "Спимо") {
+            widget.style.display = 'none';
+            return;
+        }
+
+        const minsLeft = currentSlot.end - currentMinutes;
+        subjText.innerText = subjectName;
+        timeText.innerText = `Залишилось ${minsLeft} хв`;
+        widget.style.display = 'flex';
+    }
 
     // --- АДМІНКА ТА ЖУРНАЛ ---
     function getTodaysSubjects() {
@@ -690,6 +685,6 @@
 
     // Запуск додатка
     loadData();
+    updateLiveWidget(); // Перевіряємо одразу при старті
+    setInterval(updateLiveWidget, 60000); // Оновлюємо кожну хвилину
 </script>
-</body>
-</html>
