@@ -2,8 +2,8 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мої завдання</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>IC-o51 Ботік</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
@@ -13,147 +13,163 @@
             --hint-color: var(--tg-theme-hint-color, #999999); 
             --button-color: var(--tg-theme-button-color, #2481cc); 
             --secondary-bg: var(--tg-theme-secondary-bg-color, #f4f4f5); 
+            --accent-red: #e53935;
+            --accent-green: #43a047;
+            --accent-gold: #ff8f00;
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 15px 15px 100px 15px; -webkit-tap-highlight-color: transparent; } 
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-color); 
+            margin: 0; 
+            padding: 15px 15px 120px 15px; 
+            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+        }
+
+        /* --- ШАПКА ТА LOCK MODE (🚨) --- */
+        .header { 
+            text-align: center; margin-bottom: 15px; padding: 25px 15px; 
+            position: relative; border-radius: 20px; 
+            background: linear-gradient(145deg, var(--secondary-bg) 0%, rgba(36, 129, 204, 0.05) 100%); 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            transition: all 0.5s ease;
+        }
+        .header h3 { margin: 0 0 5px 0; font-size: 24px; font-weight: 600; letter-spacing: -0.5px; }
+        .header-badges { position: absolute; right: 15px; top: 15px; display: flex; gap: 6px; font-size: 20px; }
+        .user-title { 
+            display: inline-block; background: rgba(255, 152, 0, 0.1); 
+            color: #e65100; padding: 5px 12px; border-radius: 12px; 
+            font-size: 13px; font-weight: 500; margin-top: 8px; 
+            border: 1px solid rgba(255, 152, 0, 0.2); 
+        }
+
+        .panic-mode { 
+            background: linear-gradient(135deg, #e53935 0%, #b71c1c 100%) !important; 
+            box-shadow: 0 10px 30px rgba(229, 57, 53, 0.4) !important;
+            animation: pulse-lock 0.8s infinite alternate ease-in-out;
+        }
+        @keyframes pulse-lock { from { transform: scale(1); } to { transform: scale(1.02); } }
+        .panic-mode h3, .panic-mode p { color: #fff !important; }
+        .panic-mode .user-title { background: #fff; color: #e53935; border-color: #fff; }
+
+        /* --- СТАТИСТИКА --- */
+        .stats-card { background: var(--secondary-bg); border-radius: 24px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); text-align: center; }
+        .stats-row { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .badge { padding: 8px 15px; border-radius: 15px; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+        .badge-blue { background: rgba(36, 129, 204, 0.1); color: var(--button-color); }
+        .badge-green { background: rgba(67, 160, 71, 0.1); color: var(--accent-green); }
+        .badge-red { background: rgba(229, 57, 53, 0.1); color: var(--accent-red); }
+
+        .progress-wrapper { margin: 10px 0; }
+        .progress-text { font-size: 13px; color: var(--hint-color); margin-bottom: 10px; text-align: center; font-weight: 500; }
+        .progress-track { background: var(--bg-color); border-radius: 12px; height: 10px; width: 100%; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); }
+        .progress-fill { background: linear-gradient(90deg, #2481cc, #4facfe); height: 100%; width: 0%; transition: width 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+        /* --- КАРТКИ ЗАВДАНЬ --- */
+        .task-card { 
+            background: var(--secondary-bg); border-radius: 20px; 
+            padding: 18px; margin-bottom: 12px; 
+            display: flex; align-items: center; justify-content: space-between; 
+            border-left: 6px solid transparent; 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.03);
+        }
+        .card-overdue { border-left-color: var(--accent-red); background: linear-gradient(90deg, rgba(229, 57, 53, 0.04), var(--secondary-bg) 30%); } 
+        .card-soon { border-left-color: #ffa000; background: linear-gradient(90deg, rgba(255, 160, 0, 0.04), var(--secondary-bg) 30%); } 
+        .card-ok { border-left-color: var(--accent-green); }
         
-        /* КРАСИВА ШАПКА З ГРАДІЄНТОМ */
-        .header { text-align: center; margin-bottom: 10px; padding: 20px 10px; position: relative; border-radius: 16px; background: linear-gradient(145deg, var(--secondary-bg) 0%, rgba(36, 129, 204, 0.08) 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.03); transition: background 0.3s ease; }
-        .header h3 { margin: 0 0 5px 0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px;}
-        .header p { color: var(--hint-color); font-size: 13px; margin: 0; font-weight: 500;}
-        .header-badges { position: absolute; right: 15px; top: 15px; display: flex; gap: 4px; }
-        .user-title { display: inline-block; background: rgba(255, 152, 0, 0.15); color: #e65100; padding: 4px 10px; border-radius: 10px; font-size: 12px; font-weight: 800; margin-top: 8px; border: 1px solid rgba(255, 152, 0, 0.3); }
-        
-        .panic-mode { background: linear-gradient(135deg, #e53935 0%, #c62828 100%) !important; box-shadow: 0 5px 20px rgba(229, 57, 53, 0.4) !important; animation: pulse 1s infinite alternate; }
-        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.02); } }
-        .panic-mode h3, .panic-mode p { color: white !important; }
-        .panic-mode .user-title { background: rgba(255,255,255,0.2); color: white; border-color: white; }
-
-        /* КАРТКА СТАТИСТИКИ З ТІННЮ */
-        .stats-card { background: var(--secondary-bg); border-radius: 16px; padding: 15px; margin-bottom: 20px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-        .stats-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
-        .badge { padding: 5px 12px; border-radius: 12px; font-size: 12px; font-weight: 800; }
-        .badge-blue { background: rgba(36, 129, 204, 0.12); color: var(--button-color); }
-        .badge-green { background: rgba(67, 160, 71, 0.12); color: #2e7d32; }
-        .badge-red { background: rgba(229, 57, 53, 0.12); color: #c62828; }
-        .analytics-text { font-size: 13px; color: var(--hint-color); line-height: 1.4; margin-top: 5px; font-weight: 500;}
-        
-        /* ПРОГРЕС БАР ЗІ СВІТІННЯМ */
-        .progress-wrapper { margin-bottom: 20px; }
-        .progress-text { font-size: 13px; color: var(--hint-color); margin-bottom: 8px; text-align: center; font-weight: 700; }
-        .progress-track { background: var(--secondary-bg); border-radius: 10px; height: 10px; width: 85%; margin: 0 auto; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);}
-        .progress-fill { background: linear-gradient(90deg, #2481cc, #4facfe); height: 100%; width: 0%; transition: width 1s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 0 10px rgba(36, 129, 204, 0.5); }
-
-        /* ЛАЙВ ВІДЖЕТ */
-        .live-widget { background: linear-gradient(90deg, rgba(67, 160, 71, 0.12), rgba(67, 160, 71, 0.05)); border-left: 4px solid #43a047; padding: 12px 15px; border-radius: 12px; margin-bottom: 20px; display: none; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(67, 160, 71, 0.1);}
-        .live-pulse { width: 10px; height: 10px; background-color: #43a047; border-radius: 50%; animation: pulse-green 2s infinite; margin-right: 12px;}
-        @keyframes pulse-green { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(67, 160, 71, 0.7); } 70% { transform: scale(1.1); box-shadow: 0 0 0 8px rgba(67, 160, 71, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(67, 160, 71, 0); } }
-
-        /* ФІЛЬТРИ */
-        .filters-container { position: sticky; top: 0; z-index: 100; padding: 10px 0; background: var(--bg-color); margin: 0 -15px 15px -15px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;}
-        .filter-btn { background: var(--secondary-bg); color: var(--hint-color); border: none; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 800; cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);}
-        .filter-btn.active { background: var(--button-color); color: #ffffff; transform: scale(1.05); box-shadow: 0 4px 10px rgba(36, 129, 204, 0.3);}
-        .filter-btn:active { transform: scale(0.95); }
-
-        /* АНІМАЦІЇ ЗАВАНТАЖЕННЯ (СКЕЛЕТОН) */
-        .skeleton-card { background: var(--secondary-bg); border-radius: 16px; height: 75px; margin-bottom: 12px; animation: pulse-skeleton 1.5s infinite ease-in-out; opacity: 0.6; }
-        @keyframes pulse-skeleton { 0% { opacity: 0.4; } 50% { opacity: 0.8; } 100% { opacity: 0.4; } }
-
-        /* КРАСИВІ КАРТКИ ЗАВДАНЬ З ТІНЯМИ */
-        .task-card { background: var(--secondary-bg); border-radius: 16px; padding: 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid transparent; transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-        .task-card:active { transform: scale(0.98); }
-        .card-overdue { border-left-color: #e53935; background: linear-gradient(90deg, rgba(229, 57, 53, 0.05), var(--secondary-bg) 20%); } 
-        .card-soon { border-left-color: #ffa000; background: linear-gradient(90deg, rgba(255, 160, 0, 0.05), var(--secondary-bg) 20%); } 
-        .card-ok { border-left-color: #43a047; }
-        .completed { opacity: 0.5; text-decoration: line-through; border-left-color: var(--hint-color); box-shadow: none; filter: grayscale(0.5); }
-        
-        /* ЕПІЧНА АНІМАЦІЯ ВІДЛІТАННЯ */
         .completing { transform: translateX(120%) scale(0.9); opacity: 0; }
         .uncompleting { transform: translateX(-120%) scale(0.9); opacity: 0; }
 
         .task-info { flex-grow: 1; }
-        .task-subject { font-size: 11px; color: var(--hint-color); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-        .task-title { font-size: 16px; margin: 0 0 6px 0; color: var(--text-color); font-weight: 600; line-height: 1.3;}
-        .task-deadline { font-size: 12px; font-weight: 500;}
-        .status-overdue { color: #e53935; font-weight: 800; } .status-soon { color: #ffa000; font-weight: 800; } .status-ok { color: #43a047; font-weight: 600;} 
+        .task-subject { font-size: 11px; color: var(--hint-color); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;}
+        .task-title { font-size: 16px; margin: 0; color: var(--text-color); font-weight: 500; line-height: 1.3; }
+        .task-deadline { font-size: 12px; margin-top: 5px; color: var(--hint-color); }
         
-        /* ПРУЖИННИЙ ЧЕКБОКС */
-        .checkbox { width: 26px; height: 26px; border: 2px solid var(--button-color); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-left: 15px; min-width: 26px; cursor: pointer; transition: all 0.2s; background: var(--bg-color);}
-        .checkbox.checked { background: var(--button-color); animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); } 
-        .checkbox.checked::after { content: "✓"; color: #ffffff; font-weight: 900; font-size: 16px; }
-        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+        .checkbox { 
+            width: 28px; height: 28px; border: 2px solid var(--button-color); 
+            border-radius: 10px; display: flex; align-items: center; justify-content: center; 
+            margin-left: 15px; min-width: 28px; cursor: pointer; 
+            background: var(--bg-color); transition: 0.2s;
+        }
+        .checkbox.checked { background: var(--button-color); }
+        .checkbox.checked::after { content: "✓"; color: #fff; font-weight: bold; font-size: 18px; }
 
-        .subject-group-title { font-size: 13px; font-weight: 800; color: var(--button-color); margin: 25px 0 12px 5px; text-transform: uppercase; border-bottom: 2px solid rgba(36, 129, 204, 0.1); padding-bottom: 5px; }
+        .subject-group-title { font-size: 13px; font-weight: 700; color: var(--button-color); margin: 30px 0 15px 5px; text-transform: uppercase; border-bottom: 1.5px solid rgba(36, 129, 204, 0.1); padding-bottom: 6px; }
 
-        /* ЖИВЕ НИЖНЄ МЕНЮ */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-color); border-top: 1px solid rgba(0,0,0,0.05); display: flex; justify-content: space-around; padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); z-index: 4000; box-shadow: 0 -10px 25px rgba(0,0,0,0.04); }
-        .nav-item { display: flex; flex-direction: column; align-items: center; background: none; border: none; width: 20%; color: var(--hint-color); font-size: 11px; font-weight: 800; cursor: pointer; gap: 4px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .nav-item .icon { font-size: 24px; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); filter: grayscale(1); opacity: 0.7;}
-        .nav-item.active { color: var(--button-color); transform: translateY(-3px); }
-        .nav-item.active .icon { transform: scale(1.15); filter: grayscale(0); opacity: 1; }
+        /* --- ВИКОНАНІ --- */
+        details.completed-section { margin-top: 40px; border-top: 1px solid var(--secondary-bg); padding-top: 15px; }
+        details.completed-section summary { 
+            padding: 18px; font-weight: 600; color: var(--hint-color); 
+            cursor: pointer; list-style: none; background: var(--secondary-bg); 
+            border-radius: 15px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .completed-container .task-card { opacity: 0.5; filter: grayscale(0.8); border-left-color: var(--hint-color); }
 
-        /* ПРУЖИННІ МОДАЛКИ (Z-INDEX 5000) */
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 5000; backdrop-filter: blur(3px); }
+        /* --- КАЗИНО --- */
+        .casino-card { 
+            background: radial-gradient(circle at top, #2b0b3d 0%, #0d0214 100%); 
+            padding: 30px 20px; border-radius: 24px; 
+            border: 2px solid #ff00ff; text-align: center; color: #fff;
+            box-shadow: 0 10px 30px rgba(255, 0, 255, 0.3); margin-bottom: 20px;
+        }
+        .casino-title { font-size: 26px; font-weight: 700; color: #fff; text-shadow: 0 0 15px #ff00ff; margin-bottom: 15px;}
+        .casino-btn { 
+            background: linear-gradient(180deg, #ffd700 0%, #ff8f00 100%); 
+            color: #000; width: 100%; padding: 18px; 
+            font-size: 18px; font-weight: 700; border: none; 
+            border-radius: 16px; margin-top: 20px; cursor: pointer;
+        }
+
+        /* --- МЕНЮ --- */
+        .bottom-nav { 
+            position: fixed; bottom: 0; left: 0; right: 0; 
+            background: var(--bg-color); border-top: 1px solid rgba(0,0,0,0.05); 
+            display: flex; justify-content: space-around; 
+            padding: 10px 0 calc(12px + env(safe-area-inset-bottom)); 
+            z-index: 4000; backdrop-filter: blur(10px);
+        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; background: none; border: none; width: 20%; color: var(--hint-color); font-size: 11px; font-weight: 500; transition: 0.3s; }
+        .nav-item.active { color: var(--button-color); transform: translateY(-4px); }
+        .nav-item .icon { font-size: 24px; margin-bottom: 3px; }
+
+        .modal-overlay { 
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+            background: rgba(0,0,0,0.7); display: flex; align-items: flex-end; justify-content: center; 
+            opacity: 0; pointer-events: none; transition: 0.4s; z-index: 5000; backdrop-filter: blur(4px);
+        }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-content { background: var(--bg-color); padding: 25px 20px 80px 20px; border-radius: 24px 24px 0 0; width: 100%; max-height: 85vh; overflow-y: auto; transform: translateY(100%); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-sizing: border-box; box-shadow: 0 -10px 30px rgba(0,0,0,0.1); }
+        .modal-content { 
+            background: var(--bg-color); padding: 30px 20px 100px 20px; 
+            border-radius: 30px 30px 0 0; width: 100%; max-height: 88vh; 
+            transform: translateY(100%); transition: 0.4s ease-out; 
+            overflow-y: auto; position: relative;
+        }
         .modal-overlay.active .modal-content { transform: translateY(0); }
-        .modal-close { position: absolute; right: 20px; top: 20px; font-size: 28px; color: var(--hint-color); background: rgba(0,0,0,0.05); width: 36px; height: 36px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: background 0.2s;}
-        .modal-close:active { background: rgba(0,0,0,0.1); transform: scale(0.9); }
-        .modal-title { font-size: 22px; font-weight: 800; margin-bottom: 20px; color: var(--text-color); padding-right: 40px;}
-
-        /* ЗОНА ЧІЛ ТА КАЗИНО */
-        .casino-container { background: radial-gradient(circle at top, #3a0a63 0%, #12051a 100%); padding: 30px 20px; border-radius: 20px; border: 2px solid #9d50bb; box-shadow: 0 10px 30px rgba(157, 80, 187, 0.3); text-align: center; color: white; margin-bottom: 20px; position: relative;}
-        .casino-title { font-size: 28px; font-weight: 900; background: linear-gradient(to right, #ffd700, #ff8c00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 1px; filter: drop-shadow(0 2px 4px rgba(255,215,0,0.3));}
-        .casino-spins { font-size: 13px; color: #ffd700; font-weight: 800; margin-bottom: 20px; background: rgba(255, 215, 0, 0.1); padding: 6px 15px; border-radius: 12px; display: inline-block; border: 1px solid rgba(255, 215, 0, 0.3);}
-        .casino-btn { background: linear-gradient(to bottom, #ffd700, #ff8c00); color: #000; width: 100%; padding: 18px; font-size: 18px; font-weight: 900; border: none; border-radius: 16px; box-shadow: 0 6px 0 #b36b00, 0 15px 20px rgba(0,0,0,0.4); cursor: pointer; text-transform: uppercase; transition: all 0.1s;}
-        .casino-btn:active { transform: translateY(6px); box-shadow: 0 0px 0 #b36b00, 0 5px 10px rgba(0,0,0,0.4); }
-        .drop-rates { text-align: left; font-size: 12px; margin-top: 25px; color: #ddd; background: rgba(0,0,0,0.6); padding: 15px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);}
-        .drop-rates h4 { margin: 0 0 12px 0; color: #fff; font-size: 14px; text-align: center; text-transform: uppercase; letter-spacing: 1px;}
-        .drop-rates div { margin-bottom: 8px; display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 4px;}
-        .drop-rates span.rate { color: #ffd700; font-weight: 900;}
-
-        /* МАГАЗИН */
-        .shop-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-right: 40px; }
-        .coin-balance { font-size: 16px; font-weight: 900; color: #ff8f00; background: linear-gradient(90deg, rgba(255, 193, 7, 0.1), rgba(255, 193, 7, 0.2)); border: 1px solid rgba(255, 193, 7, 0.4); padding: 8px 15px; border-radius: 12px; display: inline-block; box-shadow: 0 4px 10px rgba(255, 143, 0, 0.2);}
-        
-        .bonus-card { background: linear-gradient(135deg, rgba(255, 152, 0, 0.1), rgba(255, 87, 34, 0.15)); border: 1px solid rgba(255, 152, 0, 0.3); border-radius: 16px; padding: 18px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(255, 152, 0, 0.1);}
-        .bonus-btn { background: linear-gradient(135deg, #ff9800, #f44336); color: white; border: none; padding: 12px 20px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 14px; box-shadow: 0 4px 10px rgba(244, 67, 54, 0.3); transition: transform 0.2s;}
-        .bonus-btn:active { transform: scale(0.95); }
-        
-        .shop-item { background: var(--secondary-bg); border-radius: 16px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid transparent; transition: transform 0.2s;}
-        .shop-item:active { transform: scale(0.98); }
-        .shop-item.legendary { border: 2px solid #ffd700; background: linear-gradient(135deg, var(--secondary-bg) 0%, rgba(255, 215, 0, 0.1) 100%); box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);}
-        .shop-info h4 { margin: 0 0 6px 0; color: var(--text-color); font-size: 16px; font-weight: 800;}
-        .shop-info p { margin: 0; font-size: 12px; color: var(--hint-color); font-weight: 500;}
-        .buy-btn { background: var(--secondary-bg); color: var(--text-color); border: 2px solid #ff8f00; padding: 8px 15px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 13px; color: #ff8f00;}
-        .buy-btn.owned { background: var(--button-color); border-color: var(--button-color); color: white;}
-        .buy-btn.active-title { background: #43a047; border-color: #43a047; color: white;}
-
-        .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px); background: #333; color: white; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: 800; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 6000; box-shadow: 0 5px 15px rgba(0,0,0,0.2); opacity: 0; pointer-events: none;}
-        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1;}
     </style>
 </head>
 <body>
 
 <div class="header" id="mainHeader">
+    <div id="headerBadges" class="header-badges"></div>
     <h3 id="userName">Привіт!</h3>
     <div class="user-title" id="userTitleBadge" style="display: none;"></div>
-    <p id="headerSubtitle" style="margin-top: 5px;">Твої навчальні завдання</p>
-    <div id="headerBadges" class="header-badges"></div>
+    <p id="headerSubtitle" style="margin-top: 5px; font-weight: 500;">Твої навчальні завдання</p>
 </div>
 
 <div class="stats-card" id="statsCard" style="display: none;">
-    <div class="stats-row"><span id="streakBadge" class="badge badge-green">🔥 Без боргів</span><span id="levelBadge" class="badge badge-blue">🤓 Студент</span><span id="rankBadge" class="badge badge-blue">🏆 ...</span></div>
-    <div class="analytics-text" id="analyticsText">Аналізуємо успіхи...</div>
-</div>
-
-<div class="progress-wrapper" id="progressWrapper" style="display: none;">
-    <div class="progress-text" id="progressText">Мій прогрес: 0%</div>
-    <div class="progress-track"><div class="progress-fill" id="progressBar"></div></div>
-</div>
-
-<div id="liveWidget" class="live-widget">
-    <div style="display: flex; align-items: center;"><div class="live-pulse"></div><div><div style="font-size: 11px; color: #43a047; font-weight: 800; text-transform: uppercase;">Зараз іде пара</div><div id="liveSubject" style="font-size: 14px; font-weight: 800; color: var(--text-color);">...</div></div></div>
-    <div id="liveTimeLeft" style="font-size: 13px; color: var(--hint-color); font-weight: 800;"></div>
+    <div class="stats-row">
+        <span id="streakBadge" class="badge">🔥 ...</span>
+        <span id="levelBadge" class="badge badge-blue">Студент</span>
+        <span id="rankBadge" class="badge badge-blue">🏆 ...</span>
+    </div>
+    <div class="progress-wrapper">
+        <div class="progress-text" id="progressText">Мій прогрес: 0%</div>
+        <div class="progress-track"><div class="progress-fill" id="progressBar"></div></div>
+    </div>
+    <div id="analyticsText" class="analytics-text">Завантаження...</div>
 </div>
 
 <div class="filters-container" id="filtersBlock" style="display: none;">
@@ -162,70 +178,96 @@
     <button class="filter-btn" onclick="applyFilter('soon', this)">Горять</button>
 </div>
 
-<div id="activeTaskList"><div class="skeleton-card"></div><div class="skeleton-card"></div></div>
-<details id="completedSection" style="display: none;"><summary style="padding: 15px; font-weight: 800; color: var(--hint-color); cursor: pointer; list-style: none; background: var(--secondary-bg); border-radius: 12px; display: flex; justify-content: space-between;">Виконані завдання (<span id="completedCount">0</span>)</summary><div id="completedTaskList" class="completed-container" style="margin-top:15px;"></div></details>
+<div id="activeTaskList">
+    <div class="skeleton-card"></div><div class="skeleton-card"></div>
+</div>
+
+<details class="completed-section" id="completedSection" style="display: none;">
+    <summary>📦 Виконані завдання (<span id="completedCount">0</span>)</summary>
+    <div id="completedTaskList" class="completed-container"></div>
+</details>
 
 <div class="bottom-nav">
     <button class="nav-item active" id="navHome" onclick="switchTab('home', this)"><span class="icon">📋</span>Завдання</button>
     <button class="nav-item" id="navLib" onclick="switchTab('libraryModal', this)"><span class="icon">📚</span>Довідка</button>
     <button class="nav-item" id="navShop" onclick="switchTab('shopModal', this)"><span class="icon">🏷️</span>Магаз</button>
     <button class="nav-item" id="navChill" onclick="switchTab('chillModal', this)"><span class="icon">🎮</span>Чіл</button>
-    <button class="nav-item" id="navAdminBtn" onclick="switchTab('adminModal', this)" style="display: none;"><span class="icon">👑</span>Адмінка</button>
+    <button class="nav-item" id="navAdminBtn" onclick="switchTab('adminModal', this)" style="display: none;"><span class="icon">👑</span>Адмін</button>
 </div>
-<div id="libraryModal" class="modal-overlay"><div class="modal-content"><button class="modal-close" onclick="closeModal('libraryModal')">×</button><div class="modal-title">📚 Довідка</div>
-    <details class="lib-folder" style="background:var(--secondary-bg); border-radius:12px; margin-bottom:10px;"><summary style="padding:15px; font-weight:800; cursor:pointer;">📐 Вища математика</summary><div style="padding:10px 15px;"><a href="https://drive.google.com/drive/folders/1-23dkVNqF_iwxF7kTcWTt5NKgGtHpatl?usp=drive_link" style="color:var(--button-color); text-decoration:none; font-weight:bold;">📁 Google Drive</a></div></details>
-    <details class="lib-folder" style="background:var(--secondary-bg); border-radius:12px; margin-bottom:10px;"><summary style="padding:15px; font-weight:800; cursor:pointer;">💻 Програмування/ТА</summary><div style="padding:10px 15px;"><a href="https://classroom.google.com/c/ODQyMzQzMzEzOTA5?cjc=qe2644u4" style="color:var(--button-color); text-decoration:none; font-weight:bold;">📘 Класрум</a></div></details>
-    <details class="lib-folder" style="background:var(--secondary-bg); border-radius:12px; margin-bottom:10px;"><summary style="padding:15px; font-weight:800; cursor:pointer;">💻 ЧМ</summary><div style="padding:10px 15px;"><a href="https://drive.google.com/drive/folders/1ygfMY4tFCtGkx-a0ENohczI4Vv0K_iN5" style="color:var(--button-color); text-decoration:none; font-weight:bold;">📁 Google Drive</a></div></details>
-    <details class="lib-folder" style="background:var(--secondary-bg); border-radius:12px; margin-bottom:10px;"><summary style="padding:15px; font-weight:800; cursor:pointer;">⚡ Фізика</summary><div style="padding:10px 15px;"><a href="https://classroom.google.com/c/ODA1MTI2MTMyMTk4" style="color:var(--button-color); text-decoration:none; font-weight:bold;">📘 Класрум</a></div></details>
-    <details class="lib-folder" style="background:var(--secondary-bg); border-radius:12px; margin-bottom:10px;"><summary style="padding:15px; font-weight:800; cursor:pointer;">🇬🇧 Англійська мова</summary><div style="padding:10px 15px;"><a href="https://classroom.google.com/c/ODE5MDkxODI0Mjgx" style="color:var(--button-color); text-decoration:none; font-weight:bold;">📘 Класрум</a></div></details>
-</div></div>
+<div id="libraryModal" class="modal-overlay">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('libraryModal')">×</button>
+        <div class="modal-title">📚 Довідка</div>
+        <details class="lib-folder"><summary>📐 Вища математика</summary><div class="lib-links"><a href="https://drive.google.com/drive/folders/1-23dkVNqF_iwxF7kTcWTt5NKgGtHpatl?usp=drive_link" class="lib-link">📁 Матеріали (Drive)</a></div></details>
+        <details class="lib-folder"><summary>💻 Програмування/ТА</summary><div class="lib-links"><a href="https://classroom.google.com/c/ODQyMzQzMzEzOTA5?cjc=qe2644u4" class="lib-link">📘 Класрум (IC-51)</a></div></details>
+        <details class="lib-folder"><summary>💻 Чисельні Методи</summary><div class="lib-links"><a href="https://drive.google.com/drive/folders/1ygfMY4tFCtGkx-a0ENohczI4Vv0K_iN5" class="lib-link">📁 Матеріали (Drive)</a></div></details>
+        <details class="lib-folder"><summary>⚡ Фізика</summary><div class="lib-links"><a href="https://classroom.google.com/c/ODA1MTI2MTMyMTk4" class="lib-link">📘 Класрум (Фізика)</a></div></details>
+        <details class="lib-folder"><summary>🇬🇧 Англійська мова</summary><div class="lib-links"><a href="https://classroom.google.com/c/ODE5MDkxODI0Mjgx" class="lib-link">📘 Класрум (Англ)</a></div></details>
+    </div>
+</div>
 
 <div id="shopModal" class="modal-overlay">
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('shopModal')">×</button>
         <div class="shop-header">
-            <div><h2 style="margin:0; font-size:22px; color:var(--text-color); font-weight: 800;">🏷️ Магазин</h2><p style="margin:0; font-size:13px; color:var(--hint-color); font-weight: 500;">Ексклюзивні титули</p></div>
+            <div><h2 class="modal-title" style="margin:0;">🏷️ Магазин</h2><p style="margin:0; font-size:13px; color:var(--hint-color); font-weight:normal;">Титули за коїни</p></div>
             <div class="coin-balance" id="shopCoinBalance">💰 0</div>
         </div>
-        <div class="bonus-card" id="dailyBonusCard">
-            <div><h3 style="margin:0; font-size:18px; font-weight: 800;">Щоденний бонус 🎁</h3><p style="margin:4px 0; font-size:14px; font-weight:800; color:#e65100;" id="streakDisplay">🔥 Вогник: 0 днів</p><p style="margin:0; font-size:12px; color:var(--hint-color); font-weight: 500;">+5 🪙 за кожен день підряд!</p></div>
-            <button class="bonus-btn" id="claimBonusBtn" onclick="claimDailyBonus()">Забрати</button>
+        <div style="background: var(--secondary-bg); border-radius: 14px; padding: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(0,0,0,0.05);">
+            <div><h3 style="margin:0; font-size:15px; font-weight:600;">Щоденний бонус 🎁</h3><p style="margin:4px 0 0 0; font-size:13px; color:var(--accent-gold); font-weight:600;" id="streakDisplay">🔥 Вогник: 0 днів</p></div>
+            <button id="claimBonusBtn" onclick="claimDailyBonus()" style="background: var(--accent-gold); color: white; border: none; padding: 10px 15px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s;">Забрати</button>
         </div>
         <div id="titlesList"></div>
     </div>
 </div>
 
-<div id="chillModal" class="modal-overlay">
+<div id="chillModal" class="modal-overlay full-screen-modal">
     <div class="modal-content" style="background: #12051a;">
-        <button class="modal-close" onclick="closeModal('chillModal')" style="color:white;">×</button>
+        <button class="modal-close" onclick="closeModal('chillModal')" style="color: white; top: 25px;">×</button>
         <div class="shop-header">
-            <div><h2 style="margin:0; font-size:22px; color:#fff; font-weight: 800;">🎮 Зона Відпочинку</h2></div>
-            <div class="coin-balance" id="chillCoinBalance">💰 0</div>
+            <div><h2 class="modal-title" style="margin:0; color:#fff;">🎮 Зона Чіл</h2></div>
+            <div class="coin-balance" id="chillCoinBalance" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);">💰 0</div>
         </div>
 
         <div class="casino-container" id="casinoContainer">
-            <div class="casino-title">🎰 Лудо Марафон</div>
-            <div class="casino-spins" id="spinDisplay">Спінів зроблено: 0</div>
-            <p style="font-size: 14px; margin-bottom: 25px; color: #ddd; font-weight: 500;">Крути рулетку за 50 🪙. Вигравай скіни та джекпоти!</p>
-            <button class="casino-btn" onclick="openLootbox()">КРУТИТИ ЗА 50 🪙</button>
+            <div class="casino-title">🎰 Казино</div>
+            <div id="spinDisplay" style="font-size: 13px; color: #00ffff; font-weight: 500; margin-bottom: 20px;">Спінів: 0</div>
+            <button class="casino-btn" onclick="openLootbox()">Крутити (50 🪙)</button>
 
             <div class="drop-rates">
-                <h4>📊 Шанси на виграш:</h4>
+                <h4 style="margin:0 0 12px 0; color:#fff; text-align:center; font-weight:normal;">Ймовірності виграшу:</h4>
                 <div><span>Пусто 💨</span> <span class="rate">31.5%</span></div>
                 <div><span>Втішний (+10) 🍬</span> <span class="rate">20%</span></div>
                 <div><span>Окуп (+50) 💸</span> <span class="rate">18%</span></div>
                 <div><span>Плюс (+80) 🤑</span> <span class="rate">15%</span></div>
-                <div><span>Базовий Скін 👕</span> <span class="rate">10%</span></div>
-                <div><span>ДЖЕКПОТ (+200) 💎</span> <span class="rate">4%</span></div>
-                <div><span>ЛЕГЕНДА 🦸‍♂️</span> <span class="rate">1.5%</span></div>
+                <div><span>Скін 👕</span> <span class="rate">10%</span></div>
+                <div><span>Джекпот (+200) 💎</span> <span class="rate">4%</span></div>
+                <div><span>Легенда 🦸‍♂️</span> <span class="rate">1.5%</span></div>
             </div>
         </div>
     </div>
 </div>
 
-<div id="adminModal" class="modal-overlay"><div class="modal-content"><button class="modal-close" onclick="closeModal('adminModal')">×</button><div class="modal-title">👑 Панель Старости</div><select id="subjectSelect" class="admin-select" style="width: 100%; padding: 12px; border-radius: 12px; background: var(--secondary-bg); border: none; font-size: 16px; font-weight: 600; margin-bottom: 15px; outline: none;"></select><div class="rollcall-list" id="rollcallList"></div><button class="save-btn" onclick="saveAttendance()" style="width: 100%; background: var(--button-color); color: white; padding: 15px; border-radius: 16px; font-size: 16px; font-weight: 800; margin-top: 20px; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(36, 129, 204, 0.3);">💾 Зберегти в базу</button></div></div>
-<div id="confirmModal" class="modal-overlay" style="align-items: center;"><div class="modal-content" style="border-radius: 24px; width: 85%; transform: scale(0.9); opacity: 0; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding-bottom: 25px;"><div class="modal-title" id="modalText" style="text-align: center; margin-bottom: 25px; padding: 0;">Ти дійсно виконав це завдання?</div><div style="display: flex; gap: 12px;"><button id="modalCancelBtn" class="filter-btn" style="flex:1; padding: 14px; font-size: 15px;" onclick="closeModal('confirmModal')">Ще роблю</button><button id="modalConfirmBtn" class="filter-btn" style="flex:1; padding: 14px; font-size: 15px; background: var(--button-color); color: white; box-shadow: 0 4px 15px rgba(36, 129, 204, 0.3);">Так, готово!</button></div></div></div>
-<style> .modal-overlay.active #confirmModal .modal-content { transform: scale(1); opacity: 1; } </style>
+<div id="adminModal" class="modal-overlay">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeModal('adminModal')">×</button>
+        <div class="modal-title">👑 Адмінка</div>
+        <select id="subjectSelect" class="admin-select"></select>
+        <div id="rollcallList"></div>
+        <button class="save-btn" onclick="saveAttendance()">Зберегти журнал</button>
+    </div>
+</div>
+
+<div id="confirmModal" class="modal-overlay popup-modal">
+    <div class="modal-content">
+        <div class="modal-title" id="modalText" style="text-align: center; margin-bottom: 20px;">Ти виконав завдання?</div>
+        <div style="display: flex; gap: 10px;">
+            <button class="filter-btn" style="flex:1;" onclick="closeModal('confirmModal')">Ні</button>
+            <button id="modalConfirmBtn" class="filter-btn" style="flex:1; background: var(--button-color); color: white;">Так</button>
+        </div>
+    </div>
+</div>
+
 <div id="toast" class="toast"></div>
 
 <script>
@@ -239,27 +281,26 @@
     let toastTimeout; let pendingTaskId = null; let pendingTaskState = null; let currentFilter = 'all';
 
     const availableTitles = [
-        { name: "Студент 🤓", price: 0, desc: "Стандартний статус" },
-        { name: "Новачок 🐣", price: 20, desc: "Тільки почав свій шлях" },
-        { name: "Любитель кави ☕", price: 80, desc: "Працює на кофеїні" },
-        { name: "Спить на парах 😴", price: 150, desc: "Режим енергозбереження" },
-        { name: "Дедлайн-кілер 🥷", price: 200, desc: "Здає за хвилину до кінця" },
-        { name: "Майстер Вишмату 🧙‍♂️", price: 299, desc: "Бачить матриці наскрізь" },
-        { name: "Код-машина 🤖", price: 300, desc: "Пише без багів (майже)" },
-        { name: "Шукач автоматів 🎯", price: 350, desc: "Робить все заради 60 балів" },
-        { name: "Гроза Деканату ⚡", price: 500, desc: "Елітний статус" },
-        { name: "Кібер-Мозок 🧠", price: 800, desc: "Компілює код у голові" },
-        { name: "Магнат КПІ 🎩", price: 1500, desc: "Купив кафедру за коїни" },
+        { name: "Студент 🤓", price: 0, desc: "Базовий статус" },
+        { name: "Новачок 🐣", price: 20, desc: "Почав шлях" },
+        { name: "Любитель кави ☕", price: 80, desc: "П'є еспресо" },
+        { name: "Спить на парах 😴", price: 150, desc: "Енергозбереження" },
+        { name: "Дедлайн-кілер 🥷", price: 200, desc: "В останню мить" },
+        { name: "Майстер Вишмату 🧙‍♂️", price: 299, desc: "Бачить матриці" },
+        { name: "Код-машина 🤖", price: 300, desc: "Без багів (майже)" },
+        { name: "Шукач автоматів 🎯", price: 350, desc: "Заради 60 балів" },
+        { name: "Гроза Деканату ⚡", price: 500, desc: "Еліта" },
+        { name: "Кібер-Мозок 🧠", price: 800, desc: "Компілює в голові" },
+        { name: "Магнат КПІ 🎩", price: 1500, desc: "Багатій" },
         { name: "Син Ректора 👑", price: 3000, desc: "Йому можна все" },
-        { name: "Бог Сесії 🌌", price: 5000, desc: "Легенда, про яку ходять чутки" },
-        { name: "Син маминої подруги 🦸‍♂️", price: 99999, desc: "ЛЕГЕНДА. Випадає тільки в казино!" }
+        { name: "Бог Сесії 🌌", price: 5000, desc: "Легенда" },
+        { name: "Син маминої подруги 🦸‍♂️", price: 99999, desc: "Тільки в казино" }
     ];
 
     function updateHeaderInfo() {
         document.getElementById('userName').innerText = `Привіт, ${firstName}!`;
         document.getElementById('shopCoinBalance').innerText = `💰 ${myCoins}`;
         document.getElementById('chillCoinBalance').innerText = `💰 ${myCoins}`;
-        
         const titleBadge = document.getElementById('userTitleBadge');
         if (activeTitle && activeTitle !== "Студент 🤓") { titleBadge.innerText = activeTitle; titleBadge.style.display = "inline-block"; } 
         else { titleBadge.style.display = "none"; }
@@ -270,10 +311,7 @@
         document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
         if(btnElement) btnElement.classList.add('active');
 
-        document.getElementById('libraryModal').classList.remove('active');
-        document.getElementById('shopModal').classList.remove('active');
-        document.getElementById('chillModal').classList.remove('active');
-        document.getElementById('adminModal').classList.remove('active');
+        document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
 
         if (tabId === 'shopModal') openShop(); 
         else if (tabId === 'chillModal') await openChill();
@@ -295,41 +333,29 @@
                     const data = await res.json();
                     if (data.bonusGiven) {
                         myCoins = data.coins; hasChillBonus = true; updateHeaderInfo();
-                        confetti({ particleCount: 200, spread: 90 });
-                        tg.showAlert("🎉 ПРИВІТАЛЬНИЙ БОНУС!\nТи вперше зайшов у зону 'Чіл' і отримав 150 🪙 на гру!");
+                        confetti(); tg.showAlert("🎉 ПРИВІТАЛЬНИЙ БОНУС!\nОтримано 150 🪙 на гру!");
                     }
                 }
             } catch(e) {}
         }
-        document.getElementById('spinDisplay').innerText = `Спінів зроблено: ${mySpins}`;
+        document.getElementById('spinDisplay').innerText = `Спінів: ${mySpins}`;
         document.getElementById('chillModal').classList.add('active');
     }
 
     async function openLootbox() {
-        if (myCoins < 50) { tg.showAlert("Бракує коїнів! Потрібно 50 🪙."); tg.HapticFeedback.notificationOccurred('error'); return; }
-
-        const casinoCont = document.getElementById('casinoContainer');
-        casinoCont.style.animation = "pulse 0.4s alternate infinite"; tg.HapticFeedback.impactOccurred('heavy');
-
+        if (myCoins < 50) { tg.showAlert("Бракує коїнів!"); tg.HapticFeedback.notificationOccurred('error'); return; }
+        tg.HapticFeedback.impactOccurred('medium');
         try {
             const res = await fetch(`${API_URL}/lootbox/${userId}`, { method: 'POST' });
-            setTimeout(() => casinoCont.style.animation = "", 400); 
-            
             if (res.ok) {
                 const data = await res.json();
                 myCoins = data.coins; mySpins = data.spins;
                 myTitles = data.unlockedTitles ? data.unlockedTitles.split(',') : ['Студент 🤓'];
-                updateHeaderInfo(); document.getElementById('spinDisplay').innerText = `Спінів зроблено: ${mySpins}`;
-                
-                if (data.prizeType === 'legendary') {
-                    confetti({ particleCount: 300, spread: 100 }); tg.showAlert(`😱 ШОК! Тобі випала ЛЕГЕНДА!\n\n${data.message}`);
-                } else if (data.prizeType === 'epic') {
-                    confetti({ particleCount: 150 }); showToast(data.message); tg.HapticFeedback.notificationOccurred('success');
-                } else if (data.prizeType === 'skin') {
-                    confetti({ particleCount: 80 }); showToast(data.message); tg.HapticFeedback.notificationOccurred('success');
-                } else { showToast(data.message); }
-            } else { showToast("Помилка рулетки ❌"); }
-        } catch (e) { casinoCont.style.animation = ""; showToast("Помилка зв'язку ❌"); }
+                updateHeaderInfo(); document.getElementById('spinDisplay').innerText = `Спінів: ${mySpins}`;
+                if (data.prizeType === 'legendary' || data.prizeType === 'epic') confetti(); 
+                showToast(data.message);
+            }
+        } catch (e) { showToast("Помилка зв'язку"); }
     }
 
     function openShop() {
@@ -337,42 +363,27 @@
         document.getElementById('streakDisplay').innerText = `🔥 Вогник: ${streakCount} днів`;
         const btn = document.getElementById('claimBonusBtn');
         if (canClaimBonus) { 
-            btn.innerText = "Забрати 🎁"; btn.disabled = false; 
-            btn.style.background = "linear-gradient(135deg, #ff9800, #f44336)"; 
+            btn.innerText = "Забрати"; btn.disabled = false; btn.style.background = "var(--accent-gold)"; btn.style.color = "white";
         } else { 
-            btn.innerText = "Отримано ✅"; btn.disabled = true; 
-            btn.style.background = "var(--hint-color)"; 
-            btn.style.boxShadow = "none";
+            btn.innerText = "Отримано ✅"; btn.disabled = true; btn.style.background = "transparent"; btn.style.color = "var(--hint-color)";
         }
 
         availableTitles.forEach((t) => {
-            if (t.name.includes("Син маминої подруги") && !myTitles.includes(t.name)) return; 
-            
+            if (t.name.includes("подруги") && !myTitles.includes(t.name)) return; 
             const isOwned = myTitles.includes(t.name); const isActive = activeTitle === t.name;
             let btnHtml = `<button class="buy-btn" onclick="buyTitle('${t.name}', ${t.price})">${t.price} 🪙</button>`;
-            let extraClass = t.name.includes("Син маминої подруги") ? "legendary" : "";
             
-            if (isActive) btnHtml = `<button class="buy-btn active-title">Вибрано ✅</button>`;
-            else if (isOwned) btnHtml = `<button class="buy-btn owned" onclick="buyTitle('${t.name}', 0)">Надіти</button>`;
+            if (isActive) btnHtml = `<span style="color: var(--accent-green); font-weight: 600; font-size:13px;">АКТИВНО</span>`;
+            else if (isOwned) btnHtml = `<button class="buy-btn" style="background:var(--button-color);" onclick="buyTitle('${t.name}', 0)">Взяти</button>`;
             
-            list.innerHTML += `<div class="shop-item ${extraClass}"><div class="shop-info"><h4>${t.name}</h4><p>${t.desc}</p></div>${btnHtml}</div>`;
+            list.innerHTML += `<div class="shop-item"><div class="shop-info"><h4 style="margin:0; font-size:15px; font-weight:600;">${t.name}</h4><p style="margin:4px 0 0 0; font-size:12px; color:var(--hint-color);">${t.desc}</p></div>${btnHtml}</div>`;
         });
         document.getElementById('shopModal').classList.add('active');
     }
 
     async function buyTitle(name, price) {
-        if (myTitles.includes(name)) {
-            await fetch(`${API_URL}/user/${userId}/title`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'equip', title: name }) });
-            activeTitle = name; updateHeaderInfo(); openShop(); tg.HapticFeedback.notificationOccurred('success');
-        } else {
-            if (myCoins >= price) {
-                const res = await fetch(`${API_URL}/user/${userId}/title`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'buy', title: name, price: price }) });
-                if(res.ok) {
-                    myCoins -= price; myTitles.push(name); activeTitle = name; updateHeaderInfo(); openShop();
-                    confetti({ particleCount: 100, spread: 70 }); tg.HapticFeedback.notificationOccurred('success');
-                } else showToast("Помилка покупки!");
-            } else { tg.showAlert(`Бракує коїнів! Треба ще ${price - myCoins} 🪙.`); tg.HapticFeedback.notificationOccurred('error'); }
-        }
+        const res = await fetch(`${API_URL}/user/${userId}/title`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: price>0?'buy':'equip', title: name, price: price }) });
+        if(res.ok) { loadData(); setTimeout(openShop, 200); }
     }
 
     async function claimDailyBonus() {
@@ -382,10 +393,8 @@
             const res = await fetch(`${API_URL}/bonus/${userId}`, { method: 'POST' });
             if (res.ok) {
                 const data = await res.json();
-                myCoins = data.coins; streakCount = data.streak; canClaimBonus = false;
-                updateHeaderInfo(); openShop(); 
-                confetti({ particleCount: 150 }); showToast(`Забрано +${data.reward} 🪙! Твій вогник: ${streakCount} 🔥`);
-            } else { showToast("Бонус вже отримано ❌"); }
+                confetti(); showToast(`Отримано +${data.reward} 🪙`); loadData(); setTimeout(openShop, 200);
+            }
         } catch(e) {}
     }
 
@@ -403,33 +412,33 @@
         ];
 
         let currentSlot = timeSlots.find(slot => currentMinutes >= slot.start && currentMinutes < slot.end);
-        const widget = document.getElementById('liveWidget'); const subjText = document.getElementById('liveSubject'); const timeText = document.getElementById('liveTimeLeft');
+        const widget = document.getElementById('liveWidget');
 
         if (!currentSlot || day === 0 || day === 6) { widget.style.display = 'none'; return; }
 
         let subjectName = "Пара";
         if (weekType === 1) {
-            if (day === 1) subjectName = ["Спимо", "Основи здоров'я", "Українська мова", "Фізика"][currentSlot.num-1];
-            if (day === 2) subjectName = ["Фізика", "Теорія алгоритмів", "Українська мова", ""][currentSlot.num-1];
-            if (day === 3) subjectName = ["Програмування", "Англійська мова", "Чисельні методи", ""][currentSlot.num-1];
+            if (day === 1) subjectName = ["-", "Основи здоров'я", "Українська мова", "Фізика"][currentSlot.num-1];
+            if (day === 2) subjectName = ["Фізика", "Теорія алгоритмів", "Українська мова", "-"][currentSlot.num-1];
+            if (day === 3) subjectName = ["Програмування", "Англійська мова", "Чисельні методи", "-"][currentSlot.num-1];
             if (day === 4) subjectName = ["Програмування", "Чисельні методи", "Вища математика", "Вища математика"][currentSlot.num-1];
-            if (day === 5) subjectName = ["Спимо", "Теорія алгоритмів", "Вища математика", ""][currentSlot.num-1];
+            if (day === 5) subjectName = ["-", "Теорія алгоритмів", "Вища математика", "-"][currentSlot.num-1];
         } else {
-            if (day === 1) subjectName = ["Спимо", "Основи здоров'я", "Фізика", "Фізика"][currentSlot.num-1];
-            if (day === 2) subjectName = ["Фізика", "Теорія алгоритмів", "Теорія алгоритмів", ""][currentSlot.num-1];
+            if (day === 1) subjectName = ["-", "Основи здоров'я", "Фізика", "Фізика"][currentSlot.num-1];
+            if (day === 2) subjectName = ["Фізика", "Теорія алгоритмів", "Теорія алгоритмів", "-"][currentSlot.num-1];
             if (day === 3) subjectName = ["Програмування", "Англійська мова", "Чисельні методи", "Англійська мова"][currentSlot.num-1];
             if (day === 4) subjectName = ["Програмування", "Чисельні методи", "Вища математика", "Вища математика"][currentSlot.num-1];
-            if (day === 5) subjectName = ["Спимо", "Теорія алгоритмів", "Вища математика", ""][currentSlot.num-1];
+            if (day === 5) subjectName = ["-", "Теорія алгоритмів", "Вища математика", "-"][currentSlot.num-1];
         }
 
-        if (!subjectName || subjectName === "" || subjectName === "Спимо") { widget.style.display = 'none'; return; }
+        if (!subjectName || subjectName === "-") { widget.style.display = 'none'; return; }
 
-        const minsLeft = currentSlot.end - currentMinutes;
-        subjText.innerText = subjectName; timeText.innerText = `Залишилось ${minsLeft} хв`;
+        document.getElementById('liveSubject').innerText = subjectName; 
+        document.getElementById('liveTimeLeft').innerText = `${currentSlot.end - currentMinutes} хв.`;
         widget.style.display = 'flex';
     }
 
-    async function loadData() {
+    async function loadData(retryCount = 0) {
         try {
             const adminIdsStr = ["1492389359", "1654156923"];
             if (adminIdsStr.includes(String(userId))) { document.getElementById('navAdminBtn').style.display = 'flex'; }
@@ -445,20 +454,17 @@
             updateHeaderInfo();
 
             const tasksRes = await fetch(`${API_URL}/tasks/${userId}`);
-            if (tasksRes.ok) { 
-                globalTasks = await tasksRes.json(); 
-                document.getElementById('filtersBlock').style.display = "flex"; 
-                document.getElementById('statsCard').style.display = "block"; 
-                renderTasks(); 
-            }
+            if (tasksRes.ok) { globalTasks = await tasksRes.json(); document.getElementById('filtersBlock').style.display = "flex"; renderTasks(); }
             
             const rankRes = await fetch(`${API_URL}/rank/${userId}`);
-            if (rankRes.ok) { 
-                const rankData = await rankRes.json(); 
-                document.getElementById('rankBadge').innerText = rankData.rank === 1 ? "🥇 1 місце" : rankData.rank === 2 ? "🥈 2 місце" : rankData.rank === 3 ? "🥉 3 місце" : `👤 ${rankData.rank}/${rankData.total} місце`; 
-            }
+            if (rankRes.ok) { const r = await rankRes.json(); let m = r.rank===1?"🥇":r.rank===2?"🥈":r.rank===3?"🥉":"👤"; document.getElementById('rankBadge').innerText = `${m} ${r.rank}/${r.total}`; }
         } catch (e) {
-            document.getElementById('activeTaskList').innerHTML = "<p style='text-align:center; color: #e53935; font-weight: 800;'>Сервер спить...<br>Зачекай 40 секунд та перезайди ⏳</p>";
+            if (retryCount < 4) {
+                document.getElementById('activeTaskList').innerHTML = "<p style='text-align:center; color: var(--hint-color); font-size:13px;'>Сервер прокидається... Зачекай ⏳</p>";
+                setTimeout(() => loadData(retryCount + 1), 5000);
+            } else {
+                document.getElementById('activeTaskList').innerHTML = "<p style='text-align:center; color: var(--accent-red); font-size:13px;'>Немає зв'язку з сервером ❌<br>Спробуй пізніше</p>";
+            }
         }
     }
 
@@ -472,13 +478,14 @@
         
         activeList.innerHTML = ""; completedList.innerHTML = "";
 
-        if (!globalTasks || globalTasks.length === 0) {
-            activeList.innerHTML = "<p style='text-align:center; font-weight:800; color:var(--hint-color);'>Завдань немає. Відпочивай! 🎉</p>"; 
+        if (globalTasks.length === 0) {
+            activeList.innerHTML = "<p style='text-align:center; color:var(--hint-color); font-size:13px;'>Завдань немає. Відпочивай! 🎉</p>"; 
             progressWrapper.style.display = "none"; completedSection.style.display = "none"; return;
         }
 
         let activeTasks = globalTasks.filter(t => !t.isCompleted); const completedTasks = globalTasks.filter(t => t.isCompleted);
-        const percent = Math.round((completedTasks.length / globalTasks.length) * 100); const now = new Date();
+        const percent = Math.round((completedTasks.length / globalTasks.length) * 100) || 0; const now = new Date();
+        
         const overdueCount = activeTasks.filter(t => {
             let d = new Date(t.deadline);
             if (isNaN(d)) return false;
@@ -487,10 +494,10 @@
 
         let badges = [];
         const adminIdsStr = ["1492389359", "1654156923"];
-        if (adminIdsStr.includes(String(userId))) badges.push('<span style="font-size: 18px;" title="Адмін">👑</span>');
+        if (adminIdsStr.includes(String(userId))) badges.push('<span style="font-size: 16px;" title="Адмін">👑</span>');
         
         const mathTasks = globalTasks.filter(t => (t.subject || "").toLowerCase().includes("математика"));
-        if (mathTasks.length > 0 && mathTasks.every(t => t.isCompleted)) badges.push('<span style="font-size: 18px;" title="Броня Вишмату">🛡️</span>');
+        if (mathTasks.length > 0 && mathTasks.every(t => t.isCompleted)) badges.push('<span style="font-size: 16px;" title="Броня Вишмату">🛡️</span>');
         
         let hasEarlyBird = false;
         completedTasks.forEach(t => {
@@ -499,31 +506,36 @@
                 if (diffHours > 72) hasEarlyBird = true;
             }
         });
-        if (hasEarlyBird) badges.push('<span style="font-size: 18px;" title="Рання пташка">⚡</span>');
+        if (hasEarlyBird) badges.push('<span style="font-size: 16px;" title="Рання пташка">⚡</span>');
         document.getElementById('headerBadges').innerHTML = badges.join('');
+
+        const header = document.getElementById('mainHeader');
+        if (overdueCount >= 7) { 
+            header.classList.add('panic-mode'); document.getElementById('userName').innerText = `🚨 УВАГА!`; document.getElementById('headerSubtitle').innerText = `Боргів: ${overdueCount} шт.`; tg.HapticFeedback.notificationOccurred('error'); 
+        } else { 
+            header.classList.remove('panic-mode'); document.getElementById('userName').innerText = `Привіт, ${firstName}!`; document.getElementById('headerSubtitle').innerText = "Твої навчальні завдання"; 
+        }
 
         if (overdueCount === 0) { streakBadge.className = 'badge badge-green'; streakBadge.innerHTML = '🔥 Без боргів'; } 
         else { streakBadge.className = 'badge badge-red'; streakBadge.innerHTML = `🧊 Боргів: ${overdueCount}`; }
 
-        if (percent === 100) { levelBadge.innerHTML = '👑 Легенда'; levelBadge.className = 'badge badge-green'; analyticsText.innerHTML = '<b>Ідеально!</b> Ти розніс усі таски. Краще не буває.'; } 
-        else if (percent >= 80) { levelBadge.innerHTML = '🚀 Турбо-студент'; levelBadge.className = 'badge badge-blue'; analyticsText.innerHTML = 'Ти йдеш краще за більшість групи! Так тримати.'; } 
-        else if (percent >= 50) { levelBadge.innerHTML = '💪 Стабільний'; levelBadge.className = 'badge badge-blue'; analyticsText.innerHTML = 'Більша половина вже закрита. Головне не зупинятись!'; } 
-        else if (percent > 0) { levelBadge.innerHTML = '🐢 Початківець'; levelBadge.className = 'badge badge-orange'; analyticsText.innerHTML = 'Треба трохи піднажати, щоб не назбирати сніговий ком.'; } 
-        else { levelBadge.innerHTML = '💤😴'; levelBadge.className = 'badge badge-red'; analyticsText.innerHTML = 'Ти ще не починав. Давай, зроби хоча б одне завдання!'; }
+        if (percent === 100) { levelBadge.innerHTML = 'Легенда'; levelBadge.className = 'badge badge-green'; analyticsText.innerHTML = 'Всі завдання виконані!'; } 
+        else if (percent >= 80) { levelBadge.innerHTML = 'Турбо'; levelBadge.className = 'badge badge-blue'; analyticsText.innerHTML = 'Майже все готово.'; } 
+        else if (percent >= 50) { levelBadge.innerHTML = 'Стабільний'; levelBadge.className = 'badge badge-blue'; analyticsText.innerHTML = 'Більше половини зроблено.'; } 
+        else if (percent > 0) { levelBadge.innerHTML = 'Початківець'; levelBadge.className = 'badge badge-blue'; analyticsText.innerHTML = 'Час сідати за навчання.'; } 
+        else { levelBadge.innerHTML = 'Спить'; levelBadge.className = 'badge badge-red'; analyticsText.innerHTML = 'Жодного виконаного завдання.'; }
 
-        if (overdueCount >= 7) { document.getElementById('mainHeader').classList.add('panic-mode'); document.getElementById('userName').innerText = `🚨 УВАГА!`; document.getElementById('headerSubtitle').innerText = `У тебе горять борги: ${overdueCount} шт. Бігом робити!`; tg.HapticFeedback.notificationOccurred('error'); } 
-        else { document.getElementById('mainHeader').classList.remove('panic-mode'); document.getElementById('userName').innerText = `Привіт, ${firstName}!`; document.getElementById('headerSubtitle').innerText = "Твої навчальні завдання"; }
-
+        document.getElementById('statsCard').style.display = "block";
         progressWrapper.style.display = "block"; progressText.innerText = `Мій прогрес: ${completedTasks.length} з ${globalTasks.length} (${percent}%)`;
         setTimeout(() => { progressBar.style.width = `${percent}%`; }, 100);
 
-        if (currentFilter === 'overdue') activeTasks = activeTasks.filter(t => (new Date(t.deadline) - now) < 0);
-        else if (currentFilter === 'soon') activeTasks = activeTasks.filter(t => { const diffDays = Math.ceil((new Date(t.deadline) - now) / (1000 * 60 * 60 * 24)); return diffDays >= 0 && diffDays <= 2; });
+        if (currentFilter === 'overdue') activeTasks = activeTasks.filter(t => { let d = new Date(t.deadline); return !isNaN(d) && (d - now) < 0; });
+        else if (currentFilter === 'soon') activeTasks = activeTasks.filter(t => { let d = new Date(t.deadline); if (isNaN(d)) return false; const diffDays = Math.ceil((d - now) / (1000 * 60 * 60 * 24)); return diffDays >= 0 && diffDays <= 2; });
 
         if (activeTasks.length === 0) {
-            if (currentFilter === 'overdue') activeList.innerHTML = "<p style='text-align:center; font-weight:800; color: #43a047;'>У тебе немає боргів! Ти супер! 🚀</p>";
-            else if (currentFilter === 'soon') activeList.innerHTML = "<p style='text-align:center; font-weight:800; color: #43a047;'>На найближчі дні все чисто! 😎</p>";
-            else activeList.innerHTML = `<div style="text-align:center; padding: 30px 10px;"><span style="font-size: 50px;">🏆</span><h3 style="margin-top: 10px; font-weight: 900;">Ти машина!</h3><p style="color: var(--hint-color); font-weight: 500;">Усі завдання виконано.</p></div>`;
+            if (currentFilter === 'overdue') activeList.innerHTML = "<p style='text-align:center; color: var(--accent-green); font-size:13px; font-weight:500;'>Боргів немає! 🚀</p>";
+            else if (currentFilter === 'soon') activeList.innerHTML = "<p style='text-align:center; color: var(--accent-green); font-size:13px; font-weight:500;'>В найближчі дні дедлайнів немає.</p>";
+            else activeList.innerHTML = `<div style="text-align:center; padding: 20px;"><p style="color: var(--hint-color); font-size:13px;">Усі завдання виконано.</p></div>`;
         } else { 
             const grouped = {}; activeTasks.forEach(task => { const subject = task.subject || "Інше"; if (!grouped[subject]) grouped[subject] = []; grouped[subject].push(task); });
             for (const subject in grouped) {
@@ -532,7 +544,8 @@
             }
         }
 
-        if (completedTasks.length > 0) { completedSection.style.display = "block"; document.getElementById('completedCount').innerText = completedTasks.length; 
+        if (completedTasks.length > 0) { 
+            completedSection.style.display = "block"; document.getElementById('completedCount').innerText = completedTasks.length; 
             const groupedComp = {}; completedTasks.forEach(task => { const subject = task.subject || "Інше"; if (!groupedComp[subject]) groupedComp[subject] = []; groupedComp[subject].push(task); });
             for (const subject in groupedComp) {
                 const subjectHeader = document.createElement('div'); subjectHeader.className = 'subject-group-title'; subjectHeader.innerText = subject; completedList.appendChild(subjectHeader);
@@ -556,6 +569,7 @@
 
         let statusClass = "status-ok", borderClass = "card-ok", statusText = `Залишилось днів: ${diffDays} (до ${dateStr})`;
         if (diffDays < 0) { statusClass = "status-overdue"; borderClass = "card-overdue"; statusText = `ПРОТЕРМІНОВАНО!`; } 
+        else if (diffDays === 0) { statusClass = "status-soon"; borderClass = "card-soon"; statusText = `Сьогодні дедлайн!`; }
         else if (diffDays <= 2) { statusClass = "status-soon"; borderClass = "card-soon"; statusText = `Скоро! (${diffDays} дн.)`; }
 
         const card = document.createElement('div'); card.id = `task-${taskId}`; card.className = `task-card ${borderClass} ${isCompleted ? 'completed' : ''}`;
@@ -580,7 +594,6 @@
         const taskId = pendingTaskId, state = pendingTaskState; 
         closeModal('confirmModal');
         
-        // ДОДАЄМО КЛАС ДЛЯ АНІМАЦІЇ ВІДЛІТАННЯ
         const cardElement = document.getElementById(`task-${taskId}`); 
         if (cardElement) {
             if (!state) cardElement.classList.add('completing');
@@ -589,7 +602,6 @@
         tg.HapticFeedback.impactOccurred('medium');
 
         try {
-            // Чекаємо 400мс, поки карточка відлетить, і відправляємо запит на сервер
             setTimeout(async () => {
                 const response = await fetch(`${API_URL}/tasks/${userId}/complete/${taskId}`, { method: 'POST' });
                 if (response.ok) { 
@@ -618,7 +630,7 @@
         const select = document.getElementById('subjectSelect'); const subjects = getTodaysSubjectsAdmin();
         select.innerHTML = ""; if (subjects.length === 0) select.innerHTML = '<option value="">Сьогодні пар немає 🎉</option>'; else subjects.forEach(sub => { select.innerHTML += `<option value="${sub}">${sub}</option>`; });
         const listHtml = document.getElementById('rollcallList'); listHtml.innerHTML = "";
-        groupListArray.forEach((student) => { listHtml.innerHTML += `<div class="student-row"><span style="font-weight: 800; font-size: 15px;">${student}</span><button class="toggle-btn present" onclick="toggleAttendance(this)">🟢 Є</button></div>`; });
+        groupListArray.forEach((student) => { listHtml.innerHTML += `<div class="student-row"><span style="font-weight: 500; font-size: 15px;">${student}</span><button class="toggle-btn present" onclick="toggleAttendance(this)">🟢 Є</button></div>`; });
         document.getElementById('adminModal').classList.add('active'); 
     }
 
