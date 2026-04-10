@@ -374,9 +374,9 @@
         <div class="casino-balance" id="chillCoinBalance">💰 0</div>
     </div>
     <div class="casino-card" id="casinoContainer">
-        <div class="casino-title">🎰 Лудо Марафон</div>
+        <div class="casino-title">🎰 КОЛЯДКИ В ОРЛА</div>
         <div class="casino-spins" id="spinDisplay">Спінів зроблено: 0</div>
-        <div class="casino-desc">Крути рулетку за 50 🪙.<br>Вигравай ексклюзивні скіни та джекпоти!</div>
+        <div class="casino-desc">Крути за 50 🪙.<br>Вигравай ексклюзивні скіни та джекпоти!</div>
         <button class="casino-btn" onclick="openLootbox()">КРУТИТИ ЗА 50 🪙</button>
         <div class="drop-rates">
             <h4>📊 Ймовірності виграшу:</h4>
@@ -877,7 +877,7 @@
                 const res = await fetch(`${API_URL}/tasks/${userId}/complete/${taskId}`, { method:'POST' });
                 if (res.ok) {
                     if (!state) { confetti({ particleCount: 150, spread: 60 }); showToast("Виконано! +10 🪙"); }
-                    else showToast("Повернуто в роботу 🔄");
+                    else showToast("Ех... знову в роботу");
                     loadData();
                 } else {
                     showToast("Помилка сервера!");
