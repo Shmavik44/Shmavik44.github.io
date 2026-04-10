@@ -76,11 +76,11 @@
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .modal-content { background: var(--bg-color); padding: 20px; padding-bottom: 80px; border-radius: 20px 20px 0 0; width: 100%; max-height: 85vh; overflow-y: auto; transform: translateY(100%); transition: transform 0.3s; box-sizing: border-box; }
         .modal-overlay.active .modal-content { transform: translateY(0); }
-        .modal-close { position: absolute; right: 20px; top: 20px; font-size: 24px; color: var(--hint-color); background: none; border: none; cursor: pointer; }
-        .modal-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; color: var(--text-color); white-space: pre-wrap;}
+        .modal-close { position: absolute; right: 15px; top: 15px; font-size: 26px; color: var(--hint-color); background: none; border: none; cursor: pointer; padding: 5px; z-index: 10; line-height: 1; }
+        .modal-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; color: var(--text-color); white-space: pre-wrap; padding-right: 35px; }
 
-        /* Магазин Титулів та Бонуси (НОВЕ) */
-        .shop-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+          /* Магазин Титулів та Бонуси (НОВЕ) */
+        .shop-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-right: 35px; }
         .bonus-card { background: linear-gradient(135deg, rgba(255, 152, 0, 0.1), rgba(255, 87, 34, 0.15)); border: 1px solid rgba(255, 152, 0, 0.3); border-radius: 12px; padding: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
         .bonus-btn { background: #ff8f00; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; transition: transform 0.2s; }
         .bonus-btn:active { transform: scale(0.95); }
@@ -291,12 +291,12 @@
     const availableTitles = [
         { name: "Студент 🤓", price: 0, desc: "Стандартний статус" },
         { name: "Новачок 🐣", price: 20, desc: "Тільки почав свій шлях" },
-        { name: "Любитель кави ☕", price: 50, desc: "Працює на кофеїні" },
-        { name: "Спить на парах 😴", price: 100, desc: "Режим енергозбереження" },
-        { name: "Дедлайн-кілер 🥷", price: 150, desc: "Здає за хвилину до кінця" },
-        { name: "Майстер Вишмату 🧙‍♂️", price: 200, desc: "Бачить матриці наскрізь" },
-        { name: "Код-машина 🤖", price: 250, desc: "Пише без багів (майже)" },
-        { name: "Шукач автоматів 🎯", price: 300, desc: "Робить все заради 60 балів" },
+        { name: "Любитель кави ☕", price: 80, desc: "Працює на кофеїні" },
+        { name: "Спить на парах 😴", price: 150, desc: "Режим енергозбереження" },
+        { name: "Дедлайн-кілер 🥷", price: 200, desc: "Здає за хвилину до кінця" },
+        { name: "Майстер Вишмату 🧙‍♂️", price: 299, desc: "Бачить матриці наскрізь" },
+        { name: "Код-машина 🤖", price: 300, desc: "Пише без багів (майже)" },
+        { name: "Шукач автоматів 🎯", price: 400, desc: "Робить все заради 60 балів" },
         { name: "Гроза Деканату ⚡", price: 500, desc: "Елітний статус" },
         { name: "Кібер-Мозок 🧠", price: 800, desc: "Компілює код у голові" },
         { name: "Магнат КПІ 🎩", price: 1500, desc: "Купив кафедру за коїни" },
