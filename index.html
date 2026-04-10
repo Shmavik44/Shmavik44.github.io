@@ -460,7 +460,7 @@
         }
 
         let activeTasks = globalTasks.filter(t => !t.isCompleted); const completedTasks = globalTasks.filter(t => t.isCompleted);
-        const percent = Math.round((completedTasks.length / globalTasks.length) * 100); new Date('2026-04-10T11:00:00');
+        const percent = Math.round((completedTasks.length / globalTasks.length) * 100); const now = new Date();
         const overdueCount = activeTasks.filter(t => (new Date(t.deadline) - now) < 0).length;
 
         // АЧІВКИ
