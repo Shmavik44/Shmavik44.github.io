@@ -7,128 +7,111 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        :root { 
-            --bg-color: var(--tg-theme-bg-color, #ffffff); 
-            --text-color: var(--tg-theme-text-color, #222222); 
-            --hint-color: var(--tg-theme-hint-color, #999999); 
-            --button-color: var(--tg-theme-button-color, #2481cc); 
-            --secondary-bg: var(--tg-theme-secondary-bg-color, #f4f4f5); 
-        }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 15px 15px 100px 15px; -webkit-tap-highlight-color: transparent; } 
+        :root { --bg-color: var(--tg-theme-bg-color, #ffffff); --text-color: var(--tg-theme-text-color, #222222); --hint-color: var(--tg-theme-hint-color, #999999); --button-color: var(--tg-theme-button-color, #2481cc); --secondary-bg: var(--tg-theme-secondary-bg-color, #f4f4f5); }
+        body { font-family: -apple-system, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 15px 15px 100px 15px; } 
         
-        /* КРАСИВА ШАПКА З ГРАДІЄНТОМ */
-        .header { text-align: center; margin-bottom: 10px; padding: 20px 10px; position: relative; border-radius: 16px; background: linear-gradient(145deg, var(--secondary-bg) 0%, rgba(36, 129, 204, 0.08) 100%); box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
-        .header h3 { margin: 0 0 5px 0; font-size: 22px; font-weight: 600; letter-spacing: -0.5px;}
-        .header p { color: var(--hint-color); font-size: 13px; margin: 0; font-weight: 400;}
-        .header-badges { position: absolute; right: 15px; top: 15px; display: flex; gap: 4px; }
-        .user-title { display: inline-block; background: rgba(255, 152, 0, 0.15); color: #e65100; padding: 4px 10px; border-radius: 10px; font-size: 12px; font-weight: 500; margin-top: 8px; border: 1px solid rgba(255, 152, 0, 0.3); }
+        .header { text-align: center; margin-bottom: 10px; padding: 15px 10px; position: relative; border-radius: 12px; background: var(--secondary-bg); }
+        .header h3 { margin: 0 0 5px 0; font-size: 20px; }
+        .header p { color: var(--hint-color); font-size: 13px; margin: 0; }
+        .header-badges { position: absolute; right: 15px; top: 10px; display: flex; gap: 2px; }
+        .user-title { display: inline-block; background: rgba(255, 152, 0, 0.2); color: #e65100; padding: 3px 8px; border-radius: 8px; font-size: 12px; font-weight: bold; margin-top: 5px; }
         
-        /* КАРТКА СТАТИСТИКИ З ТІННЮ */
-        .stats-card { background: var(--secondary-bg); border-radius: 16px; padding: 15px; margin-bottom: 20px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-        .stats-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
-        .badge { padding: 5px 12px; border-radius: 12px; font-size: 12px; font-weight: 500; }
-        .badge-blue { background: rgba(36, 129, 204, 0.12); color: var(--button-color); }
-        .badge-green { background: rgba(67, 160, 71, 0.12); color: #2e7d32; }
-        .badge-red { background: rgba(229, 57, 53, 0.12); color: #c62828; }
-        .analytics-text { font-size: 13px; color: var(--hint-color); line-height: 1.4; margin-top: 5px; font-weight: 400;}
+        .panic-mode { background-color: rgba(229, 57, 53, 0.1); border: 2px solid #e53935; }
+        .panic-mode h3, .panic-mode p { color: #e53935 !important; font-weight: bold; }
         
-        /* ПРОГРЕС БАР ЗІ СВІТІННЯМ */
-        .progress-wrapper { margin-bottom: 20px; }
-        .progress-text { font-size: 13px; color: var(--hint-color); margin-bottom: 8px; text-align: center; font-weight: 500; }
-        .progress-track { background: var(--secondary-bg); border-radius: 10px; height: 10px; width: 85%; margin: 0 auto; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);}
-        .progress-fill { background: linear-gradient(90deg, #2481cc, #4facfe); height: 100%; width: 0%; transition: width 1s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 0 10px rgba(36, 129, 204, 0.5); }
-
-        /* ЛАЙВ ВІДЖЕТ */
-        .live-widget { background: linear-gradient(90deg, rgba(67, 160, 71, 0.12), rgba(67, 160, 71, 0.05)); border-left: 4px solid #43a047; padding: 12px 15px; border-radius: 12px; margin-bottom: 20px; display: none; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(67, 160, 71, 0.1);}
-        .live-pulse { width: 10px; height: 10px; background-color: #43a047; border-radius: 50%; animation: pulse-green 2s infinite; margin-right: 12px;}
-        @keyframes pulse-green { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(67, 160, 71, 0.7); } 70% { transform: scale(1.1); box-shadow: 0 0 0 8px rgba(67, 160, 71, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(67, 160, 71, 0); } }
-
-        /* ФІЛЬТРИ */
-        .filters-container { position: sticky; top: 0; z-index: 100; padding: 10px 0; background: var(--bg-color); margin: 0 -15px 15px -15px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;}
-        .filter-btn { background: var(--secondary-bg); color: var(--hint-color); border: none; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);}
-        .filter-btn.active { background: var(--button-color); color: #ffffff; transform: scale(1.05); box-shadow: 0 4px 10px rgba(36, 129, 204, 0.3);}
-        .filter-btn:active { transform: scale(0.95); }
-
-        /* АНІМАЦІЇ ЗАВАНТАЖЕННЯ (СКЕЛЕТОН) */
-        .skeleton-card { background: var(--secondary-bg); border-radius: 16px; height: 75px; margin-bottom: 12px; animation: pulse-skeleton 1.5s infinite ease-in-out; opacity: 0.6; }
-        @keyframes pulse-skeleton { 0% { opacity: 0.4; } 50% { opacity: 0.8; } 100% { opacity: 0.4; } }
-
-        /* КРАСИВІ КАРТКИ ЗАВДАНЬ З ТІНЯМИ */
-        .task-card { background: var(--secondary-bg); border-radius: 16px; padding: 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid transparent; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
-        .task-card:active { transform: scale(0.98); }
-        .card-overdue { border-left-color: #e53935; background: linear-gradient(90deg, rgba(229, 57, 53, 0.05), var(--secondary-bg) 20%); } 
-        .card-soon { border-left-color: #ffa000; background: linear-gradient(90deg, rgba(255, 160, 0, 0.05), var(--secondary-bg) 20%); } 
-        .card-ok { border-left-color: #43a047; }
-        .completed { opacity: 0.5; text-decoration: line-through; border-left-color: var(--hint-color); box-shadow: none; filter: grayscale(0.5); }
+        .stats-card { background: var(--secondary-bg); border-radius: 12px; padding: 12px; margin-bottom: 15px; text-align: center; }
+        .stats-row { display: flex; justify-content: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+        .badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .badge-blue { background: rgba(36, 129, 204, 0.15); color: var(--button-color); }
+        .badge-green { background: rgba(67, 160, 71, 0.15); color: #2e7d32; }
+        .badge-red { background: rgba(229, 57, 53, 0.15); color: #c62828; }
+        .analytics-text { font-size: 12px; color: var(--hint-color); line-height: 1.4; margin-top: 5px; }
         
-        /* ЕПІЧНА АНІМАЦІЯ ВІДЛІТАННЯ */
-        .completing { animation: flyAway 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards !important; }
-        @keyframes flyAway { 
-            0% { transform: scale(1) translateX(0); opacity: 1; } 
-            20% { transform: scale(1.05) translateX(-10px); } 
-            100% { transform: scale(0.8) translateX(150px); opacity: 0; height: 0; padding: 0; margin: 0; border: none; } 
-        }
+        .progress-wrapper { margin-bottom: 15px; }
+        .progress-text { font-size: 13px; color: var(--hint-color); margin-bottom: 6px; text-align: center; font-weight: bold; }
+        .progress-track { background: var(--secondary-bg); border-radius: 10px; height: 8px; width: 80%; margin: 0 auto; overflow: hidden; }
+        .progress-fill { background: var(--button-color); height: 100%; width: 0%; transition: width 0.8s ease; }
 
+        .live-widget { background: linear-gradient(90deg, rgba(67, 160, 71, 0.1), rgba(67, 160, 71, 0.05)); border-left: 4px solid #43a047; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; display: none; align-items: center; justify-content: space-between; }
+        .live-pulse { width: 10px; height: 10px; background-color: #43a047; border-radius: 50%; box-shadow: 0 0 0 0 rgba(67, 160, 71, 0.7); animation: pulse-green 2s infinite; margin-right: 10px;}
+        @keyframes pulse-green { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(67, 160, 71, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(67, 160, 71, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(67, 160, 71, 0); } }
+
+        .filters-container { position: sticky; top: 0; z-index: 100; padding: 10px 0; background: var(--bg-color); opacity: 0.95; margin: 0 -15px 15px -15px; display: flex; justify-content: center; gap: 6px; flex-wrap: wrap;}
+        .filter-btn { background: var(--secondary-bg); color: var(--hint-color); border: none; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer; transition: background 0.2s;}
+        .filter-btn.active { background: var(--button-color); color: #ffffff; }
+
+        /* СКЕЛЕТОНИ (ПОВЕРНУВ!) */
+        .skeleton-card { background: var(--secondary-bg); border-radius: 12px; height: 70px; margin-bottom: 12px; animation: pulse 1.5s infinite ease-in-out; opacity: 0.6; }
+        @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 0.8; } 100% { opacity: 0.4; } }
+
+        .task-card { background: var(--secondary-bg); border-radius: 12px; padding: 15px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid transparent; transition: transform 0.2s, opacity 0.2s; }
+        .card-overdue { border-left-color: #e53935; } .card-soon { border-left-color: #ffa000; } .card-ok { border-left-color: #43a047; }
+        .completed { opacity: 0.5; text-decoration: line-through; border-left-color: var(--hint-color); }
         .task-info { flex-grow: 1; }
-        .task-subject { font-size: 11px; color: var(--hint-color); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-        .task-title { font-size: 15px; margin: 6px 0; color: var(--text-color); font-weight: 500;}
-        .task-deadline { font-size: 12px; margin-top: 2px; font-weight: 400;}
-        .status-overdue { color: #e53935; font-weight: 500; } .status-soon { color: #ffa000; font-weight: 500; } .status-ok { color: #43a047; font-weight: 400;} 
-        
-        /* ПРУЖИННИЙ ЧЕКБОКС */
-        .checkbox { width: 26px; height: 26px; border: 2px solid var(--button-color); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-left: 15px; min-width: 26px; cursor: pointer; transition: all 0.2s; background: var(--bg-color);}
-        .checkbox.checked { background: var(--button-color); animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); } 
-        .checkbox.checked::after { content: "✓"; color: #ffffff; font-weight: normal; font-size: 16px; }
-        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+        .task-subject { font-size: 12px; color: var(--hint-color); font-weight: bold; text-transform: uppercase; }
+        .task-title { font-size: 16px; margin: 4px 0; color: var(--text-color); }
+        .task-deadline { font-size: 13px; margin-top: 2px; }
+        .status-overdue { color: #e53935; font-weight: bold; } .status-soon { color: #ffa000; font-weight: bold; } .status-ok { color: #43a047; } 
+        .checkbox { width: 24px; height: 24px; border: 2px solid var(--button-color); border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-left: 15px; min-width: 24px; cursor: pointer;}
+        .checkbox.checked { background: var(--button-color); } .checkbox.checked::after { content: "✓"; color: #ffffff; font-weight: bold; }
+        .subject-group-title { font-size: 13px; font-weight: bold; color: var(--button-color); margin: 20px 0 10px 5px; text-transform: uppercase; border-bottom: 1px solid var(--secondary-bg); padding-bottom: 5px; }
 
-        .subject-group-title { font-size: 13px; font-weight: 600; color: var(--button-color); margin: 25px 0 12px 5px; text-transform: uppercase; border-bottom: 2px solid rgba(36, 129, 204, 0.1); padding-bottom: 5px; }
+        details { margin-top: 25px; border-top: 1px solid var(--hint-color); padding-top: 10px; }
+        summary { display: flex; justify-content: space-between; align-items: center; padding: 10px; font-weight: bold; color: var(--hint-color); cursor: pointer; list-style: none; }
+        summary::-webkit-details-marker { display: none; }
+        .completed-container .task-card { background: transparent; border: 1px solid var(--secondary-bg); filter: grayscale(1); border-left-width: 1px; }
 
-        /* ЖИВЕ НИЖНЄ МЕНЮ */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-color); border-top: 1px solid rgba(0,0,0,0.05); display: flex; justify-content: space-around; padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); z-index: 4000; box-shadow: 0 -10px 25px rgba(0,0,0,0.04); }
-        .nav-item { display: flex; flex-direction: column; align-items: center; background: none; border: none; width: 20%; color: var(--hint-color); font-size: 11px; font-weight: 500; cursor: pointer; gap: 4px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .nav-item .icon { font-size: 24px; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); filter: grayscale(1); opacity: 0.7;}
-        .nav-item.active { color: var(--button-color); transform: translateY(-3px); }
-        .nav-item.active .icon { transform: scale(1.15); filter: grayscale(0); opacity: 1; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-color); border-top: 1px solid var(--secondary-bg); display: flex; justify-content: space-around; padding: 8px 0 calc(8px + env(safe-area-inset-bottom)); z-index: 4000; box-shadow: 0 -4px 15px rgba(0,0,0,0.05); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; background: none; border: none; width: 20%; color: var(--hint-color); font-size: 11px; font-weight: bold; cursor: pointer; gap: 4px; transition: color 0.2s; }
+        .nav-item.active { color: var(--button-color); }
+        .nav-item .icon { font-size: 22px; margin-bottom: 2px; }
 
-        /* ПРУЖИННІ МОДАЛКИ */
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 2000; backdrop-filter: blur(3px); }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 2000; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-content { background: var(--bg-color); padding: 25px 20px 80px 20px; border-radius: 24px 24px 0 0; width: 100%; max-height: 85vh; overflow-y: auto; transform: translateY(100%); transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-sizing: border-box; box-shadow: 0 -10px 30px rgba(0,0,0,0.1); }
+        .modal-content { background: var(--bg-color); padding: 20px; padding-bottom: 80px; border-radius: 20px 20px 0 0; width: 100%; max-height: 85vh; overflow-y: auto; transform: translateY(100%); transition: transform 0.3s; box-sizing: border-box; }
         .modal-overlay.active .modal-content { transform: translateY(0); }
-        .modal-close { position: absolute; right: 20px; top: 20px; font-size: 28px; color: var(--hint-color); background: rgba(0,0,0,0.05); width: 36px; height: 36px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; transition: background 0.2s;}
-        .modal-close:active { background: rgba(0,0,0,0.1); transform: scale(0.9); }
-        .modal-title { font-size: 20px; font-weight: 600; margin-bottom: 20px; color: var(--text-color); padding-right: 40px;}
+        .modal-close { position: absolute; right: 15px; top: 15px; font-size: 26px; color: var(--hint-color); background: none; border: none; cursor: pointer; padding: 5px; z-index: 10; line-height: 1; }
+        .modal-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; color: var(--text-color); white-space: pre-wrap; padding-right: 35px;}
 
-        /* ЗОНА ЧІЛ ТА КАЗИНО */
-        .casino-container { background: radial-gradient(circle at top, #3a0a63 0%, #12051a 100%); padding: 30px 20px; border-radius: 20px; border: 2px solid #9d50bb; box-shadow: 0 10px 30px rgba(157, 80, 187, 0.3); text-align: center; color: white; margin-bottom: 20px; position: relative;}
-        .casino-title { font-size: 24px; font-weight: 600; background: linear-gradient(to right, #ffd700, #ff8c00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 1px; filter: drop-shadow(0 2px 4px rgba(255,215,0,0.3));}
-        .casino-spins { font-size: 13px; color: #ffd700; font-weight: 500; margin-bottom: 20px; background: rgba(255, 215, 0, 0.1); padding: 6px 15px; border-radius: 12px; display: inline-block; border: 1px solid rgba(255, 215, 0, 0.3);}
-        .casino-btn { background: linear-gradient(to bottom, #ffd700, #ff8c00); color: #000; width: 100%; padding: 18px; font-size: 16px; font-weight: 600; border: none; border-radius: 16px; box-shadow: 0 6px 0 #b36b00, 0 15px 20px rgba(0,0,0,0.4); cursor: pointer; text-transform: uppercase; transition: all 0.1s;}
-        .casino-btn:active { transform: translateY(6px); box-shadow: 0 0px 0 #b36b00, 0 5px 10px rgba(0,0,0,0.4); }
-        .drop-rates { text-align: left; font-size: 12px; margin-top: 25px; color: #ddd; background: rgba(0,0,0,0.6); padding: 15px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);}
-        .drop-rates h4 { margin: 0 0 12px 0; color: #fff; font-size: 14px; text-align: center; text-transform: uppercase; letter-spacing: 1px; font-weight: 500;}
-        .drop-rates div { margin-bottom: 8px; display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 4px;}
-        .drop-rates span.rate { color: #ffd700; font-weight: 600;}
+        .coin-balance { font-size: 14px; font-weight: bold; color: #ff8f00; background: rgba(255, 193, 7, 0.2); padding: 5px 10px; border-radius: 10px; display: inline-block; }
+
+        /* ЗОНА ЧІЛ (КАЗИНО) */
+        .casino-container { background: radial-gradient(circle, #2b0b3d 0%, #0d0214 100%); padding: 25px 20px; border-radius: 16px; border: 2px solid #ff00ff; box-shadow: 0 0 20px rgba(255, 0, 255, 0.4); text-align: center; color: white; margin-bottom: 20px; position: relative;}
+        .casino-title { font-size: 24px; font-weight: 900; background: linear-gradient(to right, #f8049c, #fdd54f); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; margin-bottom: 5px; }
+        .casino-spins { font-size: 13px; color: #00ffff; font-weight: bold; margin-bottom: 15px; background: rgba(0, 255, 255, 0.1); padding: 4px 12px; border-radius: 10px; display: inline-block;}
+        .casino-btn { background: linear-gradient(135deg, #ff00ff, #8a2be2); color: white; width: 100%; padding: 15px 30px; font-size: 16px; font-weight: 900; border: none; border-radius: 12px; box-shadow: 0 5px 15px rgba(255, 0, 255, 0.5); cursor: pointer; text-transform: uppercase; transition: transform 0.1s;}
+        .casino-btn:active { transform: translateY(4px); box-shadow: 0 2px 5px rgba(255, 0, 255, 0.5); }
+        .drop-rates { text-align: left; font-size: 11px; margin-top: 20px; color: #aaa; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);}
+        .drop-rates h4 { margin: 0 0 10px 0; color: #fff; font-size: 13px; text-align: center;}
+        .drop-rates div { margin-bottom: 5px; display: flex; justify-content: space-between;}
+        .drop-rates span.rate { color: #fdd54f; font-weight: bold;}
+        .shake-anim { animation: shake 0.4s ease-in-out; }
+        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px) rotate(-3deg); } 50% { transform: translateX(5px) rotate(3deg); } 75% { transform: translateX(-5px) rotate(-3deg); } 100% { transform: translateX(0); } }
 
         /* МАГАЗИН */
-        .shop-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-right: 40px; }
-        .coin-balance { font-size: 15px; font-weight: 600; color: #ff8f00; background: linear-gradient(90deg, rgba(255, 193, 7, 0.1), rgba(255, 193, 7, 0.2)); border: 1px solid rgba(255, 193, 7, 0.4); padding: 8px 15px; border-radius: 12px; display: inline-block; box-shadow: 0 4px 10px rgba(255, 143, 0, 0.2);}
-        
-        .bonus-card { background: linear-gradient(135deg, rgba(255, 152, 0, 0.1), rgba(255, 87, 34, 0.15)); border: 1px solid rgba(255, 152, 0, 0.3); border-radius: 16px; padding: 18px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(255, 152, 0, 0.1);}
-        .bonus-btn { background: linear-gradient(135deg, #ff9800, #f44336); color: white; border: none; padding: 12px 20px; border-radius: 12px; font-weight: 500; cursor: pointer; font-size: 14px; box-shadow: 0 4px 10px rgba(244, 67, 54, 0.3); transition: transform 0.2s;}
-        .bonus-btn:active { transform: scale(0.95); }
-        
-        .shop-item { background: var(--secondary-bg); border-radius: 16px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid transparent; transition: transform 0.2s;}
-        .shop-item:active { transform: scale(0.98); }
-        .shop-item.legendary { border: 2px solid #ffd700; background: linear-gradient(135deg, var(--secondary-bg) 0%, rgba(255, 215, 0, 0.1) 100%); box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);}
-        .shop-info h4 { margin: 0 0 6px 0; color: var(--text-color); font-size: 15px; font-weight: 600;}
-        .shop-info p { margin: 0; font-size: 12px; color: var(--hint-color); font-weight: 400;}
-        .buy-btn { background: var(--secondary-bg); color: var(--text-color); border: 1px solid #ff8f00; padding: 8px 15px; border-radius: 12px; font-weight: 500; cursor: pointer; font-size: 13px; color: #ff8f00;}
-        .buy-btn.owned { background: var(--button-color); border-color: var(--button-color); color: white;}
-        .buy-btn.active-title { background: #43a047; border-color: #43a047; color: white;}
+        .shop-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-right: 35px; }
+        .bonus-card { background: linear-gradient(135deg, rgba(255, 152, 0, 0.1), rgba(255, 87, 34, 0.15)); border: 1px solid rgba(255, 152, 0, 0.3); border-radius: 12px; padding: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .bonus-btn { background: #ff8f00; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px;}
+        .shop-item { background: var(--secondary-bg); border-radius: 12px; padding: 12px 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .shop-item.legendary { border: 2px solid #ffd700; background: linear-gradient(135deg, var(--secondary-bg) 0%, rgba(255, 215, 0, 0.1) 100%); }
+        .shop-info h4 { margin: 0 0 4px 0; color: var(--text-color); font-size: 15px;}
+        .shop-info p { margin: 0; font-size: 11px; color: var(--hint-color); }
+        .buy-btn { background: #ff8f00; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px;}
+        .buy-btn.owned { background: var(--button-color); }
+        .buy-btn.active-title { background: #43a047; }
 
-        .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px); background: #333; color: white; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: 500; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 5000; box-shadow: 0 5px 15px rgba(0,0,0,0.2); opacity: 0; pointer-events: none;}
-        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1;}
+        .lib-folder { background: var(--secondary-bg); border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
+        .lib-folder summary { padding: 15px; font-size: 15px; color: var(--text-color); background: rgba(0,0,0,0.03); }
+        .lib-links { padding: 10px 15px; display: flex; flex-direction: column; gap: 10px; }
+        .lib-link { display: flex; align-items: center; gap: 10px; color: var(--button-color); text-decoration: none; font-size: 14px; font-weight: bold; padding: 8px; border-radius: 8px; background: var(--bg-color); }
+
+        .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); color: white; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: bold; transition: bottom 0.4s ease; z-index: 5000; display: flex; align-items: center; gap: 6px; white-space: nowrap; opacity: 0;}
+        .toast.show { bottom: 100px; opacity: 1;}
+        select.admin-select { width: 100%; padding: 10px; border-radius: 8px; background: var(--bg-color); color: var(--text-color); border: 1px solid var(--secondary-bg); margin-bottom: 15px; font-size: 16px; outline: none; }
+        .student-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--secondary-bg); }
+        .toggle-btn { background: #43a047; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer;}
+        .toggle-btn.absent { background: #e53935; }
+        .save-btn { width: 100%; background: var(--button-color); color: white; padding: 12px; border-radius: 12px; font-size: 16px; font-weight: bold; margin-top: 15px; border: none; cursor: pointer;}
     </style>
 </head>
 <body>
@@ -151,8 +134,8 @@
 </div>
 
 <div id="liveWidget" class="live-widget">
-    <div style="display: flex; align-items: center;"><div class="live-pulse"></div><div><div style="font-size: 11px; color: #43a047; font-weight: 600; text-transform: uppercase;">Зараз іде пара</div><div id="liveSubject" style="font-size: 14px; font-weight: 600; color: var(--text-color);">...</div></div></div>
-    <div id="liveTimeLeft" style="font-size: 13px; color: var(--hint-color); font-weight: 500;"></div>
+    <div style="display: flex; align-items: center;"><div class="live-pulse"></div><div><div style="font-size: 11px; color: #43a047; font-weight: bold; text-transform: uppercase;">Зараз іде пара</div><div id="liveSubject" style="font-size: 14px; font-weight: bold; color: var(--text-color);">...</div></div></div>
+    <div id="liveTimeLeft" style="font-size: 13px; color: var(--hint-color); font-weight: bold;"></div>
 </div>
 
 <div class="filters-container" id="filtersBlock" style="display: none;">
@@ -161,7 +144,11 @@
     <button class="filter-btn" onclick="applyFilter('soon', this)">Горять</button>
 </div>
 
-<div id="activeTaskList"><div class="skeleton-card"></div><div class="skeleton-card"></div></div>
+<div id="activeTaskList">
+    <div class="skeleton-card"></div>
+    <div class="skeleton-card"></div>
+    <div class="skeleton-card"></div>
+</div>
 <details id="completedSection" style="display: none;"><summary>Виконані завдання (<span id="completedCount">0</span>)</summary><div id="completedTaskList" class="completed-container"></div></details>
 
 <div class="bottom-nav">
@@ -178,11 +165,11 @@
     <div class="modal-content">
         <button class="modal-close" onclick="closeModal('shopModal')">×</button>
         <div class="shop-header">
-            <div><h2 style="margin:0; font-size:20px; color:var(--text-color); font-weight: 600;">🏷️ Магазин</h2><p style="margin:0; font-size:13px; color:var(--hint-color); font-weight: 400;">Ексклюзивні титули</p></div>
+            <div><h2 style="margin:0; font-size:20px; color:var(--text-color);">🏷️ Магазин</h2><p style="margin:0; font-size:12px; color:var(--hint-color);">Ексклюзивні титули</p></div>
             <div class="coin-balance" id="shopCoinBalance">💰 0</div>
         </div>
         <div class="bonus-card" id="dailyBonusCard">
-            <div><h3 style="margin:0; font-size:16px; font-weight: 600;">Щоденний бонус 🎁</h3><p style="margin:4px 0; font-size:13px; font-weight:500; color:#e65100;" id="streakDisplay">🔥 Вогник: 0 днів</p><p style="margin:0; font-size:12px; color:var(--hint-color); font-weight: 400;">+5 🪙 за кожен день підряд!</p></div>
+            <div><h3 style="margin:0; font-size:16px;">Щоденний бонус 🎁</h3><p style="margin:2px 0; font-size:13px; font-weight:bold; color:#e65100;" id="streakDisplay">🔥 Вогник: 0 днів</p><p style="margin:0; font-size:11px; color:var(--hint-color);">+5 🪙 за кожен день підряд!</p></div>
             <button class="bonus-btn" id="claimBonusBtn" onclick="claimDailyBonus()">Забрати</button>
         </div>
         <div id="titlesList"></div>
@@ -193,17 +180,17 @@
     <div class="modal-content" style="background: #12051a;">
         <button class="modal-close" onclick="closeModal('chillModal')">×</button>
         <div class="shop-header">
-            <div><h2 style="margin:0; font-size:20px; color:#fff; font-weight: 600;">🎮 Зона Відпочинку</h2></div>
+            <div><h2 style="margin:0; font-size:20px; color:#fff;">🎮 Зона Відпочинку</h2></div>
             <div class="coin-balance" id="chillCoinBalance">💰 0</div>
         </div>
 
         <div class="casino-container" id="casinoContainer">
             <div class="casino-title">🎰 Лудо Марафон</div>
             <div class="casino-spins" id="spinDisplay">Спінів зроблено: 0</div>
-            <p style="font-size: 13px; margin-bottom: 25px; color: #ddd; font-weight: 400;">Крути рулетку за 50 🪙. Вигравай скіни та джекпоти!</p>
+            <p style="font-size: 14px; margin-bottom: 20px; color: #ddd;">Крути рулетку і вигравай коїни та титули!</p>
             <button class="casino-btn" onclick="openLootbox()">КРУТИТИ ЗА 50 🪙</button>
 
-            <div class="drop-rates">
+         <div class="drop-rates">
                 <h4>📊 Шанси на виграш:</h4>
                 <div><span>Пусто 💨</span> <span class="rate">31.5%</span></div>
                 <div><span>Втішний (+10) 🍬</span> <span class="rate">20%</span></div>
@@ -213,90 +200,10 @@
                 <div><span>ДЖЕКПОТ (+200) 💎</span> <span class="rate">4%</span></div>
                 <div><span>ЛЕГЕНДА 🦸‍♂️</span> <span class="rate">1.5%</span></div>
             </div>
-        </div>
-    </div>
-</div>
 
-<div id="adminModal" class="modal-overlay"><div class="modal-content"><button class="modal-close" onclick="closeModal('adminModal')">×</button><div class="modal-title">👑 Панель Старости</div><select id="subjectSelect" class="admin-select" style="width: 100%; padding: 12px; border-radius: 12px; background: var(--secondary-bg); border: none; font-size: 15px; font-weight: 500; margin-bottom: 15px; outline: none;"></select><div class="rollcall-list" id="rollcallList"></div><button class="save-btn" onclick="saveAttendance()" style="width: 100%; background: var(--button-color); color: white; padding: 15px; border-radius: 16px; font-size: 15px; font-weight: 600; margin-top: 20px; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(36, 129, 204, 0.3);">💾 Зберегти в базу</button></div></div>
-<div id="confirmModal" class="modal-overlay" style="align-items: center;"><div class="modal-content" style="border-radius: 24px; width: 85%; transform: scale(0.9); opacity: 0; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); padding-bottom: 25px;"><div class="modal-title" id="modalText" style="text-align: center; margin-bottom: 25px; padding: 0;">Ти дійсно виконав це завдання?</div><div style="display: flex; gap: 12px;"><button id="modalCancelBtn" class="filter-btn" style="flex:1; padding: 14px; font-size: 14px;" onclick="closeModal('confirmModal')">Ще роблю</button><button id="modalConfirmBtn" class="filter-btn" style="flex:1; padding: 14px; font-size: 14px; background: var(--button-color); color: white; box-shadow: 0 4px 15px rgba(36, 129, 204, 0.3);">Так, готово!</button></div></div></div>
-<style> .modal-overlay.active #confirmModal .modal-content { transform: scale(1); opacity: 1; } </style>
+<div id="adminModal" class="modal-overlay"><div class="modal-content"><button class="modal-close" onclick="closeModal('adminModal')">×</button><div class="modal-title">👑 Панель Старости</div><select id="subjectSelect" class="admin-select"></select><div class="rollcall-list" id="rollcallList"></div><button class="save-btn" onclick="saveAttendance()">💾 Зберегти в базу</button></div></div>
+<div id="confirmModal" class="modal-overlay" style="align-items: center;"><div class="modal-content" style="border-radius: 16px; width: 80%; transform: translateY(20px);"><div class="modal-title" id="modalText" style="text-align: center;">Ти дійсно виконав це завдання?</div><div style="display: flex; gap: 10px;"><button id="modalCancelBtn" class="filter-btn" style="flex:1;" onclick="closeModal('confirmModal')">Ще роблю</button><button id="modalConfirmBtn" class="filter-btn" style="flex:1; background: var(--button-color); color: white;">Так, готово!</button></div></div></div>
 <div id="toast" class="toast"></div>
-<div id="libraryModal" class="modal-overlay">
-    <div class="modal-content">
-        <button class="modal-close" onclick="closeModal('libraryModal')">×</button>
-        <div class="modal-title">📚 База Знань</div>
-        <details class="lib-folder"><summary>📐 Вища математика</summary><div class="lib-links"><a href="https://drive.google.com/drive/folders/1-23dkVNqF_iwxF7kTcWTt5NKgGtHpatl?usp=drive_link" class="lib-link">📁 Матеріали (Drive)</a></div></details>
-        <details class="lib-folder"><summary>💻 Програмування/ТА</summary><div class="lib-links"><a href="https://classroom.google.com/c/ODQyMzQzMzEzOTA5?cjc=qe2644u4" class="lib-link">📘 Класрум (IC-51)</a></div></details>
-        <details class="lib-folder"><summary>💻 Чисельні Методи</summary><div class="lib-links"><a href="https://drive.google.com/drive/folders/1ygfMY4tFCtGkx-a0ENohczI4Vv0K_iN5" class="lib-link">📁 Матеріали (Drive)</a></div></details>
-        <details class="lib-folder"><summary>⚡ Фізика</summary><div class="lib-links"><a href="https://classroom.google.com/c/ODA1MTI2MTMyMTk4" class="lib-link">📘 Класрум (Фізика)</a></div></details>
-        <details class="lib-folder"><summary>🇬🇧 Англійська мова</summary><div class="lib-links"><a href="https://classroom.google.com/c/ODE5MDkxODI0Mjgx" class="lib-link">📘 Класрум (Англ)</a></div></details>
-    </div>
-</div>
-
-<div id="shopModal" class="modal-overlay">
-    <div class="modal-content">
-        <button class="modal-close" onclick="closeModal('shopModal')">×</button>
-        <div class="shop-header">
-            <div><h2 class="modal-title" style="margin:0;">🏷️ Магазин</h2><p style="margin:0; font-size:13px; color:var(--hint-color);">Купуй статуси за коїни</p></div>
-            <div class="coin-balance" id="shopCoinBalance">💰 0</div>
-        </div>
-        <div style="background: var(--secondary-bg); border-radius: 14px; padding: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(0,0,0,0.05);">
-            <div><h3 style="margin:0; font-size:15px; font-weight:600;">Щоденний бонус 🎁</h3><p style="margin:4px 0 0 0; font-size:13px; color:var(--accent-gold); font-weight:600;" id="streakDisplay">🔥 Вогник: 0 днів</p></div>
-            <button id="claimBonusBtn" onclick="claimDailyBonus()" style="background: var(--accent-gold); color: white; border: none; padding: 10px 15px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s;">Забрати</button>
-        </div>
-        <div id="titlesList"></div>
-    </div>
-</div>
-
-<div id="chillModal" class="modal-overlay full-screen-modal">
-    <div class="modal-content" style="background: #12051a;">
-        <button class="modal-close" onclick="closeModal('chillModal')" style="color: white; top: 25px;">×</button>
-        <div class="shop-header">
-            <div><h2 class="modal-title" style="margin:0; color:#fff;">🎮 Зона Чіл</h2></div>
-            <div class="coin-balance" id="chillCoinBalance" style="background: rgba(255,255,255,0.1);">💰 0</div>
-        </div>
-
-        <div class="casino-container" id="casinoContainer">
-            <div class="casino-title">🎰 Казино</div>
-            <div id="spinDisplay" style="font-size: 13px; color: #00ffff; font-weight: 500; margin-bottom: 20px;">Спінів: 0</div>
-            <button class="casino-btn" onclick="openLootbox()">Крутити (50 🪙)</button>
-
-            <div class="drop-rates">
-                <h4 style="margin:0 0 12px 0; color:#fff; text-align:center; font-weight:normal;">Ймовірності виграшу:</h4>
-                <div><span>Пусто 💨</span> <span class="rate">31.5%</span></div>
-                <div><span>Втішний (+10) 🍬</span> <span class="rate">20%</span></div>
-                <div><span>Окуп (+50) 💸</span> <span class="rate">18%</span></div>
-                <div><span>Плюс (+80) 🤑</span> <span class="rate">15%</span></div>
-                <div><span>Скін 👕</span> <span class="rate">10%</span></div>
-                <div><span>Джекпот (+200) 💎</span> <span class="rate">4%</span></div>
-                <div><span>Легенда 🦸‍♂️</span> <span class="rate">1.5%</span></div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="adminModal" class="modal-overlay">
-    <div class="modal-content">
-        <button class="modal-close" onclick="closeModal('adminModal')">×</button>
-        <div class="modal-title">👑 Адмінка</div>
-        <select id="subjectSelect" class="admin-select"></select>
-        <div id="rollcallList"></div>
-        <button class="save-btn" onclick="saveAttendance()">Зберегти журнал</button>
-    </div>
-</div>
-
-<div id="confirmModal" class="modal-overlay popup-modal">
-    <div class="modal-content">
-        <div class="modal-title" id="modalText" style="text-align: center; margin-bottom: 20px;">Ти виконав завдання?</div>
-        <div style="display: flex; gap: 10px;">
-            <button class="filter-btn" style="flex:1;" onclick="closeModal('confirmModal')">Ні</button>
-            <button id="modalConfirmBtn" class="filter-btn" style="flex:1; background: var(--button-color); color: white;">Так</button>
-        </div>
-    </div>
-</div>
-
-<div id="toast" class="toast"></div>
-
 <script>
     const tg = window.Telegram.WebApp; tg.ready(); tg.expand();
     const API_URL = "https://telegram-proxy-bot-desz.onrender.com/api";
@@ -308,20 +215,20 @@
     let toastTimeout; let pendingTaskId = null; let pendingTaskState = null; let currentFilter = 'all';
 
     const availableTitles = [
-        { name: "Студент 🤓", price: 0, desc: "Базовий статус" },
-        { name: "Новачок 🐣", price: 20, desc: "Почав шлях" },
-        { name: "Любитель кави ☕", price: 80, desc: "П'є еспресо" },
-        { name: "Спить на парах 😴", price: 150, desc: "Енергозбереження" },
-        { name: "Дедлайн-кілер 🥷", price: 200, desc: "В останню мить" },
-        { name: "Майстер Вишмату 🧙‍♂️", price: 299, desc: "Бачить матриці" },
-        { name: "Код-машина 🤖", price: 300, desc: "Без багів (майже)" },
-        { name: "Шукач автоматів 🎯", price: 350, desc: "Заради 60 балів" },
-        { name: "Гроза Деканату ⚡", price: 500, desc: "Еліта" },
-        { name: "Кібер-Мозок 🧠", price: 800, desc: "Компілює в голові" },
-        { name: "Магнат КПІ 🎩", price: 1500, desc: "Багатій" },
+        { name: "Студент 🤓", price: 0, desc: "Стандартний статус" },
+        { name: "Новачок 🐣", price: 20, desc: "Тільки почав свій шлях" },
+        { name: "Любитель кави ☕", price: 80, desc: "Працює на кофеїні" },
+        { name: "Спить на парах 😴", price: 150, desc: "Режим енергозбереження" },
+        { name: "Дедлайн-кілер 🥷", price: 200, desc: "Здає за хвилину до кінця" },
+        { name: "Майстер Вишмату 🧙‍♂️", price: 299, desc: "Бачить матриці наскрізь" },
+        { name: "Код-машина 🤖", price: 300, desc: "Пише без багів (майже)" },
+        { name: "Шукач автоматів 🎯", price: 350, desc: "Робить все заради 60 балів" },
+        { name: "Гроза Деканату ⚡", price: 500, desc: "Елітний статус" },
+        { name: "Кібер-Мозок 🧠", price: 800, desc: "Компілює код у голові" },
+        { name: "Магнат КПІ 🎩", price: 1500, desc: "Купив кафедру за коїни" },
         { name: "Син Ректора 👑", price: 3000, desc: "Йому можна все" },
-        { name: "Бог Сесії 🌌", price: 5000, desc: "Легенда" },
-        { name: "Син маминої подруги 🦸‍♂️", price: 99999, desc: "Тільки в казино" }
+        { name: "Бог Сесії 🌌", price: 5000, desc: "Легенда, про яку ходять чутки" },
+        { name: "Син маминої подруги 🦸‍♂️", price: 99999, desc: "ЛЕГЕНДА. Випадає тільки в казино!" }
     ];
 
     function updateHeaderInfo() {
@@ -338,7 +245,10 @@
         document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
         if(btnElement) btnElement.classList.add('active');
 
-        document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+        document.getElementById('libraryModal').classList.remove('active');
+        document.getElementById('shopModal').classList.remove('active');
+        document.getElementById('chillModal').classList.remove('active');
+        document.getElementById('adminModal').classList.remove('active');
 
         if (tabId === 'shopModal') openShop(); 
         else if (tabId === 'chillModal') await openChill();
@@ -360,57 +270,78 @@
                     const data = await res.json();
                     if (data.bonusGiven) {
                         myCoins = data.coins; hasChillBonus = true; updateHeaderInfo();
-                        confetti(); tg.showAlert("🎉 ПРИВІТАЛЬНИЙ БОНУС!\nОтримано 150 🪙 на гру!");
+                        confetti({ particleCount: 200, spread: 90 });
+                        tg.showAlert("🎉 ПРИВІТАЛЬНИЙ БОНУС!\nТи вперше зайшов у зону 'Чіл' і отримав 150 🪙 на гру!");
                     }
                 }
             } catch(e) {}
         }
-        document.getElementById('spinDisplay').innerText = `Спінів: ${mySpins}`;
+        document.getElementById('spinDisplay').innerText = `Спінів зроблено: ${mySpins}`;
         document.getElementById('chillModal').classList.add('active');
     }
 
     async function openLootbox() {
-        if (myCoins < 50) { tg.showAlert("Бракує коїнів!"); tg.HapticFeedback.notificationOccurred('error'); return; }
-        tg.HapticFeedback.impactOccurred('medium');
+        if (myCoins < 50) { tg.showAlert("Бракує коїнів! Потрібно 50 🪙."); tg.HapticFeedback.notificationOccurred('error'); return; }
+
+        const casinoCont = document.getElementById('casinoContainer');
+        casinoCont.classList.add('shake-anim'); tg.HapticFeedback.impactOccurred('heavy');
+
         try {
             const res = await fetch(`${API_URL}/lootbox/${userId}`, { method: 'POST' });
+            setTimeout(() => casinoCont.classList.remove('shake-anim'), 400); 
+            
             if (res.ok) {
                 const data = await res.json();
                 myCoins = data.coins; mySpins = data.spins;
                 myTitles = data.unlockedTitles ? data.unlockedTitles.split(',') : ['Студент 🤓'];
-                updateHeaderInfo(); document.getElementById('spinDisplay').innerText = `Спінів: ${mySpins}`;
-                if (data.prizeType === 'legendary' || data.prizeType === 'epic') confetti(); 
-                showToast(data.message);
-            }
-        } catch (e) { showToast("Помилка зв'язку"); }
+                updateHeaderInfo(); document.getElementById('spinDisplay').innerText = `Спінів зроблено: ${mySpins}`;
+                
+                if (data.prizeType === 'legendary') {
+                    confetti({ particleCount: 300, spread: 100 }); tg.showAlert(`😱 ШОК! Тобі випала ЛЕГЕНДА!\n\n${data.message}`);
+                } else if (data.prizeType === 'epic') {
+                    confetti({ particleCount: 150 }); showToast(data.message); tg.HapticFeedback.notificationOccurred('success');
+                } else if (data.prizeType === 'skin') {
+                    confetti({ particleCount: 80 }); showToast(data.message); tg.HapticFeedback.notificationOccurred('success');
+                } else { showToast(data.message); }
+            } else { showToast("Помилка рулетки ❌"); }
+        } catch (e) { casinoCont.classList.remove('shake-anim'); showToast("Помилка зв'язку ❌"); }
     }
 
     function openShop() {
         const list = document.getElementById('titlesList'); list.innerHTML = "";
         document.getElementById('streakDisplay').innerText = `🔥 Вогник: ${streakCount} днів`;
         const btn = document.getElementById('claimBonusBtn');
-        if (canClaimBonus) { 
-            btn.innerText = "Забрати"; btn.disabled = false; btn.style.background = "var(--accent-gold)"; btn.style.color = "white";
-        } else { 
-            btn.innerText = "Отримано ✅"; btn.disabled = true; btn.style.background = "transparent"; btn.style.color = "var(--hint-color)";
-        }
+        if (canClaimBonus) { btn.innerText = "Забрати 🎁"; btn.disabled = false; btn.style.background = "#ff8f00"; } 
+        else { btn.innerText = "Отримано ✅"; btn.disabled = true; btn.style.background = "var(--hint-color)"; }
 
         availableTitles.forEach((t) => {
-            if (t.name.includes("подруги") && !myTitles.includes(t.name)) return; 
+            if (t.name.includes("Син маминої подруги") && !myTitles.includes(t.name)) return; 
+            
             const isOwned = myTitles.includes(t.name); const isActive = activeTitle === t.name;
             let btnHtml = `<button class="buy-btn" onclick="buyTitle('${t.name}', ${t.price})">${t.price} 🪙</button>`;
+            let extraClass = t.name.includes("Син маминої подруги") ? "legendary" : "";
             
-            if (isActive) btnHtml = `<span style="color: var(--accent-green); font-weight: 600; font-size:13px;">АКТИВНО</span>`;
-            else if (isOwned) btnHtml = `<button class="buy-btn" style="background:var(--button-color);" onclick="buyTitle('${t.name}', 0)">Взяти</button>`;
+            if (isActive) btnHtml = `<button class="buy-btn active-title">Вибрано ✅</button>`;
+            else if (isOwned) btnHtml = `<button class="buy-btn owned" onclick="buyTitle('${t.name}', 0)">Надіти</button>`;
             
-            list.innerHTML += `<div class="shop-item"><div class="shop-info"><h4 style="margin:0; font-size:15px; font-weight:600;">${t.name}</h4><p style="margin:4px 0 0 0; font-size:12px; color:var(--hint-color);">${t.desc}</p></div>${btnHtml}</div>`;
+            list.innerHTML += `<div class="shop-item ${extraClass}"><div class="shop-info"><h4>${t.name}</h4><p>${t.desc}</p></div>${btnHtml}</div>`;
         });
         document.getElementById('shopModal').classList.add('active');
     }
 
     async function buyTitle(name, price) {
-        const res = await fetch(`${API_URL}/user/${userId}/title`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: price>0?'buy':'equip', title: name, price: price }) });
-        if(res.ok) { loadData(); setTimeout(openShop, 200); }
+        if (myTitles.includes(name)) {
+            await fetch(`${API_URL}/user/${userId}/title`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'equip', title: name }) });
+            activeTitle = name; updateHeaderInfo(); openShop(); tg.HapticFeedback.notificationOccurred('success');
+        } else {
+            if (myCoins >= price) {
+                const res = await fetch(`${API_URL}/user/${userId}/title`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'buy', title: name, price: price }) });
+                if(res.ok) {
+                    myCoins -= price; myTitles.push(name); activeTitle = name; updateHeaderInfo(); openShop();
+                    confetti({ particleCount: 100, spread: 70 }); tg.HapticFeedback.notificationOccurred('success');
+                } else showToast("Помилка покупки!");
+            } else { tg.showAlert(`Бракує коїнів! Треба ще ${price - myCoins} 🪙.`); tg.HapticFeedback.notificationOccurred('error'); }
+        }
     }
 
     async function claimDailyBonus() {
@@ -420,8 +351,10 @@
             const res = await fetch(`${API_URL}/bonus/${userId}`, { method: 'POST' });
             if (res.ok) {
                 const data = await res.json();
-                confetti(); showToast(`Отримано +${data.reward} 🪙`); loadData(); setTimeout(openShop, 200);
-            }
+                myCoins = data.coins; streakCount = data.streak; canClaimBonus = false;
+                updateHeaderInfo(); openShop(); 
+                confetti({ particleCount: 150 }); showToast(`Забрано +${data.reward} 🪙! Твій вогник: ${streakCount} 🔥`);
+            } else { showToast("Бонус вже отримано ❌"); }
         } catch(e) {}
     }
 
@@ -439,33 +372,33 @@
         ];
 
         let currentSlot = timeSlots.find(slot => currentMinutes >= slot.start && currentMinutes < slot.end);
-        const widget = document.getElementById('liveWidget');
+        const widget = document.getElementById('liveWidget'); const subjText = document.getElementById('liveSubject'); const timeText = document.getElementById('liveTimeLeft');
 
         if (!currentSlot || day === 0 || day === 6) { widget.style.display = 'none'; return; }
 
         let subjectName = "Пара";
         if (weekType === 1) {
-            if (day === 1) subjectName = ["-", "Основи здоров'я", "Українська мова", "Фізика"][currentSlot.num-1];
-            if (day === 2) subjectName = ["Фізика", "Теорія алгоритмів", "Українська мова", "-"][currentSlot.num-1];
-            if (day === 3) subjectName = ["Програмування", "Англійська мова", "Чисельні методи", "-"][currentSlot.num-1];
+            if (day === 1) subjectName = ["Спимо", "Основи здоров'я", "Українська мова", "Фізика"][currentSlot.num-1];
+            if (day === 2) subjectName = ["Фізика", "Теорія алгоритмів", "Українська мова", ""][currentSlot.num-1];
+            if (day === 3) subjectName = ["Програмування", "Англійська мова", "Чисельні методи", ""][currentSlot.num-1];
             if (day === 4) subjectName = ["Програмування", "Чисельні методи", "Вища математика", "Вища математика"][currentSlot.num-1];
-            if (day === 5) subjectName = ["-", "Теорія алгоритмів", "Вища математика", "-"][currentSlot.num-1];
+            if (day === 5) subjectName = ["Спимо", "Теорія алгоритмів", "Вища математика", ""][currentSlot.num-1];
         } else {
-            if (day === 1) subjectName = ["-", "Основи здоров'я", "Фізика", "Фізика"][currentSlot.num-1];
-            if (day === 2) subjectName = ["Фізика", "Теорія алгоритмів", "Теорія алгоритмів", "-"][currentSlot.num-1];
+            if (day === 1) subjectName = ["Спимо", "Основи здоров'я", "Фізика", "Фізика"][currentSlot.num-1];
+            if (day === 2) subjectName = ["Фізика", "Теорія алгоритмів", "Теорія алгоритмів", ""][currentSlot.num-1];
             if (day === 3) subjectName = ["Програмування", "Англійська мова", "Чисельні методи", "Англійська мова"][currentSlot.num-1];
             if (day === 4) subjectName = ["Програмування", "Чисельні методи", "Вища математика", "Вища математика"][currentSlot.num-1];
-            if (day === 5) subjectName = ["-", "Теорія алгоритмів", "Вища математика", "-"][currentSlot.num-1];
+            if (day === 5) subjectName = ["Спимо", "Теорія алгоритмів", "Вища математика", ""][currentSlot.num-1];
         }
 
-        if (!subjectName || subjectName === "-") { widget.style.display = 'none'; return; }
+        if (!subjectName || subjectName === "" || subjectName === "Спимо") { widget.style.display = 'none'; return; }
 
-        document.getElementById('liveSubject').innerText = subjectName; 
-        document.getElementById('liveTimeLeft').innerText = `${currentSlot.end - currentMinutes} хв.`;
+        const minsLeft = currentSlot.end - currentMinutes;
+        subjText.innerText = subjectName; timeText.innerText = `Залишилось ${minsLeft} хв`;
         widget.style.display = 'flex';
     }
 
-    async function loadData(retryCount = 0) {
+    async function loadData() {
         try {
             const adminIdsStr = ["1492389359", "1654156923"];
             if (adminIdsStr.includes(String(userId))) { document.getElementById('navAdminBtn').style.display = 'flex'; }
@@ -481,17 +414,20 @@
             updateHeaderInfo();
 
             const tasksRes = await fetch(`${API_URL}/tasks/${userId}`);
-            if (tasksRes.ok) { globalTasks = await tasksRes.json(); document.getElementById('filtersBlock').style.display = "flex"; renderTasks(); }
+            if (tasksRes.ok) { 
+                globalTasks = await tasksRes.json(); 
+                document.getElementById('filtersBlock').style.display = "flex"; 
+                document.getElementById('statsCard').style.display = "block"; 
+                renderTasks(); 
+            }
             
             const rankRes = await fetch(`${API_URL}/rank/${userId}`);
-            if (rankRes.ok) { const r = await rankRes.json(); let m = r.rank===1?"🥇":r.rank===2?"🥈":r.rank===3?"🥉":"👤"; document.getElementById('rankBadge').innerText = `${m} ${r.rank}/${r.total}`; }
-        } catch (e) {
-            if (retryCount < 4) {
-                document.getElementById('activeTaskList').innerHTML = "<p style='text-align:center; color: var(--hint-color); font-size:13px;'>Сервер прокидається... Зачекай ⏳</p>";
-                setTimeout(() => loadData(retryCount + 1), 5000);
-            } else {
-                document.getElementById('activeTaskList').innerHTML = "<p style='text-align:center; color: var(--accent-red); font-size:13px;'>Немає зв'язку з сервером ❌<br>Спробуй пізніше</p>";
+            if (rankRes.ok) { 
+                const rankData = await rankRes.json(); 
+                document.getElementById('rankBadge').innerText = rankData.rank === 1 ? "🥇 1 місце" : rankData.rank === 2 ? "🥈 2 місце" : rankData.rank === 3 ? "🥉 3 місце" : `👤 ${rankData.rank}/${rankData.total} місце`; 
             }
+        } catch (e) {
+            document.getElementById('activeTaskList').innerHTML = "<p style='text-align:center; color: #e53935;'>Не вдалося завантажити дані ❌<br><span style='font-size: 11px; color: gray;'>Зачекай 30 сек і перезайди</span></p>";
         }
     }
 
@@ -506,7 +442,7 @@
         activeList.innerHTML = ""; completedList.innerHTML = "";
 
         if (globalTasks.length === 0) {
-            activeList.innerHTML = "<p style='text-align:center; color:var(--hint-color); font-size:13px;'>Завдань немає. Відпочивай! 🎉</p>"; 
+            activeList.innerHTML = "<p style='text-align:center;'>Завдань немає. Відпочивай! 🎉</p>"; 
             progressWrapper.style.display = "none"; completedSection.style.display = "none"; return;
         }
 
@@ -514,12 +450,13 @@
         const percent = Math.round((completedTasks.length / globalTasks.length) * 100); const now = new Date();
         const overdueCount = activeTasks.filter(t => (new Date(t.deadline) - now) < 0).length;
 
+        // ВІДНОВЛЕННЯ АЧІВОК (КОРОНА, ЩИТ, БЛИСКАВКА)
         let badges = [];
         const adminIdsStr = ["1492389359", "1654156923"];
-        if (adminIdsStr.includes(String(userId))) badges.push('<span style="font-size: 16px;" title="Адмін">👑</span>');
+        if (adminIdsStr.includes(String(userId))) badges.push('<span style="font-size: 18px;" title="Адмін">👑</span>');
         
         const mathTasks = globalTasks.filter(t => (t.subject || "").toLowerCase().includes("математика"));
-        if (mathTasks.length > 0 && mathTasks.every(t => t.isCompleted)) badges.push('<span style="font-size: 16px;" title="Броня Вишмату">🛡️</span>');
+        if (mathTasks.length > 0 && mathTasks.every(t => t.isCompleted)) badges.push('<span style="font-size: 18px;" title="Броня Вишмату">🛡️</span>');
         
         let hasEarlyBird = false;
         completedTasks.forEach(t => {
@@ -528,26 +465,22 @@
                 if (diffHours > 72) hasEarlyBird = true;
             }
         });
-        if (hasEarlyBird) badges.push('<span style="font-size: 16px;" title="Рання пташка">⚡</span>');
+        if (hasEarlyBird) badges.push('<span style="font-size: 18px;" title="Рання пташка">⚡</span>');
         document.getElementById('headerBadges').innerHTML = badges.join('');
 
-        const header = document.getElementById('mainHeader');
-        if (overdueCount >= 7) { 
-            header.classList.add('panic-mode'); document.getElementById('userName').innerText = `🚨 УВАГА!`; document.getElementById('headerSubtitle').innerText = `Боргів: ${overdueCount} шт.`; tg.HapticFeedback.notificationOccurred('error'); 
-        } else { 
-            header.classList.remove('panic-mode'); document.getElementById('userName').innerText = `Привіт, ${firstName}!`; document.getElementById('headerSubtitle').innerText = "Твої навчальні завдання"; 
-        }
-
+        // ВІДНОВЛЕННЯ БАРІВ І СТАТУСІВ
         if (overdueCount === 0) { streakBadge.className = 'badge badge-green'; streakBadge.innerHTML = '🔥 Без боргів'; } 
         else { streakBadge.className = 'badge badge-red'; streakBadge.innerHTML = `🧊 Боргів: ${overdueCount}`; }
 
-        if (percent === 100) { levelBadge.innerHTML = 'Легенда'; levelBadge.className = 'badge badge-green'; analyticsText.innerHTML = 'Всі завдання виконані!'; } 
-        else if (percent >= 80) { levelBadge.innerHTML = 'Турбо'; levelBadge.className = 'badge badge-blue'; analyticsText.innerHTML = 'Майже все готово.'; } 
-        else if (percent >= 50) { levelBadge.innerHTML = 'Стабільний'; levelBadge.className = 'badge badge-blue'; analyticsText.innerHTML = 'Більше половини зроблено.'; } 
-        else if (percent > 0) { levelBadge.innerHTML = 'Початківець'; levelBadge.className = 'badge badge-blue'; analyticsText.innerHTML = 'Час сідати за навчання.'; } 
-        else { levelBadge.innerHTML = 'Спить'; levelBadge.className = 'badge badge-red'; analyticsText.innerHTML = 'Жодного виконаного завдання.'; }
+        if (percent === 100) { levelBadge.innerHTML = '👑 Легенда'; levelBadge.className = 'badge badge-green'; analyticsText.innerHTML = '<b>Ідеально!</b> Ти розніс усі таски. Краще не буває.'; } 
+        else if (percent >= 80) { levelBadge.innerHTML = '🚀 Турбо-студент'; levelBadge.className = 'badge badge-blue'; analyticsText.innerHTML = 'Ти йдеш краще за більшість групи! Так тримати.'; } 
+        else if (percent >= 50) { levelBadge.innerHTML = '💪 Стабільний'; levelBadge.className = 'badge badge-blue'; analyticsText.innerHTML = 'Більша половина вже закрита. Головне не зупинятись!'; } 
+        else if (percent > 0) { levelBadge.innerHTML = '🐢 Початківець'; levelBadge.className = 'badge badge-orange'; analyticsText.innerHTML = 'Треба трохи піднажати, щоб не назбирати сніговий ком.'; } 
+        else { levelBadge.innerHTML = '💤😴'; levelBadge.className = 'badge badge-red'; analyticsText.innerHTML = 'Ти ще не починав. Давай, зроби хоча б одне завдання!'; }
 
-        document.getElementById('statsCard').style.display = "block";
+        if (overdueCount >= 5) { document.getElementById('mainHeader').classList.add('panic-mode'); document.getElementById('userName').innerText = `🚨 УВАГА!`; document.getElementById('headerSubtitle').innerText = `У тебе горять борги: ${overdueCount} шт. Бігом робити!`; tg.HapticFeedback.notificationOccurred('error'); } 
+        else { document.getElementById('mainHeader').classList.remove('panic-mode'); document.getElementById('userName').innerText = `Привіт, ${firstName}!`; document.getElementById('headerSubtitle').innerText = "Твої навчальні завдання"; }
+
         progressWrapper.style.display = "block"; progressText.innerText = `Мій прогрес: ${completedTasks.length} з ${globalTasks.length} (${percent}%)`;
         setTimeout(() => { progressBar.style.width = `${percent}%`; }, 100);
 
@@ -555,9 +488,9 @@
         else if (currentFilter === 'soon') activeTasks = activeTasks.filter(t => { const diffDays = Math.ceil((new Date(t.deadline) - now) / (1000 * 60 * 60 * 24)); return diffDays >= 0 && diffDays <= 2; });
 
         if (activeTasks.length === 0) {
-            if (currentFilter === 'overdue') activeList.innerHTML = "<p style='text-align:center; color: var(--accent-green); font-size:13px; font-weight:500;'>Боргів немає! 🚀</p>";
-            else if (currentFilter === 'soon') activeList.innerHTML = "<p style='text-align:center; color: var(--accent-green); font-size:13px; font-weight:500;'>В найближчі дні дедлайнів немає.</p>";
-            else activeList.innerHTML = `<div style="text-align:center; padding: 20px;"><p style="color: var(--hint-color); font-size:13px;">Усі завдання виконано.</p></div>`;
+            if (currentFilter === 'overdue') activeList.innerHTML = "<p style='text-align:center;'>У тебе немає боргів! Ти супер! 🚀</p>";
+            else if (currentFilter === 'soon') activeList.innerHTML = "<p style='text-align:center;'>На найближчі дні все чисто! 😎</p>";
+            else activeList.innerHTML = `<div style="text-align:center; padding: 30px 10px;"><span style="font-size: 50px;">🏆</span><h3 style="margin-top: 10px;">Ти машина!</h3><p style="color: var(--hint-color)">Усі завдання виконано.</p></div>`;
         } else { 
             const grouped = {}; activeTasks.forEach(task => { const subject = task.subject || "Інше"; if (!grouped[subject]) grouped[subject] = []; grouped[subject].push(task); });
             for (const subject in grouped) {
@@ -566,8 +499,7 @@
             }
         }
 
-        if (completedTasks.length > 0) { 
-            completedSection.style.display = "block"; document.getElementById('completedCount').innerText = completedTasks.length; 
+        if (completedTasks.length > 0) { completedSection.style.display = "block"; document.getElementById('completedCount').innerText = completedTasks.length; 
             const groupedComp = {}; completedTasks.forEach(task => { const subject = task.subject || "Інше"; if (!groupedComp[subject]) groupedComp[subject] = []; groupedComp[subject].push(task); });
             for (const subject in groupedComp) {
                 const subjectHeader = document.createElement('div'); subjectHeader.className = 'subject-group-title'; subjectHeader.innerText = subject; completedList.appendChild(subjectHeader);
@@ -579,55 +511,30 @@
     function createTaskCard(task) {
         let title = task.title; const deadlineStr = task.deadline; const isCompleted = task.isCompleted; const taskId = task.taskId;
         const timeDiff = new Date(deadlineStr) - new Date(); const diffDays = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+        const dateStr = new Date(deadlineStr).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long' });
 
-        let statusClass = "status-ok", borderClass = "card-ok", statusText = `Залишилось днів: ${diffDays}`;
-        if (diffDays < 0) { statusClass = "status-overdue"; borderClass = "card-overdue"; statusText = `Протерміновано!`; } 
-        else if (diffDays === 0) { statusClass = "status-soon"; borderClass = "card-soon"; statusText = `Сьогодні дедлайн!`; }
+        let statusClass = "status-ok", borderClass = "card-ok", statusText = `Залишилось днів: ${diffDays} (до ${dateStr})`;
+        if (diffDays < 0) { statusClass = "status-overdue"; borderClass = "card-overdue"; statusText = `ПРОТЕРМІНОВАНО!`; } 
         else if (diffDays <= 2) { statusClass = "status-soon"; borderClass = "card-soon"; statusText = `Скоро! (${diffDays} дн.)`; }
 
         const card = document.createElement('div'); card.id = `task-${taskId}`; card.className = `task-card ${borderClass} ${isCompleted ? 'completed' : ''}`;
-        card.innerHTML = `<div class="task-info"><div class="task-subject">${task.subject}</div><div class="task-title">${title}</div><div class="task-deadline ${statusClass}">${isCompleted ? 'Виконано' : statusText}</div></div><div class="checkbox ${isCompleted ? 'checked' : ''}" onclick="openModal('confirmModal', ${taskId}, ${isCompleted})"></div>`;
+        card.innerHTML = `<div class="task-info"><div class="task-subject">${task.subject}</div><div class="task-title">${title}</div><div class="task-deadline ${statusClass}">${isCompleted ? 'Виконано' : statusText}</div></div><div class="checkbox ${isCompleted ? 'checked' : ''}" onclick="openModal('confirmModal', ${taskId}, ${isCompleted})">${isCompleted ? '✓' : ''}</div>`;
         return card;
     }
 
     function showToast(msg) { const t = document.getElementById('toast'); t.innerHTML = `<span>${msg}</span>`; t.classList.add('show'); clearTimeout(toastTimeout); toastTimeout = setTimeout(() => t.classList.remove('show'), 3000); }
-    
-    function openModal(modalId, taskId = null, state = null) { 
-        if (modalId === 'confirmModal') { 
-            pendingTaskId = taskId; pendingTaskState = state; 
-            document.getElementById('modalConfirmBtn').innerText = state ? "Так" : "Так";
-            document.getElementById('modalText').innerText = state ? "Повернути в роботу?" : "Завдання виконано?";
-        } 
-        document.getElementById(modalId).classList.add('active'); 
-        tg.HapticFeedback.impactOccurred('light');
-    }
+    function openModal(modalId, taskId = null, state = null) { if (modalId === 'confirmModal') { pendingTaskId = taskId; pendingTaskState = state; } document.getElementById(modalId).classList.add('active'); }
 
     document.getElementById('modalConfirmBtn').addEventListener('click', async () => {
-        if (!pendingTaskId) return; 
-        const taskId = pendingTaskId, state = pendingTaskState; 
-        closeModal('confirmModal');
-        
-        const cardElement = document.getElementById(`task-${taskId}`); 
-        if (cardElement) {
-            if (!state) cardElement.classList.add('completing');
-            else cardElement.classList.add('uncompleting');
-        }
-        tg.HapticFeedback.impactOccurred('medium');
-
+        if (!pendingTaskId) return; const taskId = pendingTaskId, state = pendingTaskState; closeModal('confirmModal');
+        const cardElement = document.getElementById(`task-${taskId}`); if (cardElement) cardElement.classList.add('completing');
         try {
-            setTimeout(async () => {
-                const response = await fetch(`${API_URL}/tasks/${userId}/complete/${taskId}`, { method: 'POST' });
-                if (response.ok) { 
-                    if (!state) { confetti(); showToast("Виконано! +10 🪙"); } 
-                    else { showToast("Повернуто"); }
-                    loadData(); 
-                }
-            }, 300); 
+            const response = await fetch(`${API_URL}/tasks/${userId}/complete/${taskId}`, { method: 'POST' });
+            if (response.ok) { if (!state) { confetti({ particleCount: 100 }); showToast("Виконано! +10 🪙"); } setTimeout(loadData, 400); }
         } catch (e) {}
     });
 
     const groupListArray = [ "1. Базунов Дмитро", "2. Волков Микола", "3. Гриценко Микола", "4. Жук Тимофій", "5. Калашник Даниїл", "6. Клименко Іван", "8. Мартиненко Валерій", "9. Постернак Роман", "10. Притула Дмитро", "12. Скірко Анна", "13. Узун Дмитро", "14. Фулга Іван", "15. Ханчопуло Ольга" ];
-    
     function getTodaysSubjectsAdmin() {
         const semesterStart = new Date('2026-03-02T00:00:00'); const now = new Date();
         const diffDays = Math.floor((now - semesterStart) / (1000 * 60 * 60 * 24));
@@ -642,18 +549,18 @@
 
     function openAdmin() { 
         const select = document.getElementById('subjectSelect'); const subjects = getTodaysSubjectsAdmin();
-        select.innerHTML = ""; if (subjects.length === 0) select.innerHTML = '<option value="">Немає пар</option>'; else subjects.forEach(sub => { select.innerHTML += `<option value="${sub}">${sub}</option>`; });
+        select.innerHTML = ""; if (subjects.length === 0) select.innerHTML = '<option value="">Сьогодні пар немає 🎉</option>'; else subjects.forEach(sub => { select.innerHTML += `<option value="${sub}">${sub}</option>`; });
         const listHtml = document.getElementById('rollcallList'); listHtml.innerHTML = "";
-        groupListArray.forEach((student) => { listHtml.innerHTML += `<div class="student-row"><span class="student-name">${student}</span><button class="toggle-btn present" onclick="toggleAttendance(this)">Є</button></div>`; });
+        groupListArray.forEach((student) => { listHtml.innerHTML += `<div class="student-row"><span style="font-weight: bold;">${student}</span><button class="toggle-btn present" onclick="toggleAttendance(this)">🟢 Є</button></div>`; });
         document.getElementById('adminModal').classList.add('active'); 
     }
 
-    function toggleAttendance(btn) { if (btn.classList.contains('present')) { btn.classList.remove('present'); btn.classList.add('absent'); btn.innerText = "Нема"; tg.HapticFeedback.impactOccurred('light'); } else { btn.classList.remove('absent'); btn.classList.add('present'); btn.innerText = "Є"; tg.HapticFeedback.impactOccurred('medium'); } }
+    function toggleAttendance(btn) { if (btn.classList.contains('present')) { btn.classList.remove('present'); btn.classList.add('absent'); btn.innerText = "🔴 Нема"; tg.HapticFeedback.impactOccurred('light'); } else { btn.classList.remove('absent'); btn.classList.add('present'); btn.innerText = "🟢 Є"; tg.HapticFeedback.impactOccurred('medium'); } }
 
     async function saveAttendance() {
         const subject = document.getElementById('subjectSelect').value; if(!subject) return;
-        const records = []; document.querySelectorAll('.student-row').forEach(row => { records.push({ name: row.querySelector('.student-name').innerText, isPresent: row.querySelector('.toggle-btn').classList.contains('present') }); });
-        try { const response = await fetch(`${API_URL}/attendance`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ subject: subject, records: records }) }); if (response.ok) { tg.showAlert(`Журнал збережено!`); closeModal('adminModal'); } } catch (e) {}
+        const records = []; document.querySelectorAll('.student-row').forEach(row => { records.push({ name: row.querySelector('span').innerText, isPresent: row.querySelector('.toggle-btn').classList.contains('present') }); });
+        try { const response = await fetch(`${API_URL}/attendance`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ subject: subject, records: records }) }); if (response.ok) { tg.showAlert(`✅ Журнал збережено!`); closeModal('adminModal'); } } catch (e) {}
     }
 
     loadData();
