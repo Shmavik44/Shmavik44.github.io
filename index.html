@@ -881,13 +881,20 @@
 
     // ===================== 🔒 КАРТКА ЗАВДАННЯ =====================
     function createTaskCard(task) {
-        const taskId = task.taskId ?? task.id ?? task.TaskId ?? task.Id;
-        const isCompleted = task.isCompleted;
-        let diffDays = 0, dateStr = "", d = new Date(task.deadline);
-        if (!isNaN(d)) {
-            diffDays = Math.ceil((d - new Date()) / 86400000);
-            dateStr = d.toLocaleDateString('uk-UA', { day:'numeric', month:'long' });
-        }
+    const taskId = task.taskId ?? task.id ?? task.TaskId ?? task.Id;
+    const isCompleted = task.isCompleted;
+    let diffDays = 0, dateStr = "", d = new Date(task.deadline);
+    if (!isNaN(d)) {
+        diffDays = Math.ceil((d - new Date()) / 86400000);
+        dateStr = d.toLocaleDateString('uk-UA', { day:'numeric', month:'long' });
+    }
+
+    // 🔒 Блокуємо тільки якщо в назві є [lock] І дедлайн минув
+    const hasLockTag = (task.title || "").toLowerCase().includes("[lock]");
+    const isLocked = !isCompleted && hasLockTag && diffDays < 0;
+
+    // Прибираємо мітку [lock] з відображуваної назви
+    const displayTitle = (task.title || "").replace(/\[lock\]/gi, "").trim();
 
         // 🔒 Завдання заблоковане якщо: дедлайн минув І не виконано
         const isLocked = !isCompleted && diffDays < 0;
