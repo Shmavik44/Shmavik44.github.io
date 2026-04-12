@@ -880,27 +880,26 @@
     }
 
     // ===================== 🔒 КАРТКА ЗАВДАННЯ =====================
-    function createTaskCard(task) {
-    const taskId = task.taskId ?? task.id ?? task.TaskId ?? task.Id;
-    const isCompleted = task.isCompleted;
-    let diffDays = 0, dateStr = "", d = new Date(task.deadline);
-    if (!isNaN(d)) {
-        diffDays = Math.ceil((d - new Date()) / 86400000);
-        dateStr = d.toLocaleDateString('uk-UA', { day:'numeric', month:'long' });
-    }
+   function createTaskCard(task) {
+        const taskId = task.taskId ?? task.id ?? task.TaskId ?? task.Id;
+        const isCompleted = task.isCompleted;
+        let diffDays = 0, dateStr = "", d = new Date(task.deadline);
+        if (!isNaN(d)) {
+            diffDays = Math.ceil((d - new Date()) / 86400000);
+            dateStr = d.toLocaleDateString('uk-UA', { day:'numeric', month:'long' });
+        }
 
-    // 🔒 Блокуємо тільки якщо в назві є [lock] І дедлайн минув
-    const hasLockTag = (task.title || "").toLowerCase().includes("[lock]");
-    const isLocked = !isCompleted && hasLockTag && diffDays < 0;
+        // 🔒 Блокуємо тільки якщо в назві є [lock] І дедлайн минув
+        const hasLockTag = (task.title || "").toLowerCase().includes("[lock]");
+        
+        // ЄДИНЕ оголошення isLocked
+        const isLocked = !isCompleted && hasLockTag && diffDays < 0;
 
-    // Прибираємо мітку [lock] з відображуваної назви
-    const displayTitle = (task.title || "").replace(/\[lock\]/gi, "").trim();
-
-        // 🔒 Завдання заблоковане якщо: дедлайн минув І не виконано
-        const isLocked = !isCompleted && diffDays < 0;
+        // Прибираємо мітку [lock] з відображуваної назви
+        const displayTitle = (task.title || "").replace(/\[lock\]/gi, "").trim();
 
         let sc = "status-ok", bc = "card-ok", st = `Залишилось: ${diffDays} дн. (до ${dateStr})`;
-        if (isLocked)          { sc = "status-locked"; bc = "card-overdue"; st = "🔒 ЗАБЛОКОВАНО (термін вийшов)"; }
+        if (isLocked)            { sc = "status-locked"; bc = "card-overdue"; st = "🔒 ЗАБЛОКОВАНО (термін вийшов)"; }
         else if (diffDays === 0) { sc = "status-soon";   bc = "card-soon";   st = "СЬОГОДНІ ДЕДЛАЙН!"; }
         else if (diffDays <= 2)  { sc = "status-soon";   bc = "card-soon";   st = `Скоро! (${diffDays} дн.)`; }
 
@@ -914,10 +913,12 @@
         const card = document.createElement('div');
         card.id = `task-${taskId}`;
         card.className = `task-card ${bc} ${isCompleted ? 'completed' : ''} ${isLocked ? 'locked-card' : ''}`;
+        
+        // Використовуємо displayTitle замість task.title
         card.innerHTML = `
             <div class="task-info">
                 <div class="task-subject">${task.subject || "Предмет"}</div>
-                <div class="task-title">${task.title}</div>
+                <div class="task-title">${displayTitle}</div> 
                 <div class="task-deadline ${sc}">${isCompleted ? 'Виконано ✓' : st}</div>
             </div>
             ${rightHtml}`;
