@@ -903,6 +903,7 @@
 
         let sc = "status-ok", bc = "card-ok", st = `Залишилось: ${diffDays} дн. (до ${dateStr})`;
         if (isLocked)            { sc = "status-locked"; bc = "card-overdue"; st = "🔒 ЗАБЛОКОВАНО (термін вийшов)"; }
+        else if (diffDays < 0)   { sc = "status-overdue"; bc = "card-overdue"; st = "Протерміновано!"; } 
         else if (diffDays === 0) { sc = "status-soon";   bc = "card-soon";   st = "СЬОГОДНІ ДЕДЛАЙН!"; }
         else if (diffDays <= 2)  { sc = "status-soon";   bc = "card-soon";   st = `Скоро! (${diffDays} дн.)`; }
 
