@@ -780,7 +780,10 @@
 
         if (!globalTasks || !globalTasks.length) {
             activeList.innerHTML = "<p style='text-align:center;color:var(--hint);font-size:13px;'>Завдань немає 🎉</p>";
-            progressWrapper.style.display = "none"; completedSection.style.display = "none"; return;
+            progressWrapper.style.display = "none"; completedSection.style.display = "none";
+            document.getElementById('headerSubtitle').innerText = "Твої навчальні завдання"; 
+            
+            return;
         }
 
         const now = new Date();
