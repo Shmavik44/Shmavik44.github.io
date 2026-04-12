@@ -917,7 +917,7 @@
         card.innerHTML = `
             <div class="task-info">
                 <div class="task-subject">${task.subject || "Предмет"}</div>
-                <div class="task-title">${task.title}</div>
+                <div class="task-title">${displayTitle}</div>
                 <div class="task-deadline ${sc}">${isCompleted ? 'Виконано ✓' : st}</div>
             </div>
             ${rightHtml}`;
