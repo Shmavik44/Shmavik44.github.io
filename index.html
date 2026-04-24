@@ -296,6 +296,37 @@
         /* ===================== СКЕЛЕТОН ===================== */
         .skeleton-card { background: var(--sec); border-radius: 12px; height: 60px; margin-bottom: 8px; animation: skel 1.5s infinite; }
         @keyframes skel { 0%,100%{opacity:0.3} 50%{opacity:0.7} }
+
+        /* ===================== НОВИНИ ===================== */
+        .nav-icon-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+        .news-badge {
+            position: absolute; top: -5px; right: -10px;
+            background: var(--red); color: white;
+            font-size: 9px; font-weight: 700;
+            min-width: 16px; height: 16px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            padding: 0 3px; line-height: 1;
+            border: 1.5px solid var(--bg);
+        }
+        .announcement-card {
+            background: var(--sec); border-radius: 12px;
+            padding: 12px 14px; margin-bottom: 8px;
+            border-left: 4px solid var(--btn);
+            cursor: pointer; transition: opacity 0.2s;
+        }
+        .announcement-card.inactive { border-left-color: var(--hint); opacity: 0.65; }
+        .announcement-card.unread .ann-title { font-weight: 700; }
+        .ann-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+        .ann-title { font-size: 14px; font-weight: 500; color: var(--text); flex: 1; line-height: 1.3; }
+        .ann-status { font-size: 10px; font-weight: 600; padding: 3px 7px; border-radius: 6px; white-space: nowrap; flex-shrink: 0; }
+        .ann-status.active  { background: rgba(67,160,71,0.12); color: var(--green); }
+        .ann-status.inactive { background: rgba(128,128,128,0.12); color: var(--hint); }
+        .ann-new-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--btn); margin-right: 6px; vertical-align: middle; flex-shrink: 0; }
+        .ann-meta { font-size: 10px; color: var(--hint); margin-top: 5px; }
+        .ann-text { font-size: 13px; color: var(--text); margin-top: 10px; line-height: 1.5; display: none; border-top: 1px solid rgba(128,128,128,0.12); padding-top: 10px; }
+        .announcement-card.expanded .ann-text { display: block; }
+        .ann-expand-hint { font-size: 10px; color: var(--hint); margin-top: 6px; text-align: right; }
+        .announcement-card.expanded .ann-expand-hint { display: none; }
     </style>
 </head>
 <body>
@@ -322,15 +353,15 @@
         <div id="analyticsText" class="analytics-text"></div>
     </div>
 
-    <div id="liveWidget" class="live-widget">
-        <div style="display:flex;align-items:center;">
+    <div id="liveWidget" class="live-widget" style="cursor:pointer;" onclick="openNewsFromWidget()">
+        <div style="display:flex;align-items:center;flex:1;min-width:0;">
             <div class="live-pulse"></div>
-            <div>
-                <div style="font-size:10px;color:var(--green);font-weight:600;">ЗАРАЗ ПАРА</div>
-                <div id="liveSubject" style="font-size:13px;font-weight:500;">...</div>
+            <div style="min-width:0;">
+                <div style="font-size:10px;color:var(--green);font-weight:600;">📢 ОГОЛОШЕННЯ</div>
+                <div id="liveSubject" style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
             </div>
         </div>
-        <div id="liveTimeLeft" style="font-size:11px;color:var(--hint);font-weight:500;"></div>
+        <div style="font-size:18px;color:var(--hint);flex-shrink:0;margin-left:8px;">›</div>
     </div>
 
     <div class="filters-container" id="filtersBlock" style="display:none;">
@@ -361,6 +392,15 @@
     <details class="lib-folder"><summary>💻 Чисельні Методи</summary><div class="lib-links"><a href="https://drive.google.com/drive/folders/1ygfMY4tFCtGkx-a0ENohczI4Vv0K_iN5" class="lib-link">📁 Матеріали (Drive)</a></div></details>
     <details class="lib-folder"><summary>⚡ Фізика</summary><div class="lib-links"><a href="https://classroom.google.com/c/ODA1MTI2MTMyMTk4" class="lib-link">📘 Класрум (Фізика)</a></div></details>
     <details class="lib-folder"><summary>🇬🇧 Англійська мова</summary><div class="lib-links"><a href="https://classroom.google.com/c/ODE5MDkxODI0Mjgx" class="lib-link">📘 Класрум (Англ)</a></div></details>
+</div>
+
+<!-- ========== ВКЛАДКА: НОВИНИ ========== -->
+<div class="tab-page" id="tab-news">
+    <div class="tab-header"><span>📰 Новини</span></div>
+    <div id="newsList">
+        <div class="skeleton-card"></div>
+        <div class="skeleton-card"></div>
+    </div>
 </div>
 
 <!-- ========== ВКЛАДКА: МАГАЗИН ========== -->
@@ -410,6 +450,7 @@
     <div class="admin-tabs">
         <button class="filter-btn active" id="tabRollcallBtn" onclick="switchAdminTab('rollcall')">Журнал</button>
         <button class="filter-btn" id="tabTasksBtn" onclick="switchAdminTab('tasks')">Завдання</button>
+        <button class="filter-btn" id="tabAnnouncementsBtn" onclick="switchAdminTab('announcements')">Новини</button>
     </div>
 
     <!-- ЖУРНАЛ ВІДВІДУВАНОСТІ -->
@@ -439,12 +480,34 @@
         </div>
         <div id="adminTasksList"></div>
     </div>
+
+    <!-- УПРАВЛІННЯ ОГОЛОШЕННЯМИ -->
+    <div id="adminAnnouncementsSection" style="display:none;">
+        <div style="background:var(--sec);padding:15px;border-radius:14px;margin-bottom:15px;">
+            <div style="font-size:14px;font-weight:600;margin-bottom:12px;">📢 Додати оголошення</div>
+            <input type="text" id="newAnnTitle" placeholder="Заголовок оголошення"
+                style="width:100%;padding:11px;margin-bottom:8px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);font-family:inherit;outline:none;font-size:13px;background:var(--bg);color:var(--text);">
+            <textarea id="newAnnText" placeholder="Текст оголошення"
+                style="width:100%;padding:11px;margin-bottom:8px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);font-family:inherit;outline:none;font-size:13px;background:var(--bg);color:var(--text);resize:vertical;min-height:90px;"></textarea>
+            <input type="date" id="newAnnExpires"
+                style="width:100%;padding:11px;margin-bottom:12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);font-family:inherit;outline:none;font-size:13px;background:var(--bg);color:var(--text);">
+            <button onclick="addAnnouncement()"
+                style="width:100%;background:var(--btn);color:white;padding:12px;border-radius:10px;border:none;font-weight:600;cursor:pointer;font-size:13px;">
+                📢 Опублікувати оголошення
+            </button>
+        </div>
+        <div style="font-size:12px;font-weight:600;color:var(--hint);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">
+            Поточні оголошення:
+        </div>
+        <div id="adminAnnouncementsList"></div>
+    </div>
 </div>
 
 <!-- ========== НИЖНЄ МЕНЮ ========== -->
 <div class="bottom-nav">
     <button class="nav-item active" id="navHome"    onclick="switchTab('home',    this)"><span class="icon">📋</span>Завдання</button>
     <button class="nav-item"        id="navLib"     onclick="switchTab('library', this)"><span class="icon">📚</span>Довідка</button>
+    <button class="nav-item"        id="navNews"    onclick="switchTab('news',    this)"><span class="nav-icon-wrap"><span class="icon">📰</span><span class="news-badge" id="newsBadge" style="display:none;"></span></span>Новини</button>
     <button class="nav-item"        id="navShop"    onclick="switchTab('shop',    this)"><span class="icon">🏷️</span>Магаз</button>
     <button class="nav-item"        id="navChill"   onclick="switchTab('chill',   this)"><span class="icon">🎮</span>Чіл</button>
     <button class="nav-item"        id="navAdmin"   onclick="switchTab('admin',   this)" style="display:none;"><span class="icon">👑</span>Адмін</button>
@@ -504,6 +567,11 @@
         if (tabId === 'shop')  renderShop();
         if (tabId === 'chill') openChillTab();
         if (tabId === 'admin') openAdminTab();
+        if (tabId === 'news')  renderAnnouncements();
+    }
+
+    function openNewsFromWidget() {
+        switchTab('news', document.getElementById('navNews'));
     }
 
     // ===================== ОНОВЛЕННЯ ШАПКИ =====================
@@ -618,9 +686,12 @@
     function switchAdminTab(name) {
         document.getElementById('tabRollcallBtn').classList.toggle('active', name === 'rollcall');
         document.getElementById('tabTasksBtn').classList.toggle('active', name === 'tasks');
+        document.getElementById('tabAnnouncementsBtn').classList.toggle('active', name === 'announcements');
         document.getElementById('adminRollcallSection').style.display = name === 'rollcall' ? 'block' : 'none';
         document.getElementById('adminTasksSection').style.display = name === 'tasks' ? 'block' : 'none';
+        document.getElementById('adminAnnouncementsSection').style.display = name === 'announcements' ? 'block' : 'none';
         if (name === 'tasks') loadAdminTasks();
+        if (name === 'announcements') loadAdminAnnouncements();
         tg.HapticFeedback.selectionChanged();
     }
 
@@ -744,6 +815,8 @@
                 const r = await rankRes.json();
                 document.getElementById('rankBadge').innerText = r.rank === 1 ? "🥇 1 місце" : r.rank === 2 ? "🥈 2 місце" : r.rank === 3 ? "🥉 3 місце" : `👤 ${r.rank}/${r.total} місце`;
             }
+
+            loadAnnouncements();
         } catch(e) {
             document.getElementById('activeTaskList').innerHTML = `<div style="text-align:center;padding:20px;background:var(--sec);border-radius:14px;"><p style="color:var(--red);font-weight:600;font-size:14px;margin:0;">Помилка з'єднання ❌</p><p style="color:var(--hint);font-size:12px;margin-top:10px;">Сервер спить. Зачекай 40 секунд і <b>онови сторінку</b>.</p></div>`;
         }
@@ -974,29 +1047,161 @@
         }, 350);
     });
 
-    // ===================== LIVE WIDGET =====================
-    function updateLiveWidget() {
-        const semStart = new Date('2026-03-02T00:00:00'), now = new Date();
-        const days = Math.floor((now - semStart) / 86400000);
-        if (days < 0) return;
-        const weekType = Math.floor(days / 7) % 2 === 0 ? 1 : 2, day = now.getDay();
-        const mins = now.getHours()*60 + now.getMinutes();
-        const slots = [{s:510,e:625,n:1},{s:625,e:740,n:2},{s:740,e:850,n:3},{s:855,e:970,n:4}];
-        const slot = slots.find(sl => mins >= sl.s && mins < sl.e);
+    // ===================== LIVE WIDGET (ОГОЛОШЕННЯ) =====================
+    let globalAnnouncements = [];
+
+    function getReadIds() {
+        try { return JSON.parse(localStorage.getItem(`news_read_${userId}`) || '[]'); } catch(e) { return []; }
+    }
+    function markAsRead(id) {
+        const ids = getReadIds();
+        if (!ids.includes(id)) { ids.push(id); localStorage.setItem(`news_read_${userId}`, JSON.stringify(ids)); }
+    }
+    function isRead(id) { return getReadIds().includes(id); }
+
+    function getActiveAnnouncement() {
+        const now = new Date();
+        return globalAnnouncements.find(a => new Date(a.expiresAt) >= now) || null;
+    }
+
+    function getUnreadCount() {
+        return globalAnnouncements.filter(a => !isRead(a.id)).length;
+    }
+
+    function updateNewsBadge() {
+        const count = getUnreadCount();
+        const badge = document.getElementById('newsBadge');
+        if (!badge) return;
+        if (count > 0) { badge.innerText = count > 9 ? '9+' : String(count); badge.style.display = 'flex'; }
+        else badge.style.display = 'none';
+    }
+
+    function updateAnnouncementWidget() {
+        const ann = getActiveAnnouncement();
         const widget = document.getElementById('liveWidget');
-        if (!slot || day===0 || day===6) { widget.style.display='none'; return; }
-        const sched = {
-            1: {1:["-","Основи здоров'я","Укр. мова","Фізика"],       2:["-","Основи здоров'я","Фізика","Фізика"]},
-            2: {1:["Фізика","ТА","Укр. мова","-"],                    2:["Фізика","ТА","ТА","-"]},
-            3: {1:["Програмування","Англ.","ЧМ","-"],                 2:["Програмування","Англ.","ЧМ","Англ."]},
-            4: {1:["Програмування","ЧМ","Вишмат","Вишмат"],           2:["Програмування","ЧМ","Вишмат","Вишмат"]},
-            5: {1:["-","ТА","Вишмат","-"],                            2:["-","ТА","Вишмат","-"]}
-        };
-        const subj = sched[day]?.[weekType]?.[slot.n-1];
-        if (!subj || subj === "-") { widget.style.display='none'; return; }
-        document.getElementById('liveSubject').innerText = subj;
-        document.getElementById('liveTimeLeft').innerText = `${slot.e - mins} хв`;
+        if (!ann) { widget.style.display = 'none'; return; }
+        document.getElementById('liveSubject').innerText = ann.title;
         widget.style.display = 'flex';
+    }
+
+    async function loadAnnouncements() {
+        try {
+            const res = await fetch(`${API_URL}/announcements`);
+            if (res.ok) globalAnnouncements = await res.json();
+            else globalAnnouncements = [];
+        } catch(e) { globalAnnouncements = []; }
+        updateNewsBadge();
+        updateAnnouncementWidget();
+        if (currentTab === 'news') renderAnnouncements();
+    }
+
+    function renderAnnouncements() {
+        const list = document.getElementById('newsList');
+        if (!globalAnnouncements.length) {
+            list.innerHTML = `<div style="text-align:center;padding:30px;color:var(--hint);font-size:13px;">Оголошень поки немає 📭</div>`;
+            return;
+        }
+        list.innerHTML = '';
+        const now = new Date();
+        [...globalAnnouncements]
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .forEach(ann => {
+                const isActive = new Date(ann.expiresAt) >= now;
+                const read = isRead(ann.id);
+                const createdStr = new Date(ann.createdAt).toLocaleDateString('uk-UA', { day:'numeric', month:'long', year:'numeric' });
+                const expiresStr = new Date(ann.expiresAt).toLocaleDateString('uk-UA', { day:'numeric', month:'long', year:'numeric' });
+                const card = document.createElement('div');
+                card.className = `announcement-card ${isActive ? '' : 'inactive'} ${!read ? 'unread' : ''}`;
+                card.innerHTML = `
+                    <div class="ann-header">
+                        <div class="ann-title">${!read ? '<span class="ann-new-dot"></span>' : ''}${ann.title}</div>
+                        <span class="ann-status ${isActive ? 'active' : 'inactive'}">${isActive ? 'Активне' : 'Неактивне'}</span>
+                    </div>
+                    <div class="ann-meta">📅 ${createdStr} — до ${expiresStr}</div>
+                    <div class="ann-text">${ann.text}</div>
+                    <div class="ann-expand-hint">Торкніться, щоб розгорнути ▾</div>`;
+                card.addEventListener('click', () => {
+                    card.classList.toggle('expanded');
+                    if (!read) {
+                        markAsRead(ann.id);
+                        card.classList.remove('unread');
+                        card.querySelector('.ann-new-dot')?.remove();
+                        updateNewsBadge();
+                    }
+                    tg.HapticFeedback.selectionChanged();
+                });
+                list.appendChild(card);
+            });
+    }
+
+    // ===================== АДМІН: ОГОЛОШЕННЯ =====================
+    async function loadAdminAnnouncements() {
+        const list = document.getElementById('adminAnnouncementsList');
+        list.innerHTML = `<div style="text-align:center;padding:20px;color:var(--hint);font-size:13px;">⏳ Завантаження...</div>`;
+        try {
+            const res = await fetch(`${API_URL}/announcements`);
+            if (!res.ok) { list.innerHTML = `<div style="color:var(--red);font-size:13px;padding:10px;">❌ Помилка сервера</div>`; return; }
+            const anns = await res.json();
+            list.innerHTML = '';
+            if (!anns.length) {
+                list.innerHTML = `<div style="text-align:center;padding:20px;color:var(--hint);font-size:13px;">Оголошень ще немає 📭</div>`;
+                return;
+            }
+            const now = new Date();
+            anns.forEach(a => {
+                const isActive = new Date(a.expiresAt) >= now;
+                const expiresStr = new Date(a.expiresAt).toLocaleDateString('uk-UA', { day:'numeric', month:'long', year:'numeric' });
+                list.innerHTML += `
+                    <div style="background:var(--bg);padding:12px;border-radius:12px;margin-bottom:8px;border:1px solid rgba(0,0,0,0.06);display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-size:13px;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${a.title}</div>
+                            <div style="font-size:11px;color:${isActive ? 'var(--green)' : 'var(--hint)'};font-weight:500;">${isActive ? '🟢 Активне' : '⚫ Неактивне'} — до ${expiresStr}</div>
+                        </div>
+                        <button onclick="deleteAnnouncement(${a.id})"
+                            style="background:rgba(229,57,53,0.1);color:var(--red);border:none;padding:8px 12px;border-radius:10px;font-weight:600;cursor:pointer;font-size:12px;white-space:nowrap;flex-shrink:0;">
+                            🗑 Видалити
+                        </button>
+                    </div>`;
+            });
+        } catch(e) {
+            list.innerHTML = `<div style="color:var(--red);font-size:13px;padding:10px;">❌ Немає зв'язку із сервером</div>`;
+        }
+    }
+
+    async function addAnnouncement() {
+        const title   = document.getElementById('newAnnTitle').value.trim();
+        const text    = document.getElementById('newAnnText').value.trim();
+        const expires = document.getElementById('newAnnExpires').value;
+        if (!title || !text || !expires) { tg.showAlert("Заповни всі поля!"); tg.HapticFeedback.notificationOccurred('error'); return; }
+        tg.HapticFeedback.impactOccurred('medium');
+        try {
+            const res = await fetch(`${API_URL}/announcements`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, text, expiresAt: expires + 'T23:59:59Z' })
+            });
+            if (res.ok) {
+                showToast("📢 Оголошення опубліковано!");
+                tg.HapticFeedback.notificationOccurred('success');
+                document.getElementById('newAnnTitle').value = '';
+                document.getElementById('newAnnText').value = '';
+                document.getElementById('newAnnExpires').value = '';
+                loadAdminAnnouncements();
+                loadAnnouncements();
+            } else {
+                const err = await res.json().catch(() => ({}));
+                showToast("❌ " + (err.error || "Помилка сервера"));
+            }
+        } catch(e) { showToast("❌ Немає зв'язку із сервером"); }
+    }
+
+    async function deleteAnnouncement(id) {
+        tg.HapticFeedback.impactOccurred('light');
+        try {
+            const res = await fetch(`${API_URL}/announcements/${id}`, { method: 'DELETE' });
+            if (res.ok) { showToast("🗑️ Оголошення видалено"); tg.HapticFeedback.notificationOccurred('success'); loadAdminAnnouncements(); loadAnnouncements(); }
+            else showToast("❌ Помилка видалення");
+        } catch(e) { showToast("❌ Немає зв'язку"); }
     }
 
     // ===================== TOAST =====================
@@ -1011,7 +1216,6 @@
         if (e.target === this) closeConfirm();
     });
 
-    updateLiveWidget();
     loadData();
 </script>
 </body>
