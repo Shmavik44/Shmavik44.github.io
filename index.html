@@ -587,7 +587,7 @@
     function updateHeaderInfo() {
         document.getElementById('userName').innerText = `Привіт, ${firstName}!`;
         document.getElementById('shopCoinBalance').innerText = `💰 ${myCoins}`;
-        document.getElementById('chillCoinBalance').innerText = `💰 ${myCoins}`;
+        document.getElementById('chillCoinBalance')?.innerText !== undefined && (document.getElementById('chillCoinBalance').innerText = `💰 ${myCoins}`);
         const tb = document.getElementById('userTitleBadge');
         if (activeTitle && activeTitle !== "Студент 🤓") { tb.innerText = activeTitle; tb.style.display = "inline-block"; }
         else tb.style.display = "none";
@@ -608,7 +608,7 @@
                 }
             } catch(e) {}
         }
-        document.getElementById('spinDisplay').innerText = `Спінів зроблено: ${mySpins}`;
+        document.getElementById('spinDisplay') && (document.getElementById('spinDisplay').innerText = `Спінів зроблено: ${mySpins}`);
     }
 
     async function openLootbox() {
@@ -623,7 +623,7 @@
                 myCoins = d.coins; mySpins = d.spins;
                 myTitles = d.unlockedTitles ? d.unlockedTitles.split(',') : ['Студент 🤓'];
                 updateHeaderInfo();
-                document.getElementById('spinDisplay').innerText = `Спінів зроблено: ${mySpins}`;
+                document.getElementById('spinDisplay') && (document.getElementById('spinDisplay').innerText = `Спінів зроблено: ${mySpins}`);
                 if (d.prizeType === 'legendary') { confetti({ particleCount: 300, spread: 100 }); tg.showAlert(`😱 ШОК! ЛЕГЕНДА!\n\n${d.message}`); }
                 else if (d.prizeType === 'epic' || d.prizeType === 'skin') { confetti({ particleCount: 120 }); showToast(d.message); tg.HapticFeedback.notificationOccurred('success'); }
                 else showToast(d.message);
