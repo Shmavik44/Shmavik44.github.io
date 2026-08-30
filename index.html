@@ -611,18 +611,22 @@
 
     // ===================== НАВІГАЦІЯ =====================
     function switchTab(tabId, btnEl) {
-        tg.HapticFeedback.selectionChanged();
-        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
-        if (btnEl) btnEl.classList.add('active');
-        const page = document.getElementById('tab-' + tabId);
-        if (page) page.classList.add('active');
-        currentTab = tabId;
-        if (tabId === 'shop')  renderShop();
-        if (tabId === 'chill') openChillTab();
-        if (tabId === 'admin') openAdminTab();
-        if (tabId === 'news')  renderAnnouncements();
+    tg.HapticFeedback.selectionChanged();
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+    if (btnEl) btnEl.classList.add('active');
+    if (tabId === 'shop') tabId = 'profile';
+    const page = document.getElementById('tab-' + tabId);
+    if (page) page.classList.add('active');
+    currentTab = tabId;
+    if (tabId === 'profile') {
+        updateProfileHeader();
+        renderShop();
     }
+    if (tabId === 'chill') openChillTab();
+    if (tabId === 'admin') openAdminTab();
+    if (tabId === 'news')  renderAnnouncements();
+}
 
     function openNewsFromWidget() {
         switchTab('news', document.getElementById('navNews'));
