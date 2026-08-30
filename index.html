@@ -369,6 +369,7 @@
         <button class="filter-btn active" onclick="applyFilter('all',this)">Всі</button>
         <button class="filter-btn" onclick="applyFilter('overdue',this)">Борги</button>
         <button class="filter-btn" onclick="applyFilter('soon',this)">Горять</button>
+        <button class="filter-btn" onclick="applyFilter('mine',this)">Мої</button>
     </div>
 
     <div id="activeTaskList">
@@ -458,15 +459,17 @@
         </div>
         <div id="titlesList"></div>
     </div>
-
-    <!-- 3. РОЗДІЛ: РОЗКЛАД -->
+    
+   <!-- 3. РОЗДІЛ: РОЗКЛАД -->
     <div id="profileScheduleSection" style="display:none;">
-        <div style="text-align:center;padding:30px;color:var(--hint);font-size:13px;">
-            <div style="font-size:30px;margin-bottom:10px;">📅</div>
-            Повний розклад на 1 та 2 тиждень з'явиться тут у наступному оновленні.
+        <div class="admin-tabs" style="margin-bottom:12px;">
+            <button class="filter-btn active" id="btnWeek1" onclick="renderWeek(1)">1 Тиждень</button>
+            <button class="filter-btn" id="btnWeek2" onclick="renderWeek(2)">2 Тиждень</button>
+        </div>
+        <div id="scheduleContainer">
+            <div style="text-align:center;padding:20px;color:var(--hint);font-size:13px;">⏳ Завантаження розкладу...</div>
         </div>
     </div>
-</div>
 
 <!-- ========== ВКЛАДКА: ЧІЛ / КАЗИНО (тимчасово прихована) ==========
 <div class="tab-page" id="tab-chill">
