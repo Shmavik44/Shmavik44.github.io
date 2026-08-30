@@ -975,22 +975,57 @@ async function addPersonalTask() {
         return '';
     }
 
-    function renderPersonalTasks(personalTasks) {
-        const myPersonalList = document.getElementById('myPersonalTasksList');
-        if (!myPersonalList) return;
+async function deletePersonalTask(taskId) {
+    if (!confirm("Точно видалити це особисте завдання?")) return;
+    tg.HapticFeedback.impactOccurred('light');
+    try {
+        const res = await fetch(`${API_URL}/tasks/${userId}/personal/${taskId}`, { method: 'DELETE' });
+        if (res.ok) { 
+            showToast("🗑️ Завдання видалено!"); 
+            loadData(); // Оновлюємо списки
+        } else showToast("❌ Помилка видалення");
+    } catch(e) { showToast("❌ Немає зв'язку"); }
+}
 
-        myPersonalList.innerHTML = "";
-        if (!personalTasks || personalTasks.length === 0) {
-            myPersonalList.innerHTML = `<div style="text-align:center;padding:15px;color:var(--hint);font-size:12px;">Тут будуть твої особисті завдання 📋</div>`;
-            return;
-        }
+function renderPersonalTasks(personalTasks) {
+    const myPersonalList = document.getElementById('myPersonalTasksList');
+    if (!myPersonalList) return;
 
-        const active = personalTasks.filter(t => !t.isCompleted);
-        const completed = personalTasks.filter(t => t.isCompleted);
-
-        active.forEach(t => myPersonalList.appendChild(createTaskCard(t)));
-        completed.forEach(t => myPersonalList.appendChild(createTaskCard(t)));
+    myPersonalList.innerHTML = "";
+    if (!personalTasks || personalTasks.length === 0) {
+        myPersonalList.innerHTML = `<div style="text-align:center;padding:15px;color:var(--hint);font-size:12px;">Тут будуть твої особисті завдання 📋</div>`;
+        return;
     }
+
+    const now = new Date();
+    
+    // Малюємо картки точнісінько як у панелі адміна
+    personalTasks.forEach(t => {
+        const taskId = t.taskId || t.id || t.TaskId;
+        const d = new Date(t.deadline);
+        const dateStr = !isNaN(d) ? d.toLocaleDateString('uk-UA', { day:'numeric', month:'long' }) : "—";
+        const isOverdue = d < now && !t.isCompleted;
+        
+        let statusText = t.isCompleted ? "✅ Виконано" : (isOverdue ? `🔒 Протерміновано` : `📅 До ${dateStr}`);
+        let statusColor = t.isCompleted ? "var(--green)" : (isOverdue ? "var(--red)" : "var(--hint)");
+
+        myPersonalList.innerHTML += `
+            <div style="background:var(--bg);padding:12px;border-radius:12px;margin-bottom:8px;border:1px solid rgba(0,0,0,0.06);display:flex;justify-content:space-between;align-items:center;gap:10px; opacity: ${t.isCompleted ? '0.6' : '1'};">
+                <div style="flex:1;min-width:0;">
+                    <div style="font-size:10px;color:var(--hint);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">${t.subject}</div>
+                    <div style="font-size:13px;font-weight:600;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; ${t.isCompleted ? 'text-decoration:line-through;' : ''}">${t.title}</div>
+                    <div style="font-size:11px;color:${statusColor};margin-top:3px;font-weight:500;">
+                        ${statusText}
+                    </div>
+                </div>
+                
+                <button onclick="deletePersonalTask(${taskId})"
+                    style="background:rgba(229,57,53,0.1);color:var(--red);border:none;padding:8px 12px;border-radius:10px;font-weight:600;cursor:pointer;font-size:12px;white-space:nowrap;flex-shrink:0;">
+                    🗑 Видалити
+                </button>
+            </div>`;
+    });
+}
 
     function renderTasks() {
         const activeList = document.getElementById('activeTaskList');
