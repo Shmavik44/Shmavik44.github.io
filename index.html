@@ -717,7 +717,7 @@ async function addPersonalTask() {
 
     // ===================== МАГАЗИН =====================
     function renderShop() {
-        document.getElementById('shopCoinBalance').innerText = `💰 ${myCoins}`;
+        //document.getElementById('shopCoinBalance').innerText = `💰 ${myCoins}`;
         const fireClass = getFireClass(streakCount);
         document.getElementById('streakDisplay').innerHTML = `<span class="streak-fire ${fireClass}">🔥</span> Вогник: ${streakCount} днів`;
         const btn = document.getElementById('claimBonusBtn');
