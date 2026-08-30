@@ -1469,23 +1469,72 @@ function renderWeek(weekNum) {
     container.innerHTML = "";
     
     weekData.forEach(d => {
-        // Конвертуємо твій Markdown з C# у красивий HTML-формат
-        let formattedText = d.text
-            .replace(/\*(.*?)\*/g, '<strong style="color:var(--btn); font-size:14px; display:block; margin-bottom:5px;">$1</strong>')
-            .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" style="color:#0288d1;text-decoration:none;font-weight:600;">$1 🔗</a>')
-            .replace(/_(.*?)_/g, '<i style="color:var(--hint);">$1</i>')
-            .replace(/\n/g, '<br>');
-        
-        container.innerHTML += `
-            <details class="lib-folder" style="margin-bottom:8px; border: 1px solid rgba(0,0,0,0.05);">
-                <summary style="background:var(--sec); border-radius:10px; padding:12px; font-weight:600; font-size:14px; cursor:pointer;">
-                    📅 ${d.day}
-                </summary>
-                <div style="padding: 12px; font-size: 13px; line-height: 1.6; background:var(--bg); border-top: 1px solid var(--sec); border-radius: 0 0 10px 10px;">
-                    ${formattedText}
-                </div>
-            </details>
+        // Заголовок дня (Понеділок, Вівторок і т.д.)
+        let dayHtml = `
+            <div style="margin-top: 20px; margin-bottom: 10px;">
+                <div style="font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 12px; padding-left: 4px;">📅 ${d.day}</div>
         `;
+        
+        let blocks = d.text.split('\n\n');
+        let currentType = "Пара"; 
+        
+        blocks.forEach(block => {
+            block = block.trim();
+            if (!block) return;
+            
+            // Визначаємо тип заняття (Лекція чи Практика)
+            if (block.startsWith('*') && block.endsWith('*') && !block.includes('Спимо')) {
+                currentType = block.replace(/\*/g, '');
+                return;
+            }
+            
+            // Якщо пар немає на весь день
+            if (block.includes("Спимо") && !block.match(/^\d\./)) {
+               dayHtml += `<div style="background: var(--sec); padding: 15px; border-radius: 12px; margin-bottom: 10px; text-align: center; color: var(--hint); font-weight: 600; border: 1px dashed rgba(0,0,0,0.1);">💤 Пар немає, відпочиваємо</div>`;
+               return;
+            }
+
+            // Розбираємо інформацію про пару
+            let match = block.match(/^\d\.\s*\((.*?)\)\s*(.*)/);
+            if (match) {
+                let time = match[1];
+                let rest = match[2];
+                
+                // Якщо це просто "вікно" між парами
+                if (rest.includes("Спимо")) {
+                    dayHtml += `
+                    <div style="background: var(--sec); padding: 12px 15px; border-radius: 12px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; opacity: 0.6;">
+                        <div style="font-weight:700; color:var(--hint); font-size: 13px; width: 85px;">${time}</div>
+                        <div style="color:var(--hint); font-weight: 600; font-size: 13px;">💤 Вікно (спимо)</div>
+                    </div>`;
+                    return;
+                }
+
+                // ВИДАЛЯЄМО ПОСИЛАННЯ ТА КУРСИВ
+                let cleanRest = rest.replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1').replace(/_(.*?)_/g, '$1');
+                
+                let parts = cleanRest.split(' — ');
+                let className = parts[0].trim();
+                let teacher = parts.length > 1 ? parts[1].trim() : '';
+
+                // Кольори для бейджів: Лекція - синя, Практика - червона
+                let isLecture = currentType.toLowerCase().includes("лекція");
+                let badgeBg = isLecture ? "rgba(36, 129, 204, 0.1)" : "rgba(229, 57, 53, 0.1)";
+                let badgeColor = isLecture ? "var(--btn)" : "var(--red)";
+
+                dayHtml += `
+                <div style="background: var(--bg); border: 1px solid rgba(0,0,0,0.06); padding: 14px; border-radius: 14px; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="background: ${badgeBg}; color: ${badgeColor}; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase;">${currentType}</span>
+                        <span style="font-size: 12px; font-weight: 700; color: var(--hint); background: var(--sec); padding: 4px 8px; border-radius: 6px;">⏱ ${time}</span>
+                    </div>
+                    <div style="font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px; line-height: 1.3;">${className}</div>
+                    ${teacher ? `<div style="font-size: 12px; color: var(--hint); font-weight: 500; display: flex; align-items: center; gap: 5px;">👨‍🏫 ${teacher}</div>` : ''}
+                </div>`;
+            }
+        });
+        dayHtml += `</div>`;
+        container.innerHTML += dayHtml;
     });
 }
     loadData();
