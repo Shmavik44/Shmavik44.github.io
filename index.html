@@ -1443,7 +1443,51 @@ function renderPersonalTasks(personalTasks) {
     document.getElementById('confirmOverlay').addEventListener('click', function(e) {
         if (e.target === this) closeConfirm();
     });
+    let mySchedule = null;
 
+async function loadSchedule() {
+    try {
+        const res = await fetch(`${API_URL}/schedule/${userId}`);
+        if (res.ok) {
+            mySchedule = await res.json();
+            renderWeek(1); // За замовчуванням відкриваємо 1-й тиждень
+        }
+    } catch(e) {}
+}
+
+function renderWeek(weekNum) {
+    document.getElementById('btnWeek1').classList.toggle('active', weekNum === 1);
+    document.getElementById('btnWeek2').classList.toggle('active', weekNum === 2);
+    
+    const container = document.getElementById('scheduleContainer');
+    if (!mySchedule) {
+        container.innerHTML = `<div style="text-align:center;padding:20px;color:var(--red);font-size:13px;">❌ Помилка завантаження</div>`;
+        return;
+    }
+    
+    const weekData = weekNum === 1 ? mySchedule.week1 : mySchedule.week2;
+    container.innerHTML = "";
+    
+    weekData.forEach(d => {
+        // Конвертуємо твій Markdown з C# у красивий HTML-формат
+        let formattedText = d.text
+            .replace(/\*(.*?)\*/g, '<strong style="color:var(--btn); font-size:14px; display:block; margin-bottom:5px;">$1</strong>')
+            .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" style="color:#0288d1;text-decoration:none;font-weight:600;">$1 🔗</a>')
+            .replace(/_(.*?)_/g, '<i style="color:var(--hint);">$1</i>')
+            .replace(/\n/g, '<br>');
+        
+        container.innerHTML += `
+            <details class="lib-folder" style="margin-bottom:8px; border: 1px solid rgba(0,0,0,0.05);">
+                <summary style="background:var(--sec); border-radius:10px; padding:12px; font-weight:600; font-size:14px; cursor:pointer;">
+                    📅 ${d.day}
+                </summary>
+                <div style="padding: 12px; font-size: 13px; line-height: 1.6; background:var(--bg); border-top: 1px solid var(--sec); border-radius: 0 0 10px 10px;">
+                    ${formattedText}
+                </div>
+            </details>
+        `;
+    });
+}
     loadData();
 </script>
 </body>
