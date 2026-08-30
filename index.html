@@ -679,6 +679,41 @@
             } else showToast("Помилка рулетки ❌");
         } catch(e) { cont.style.animation = ""; showToast("Помилка зв'язку ❌"); }
     }
+    // Перемикання вкладок всередині профілю
+function switchProfileTab(section) {
+    tg.HapticFeedback.selectionChanged();
+    
+    document.getElementById('subTabTasksBtn').classList.toggle('active', section === 'localTasks');
+    document.getElementById('subTabShopBtn').classList.toggle('active', section === 'shop');
+    document.getElementById('subTabScheduleBtn').classList.toggle('active', section === 'schedule');
+    
+    document.getElementById('profileLocalTasksSection').style.display = section === 'localTasks' ? 'block' : 'none';
+    document.getElementById('profileShopSection').style.display = section === 'shop' ? 'block' : 'none';
+    document.getElementById('profileScheduleSection').style.display = section === 'schedule' ? 'block' : 'none';
+}
+
+// Оновлення шапки профілю
+function updateProfileHeader() {
+    document.getElementById('profileFullName').innerText = firstName;
+    document.getElementById('profileCoinBalance').innerText = `💰 ${myCoins}`;
+    document.getElementById('profileActiveTitle').innerText = activeTitle;
+}
+
+// Заглушка для додавання особистого завдання
+async function addPersonalTask() {
+    const subj = document.getElementById('myTaskSubject').value.trim();
+    const title = document.getElementById('myTaskTitle').value.trim();
+    const date = document.getElementById('myTaskDate').value;
+    
+    if (!subj || !title || !date) { 
+        tg.showAlert("Заповни всі поля!"); 
+        tg.HapticFeedback.notificationOccurred('error'); 
+        return; 
+    }
+    
+    tg.HapticFeedback.impactOccurred('medium');
+    showToast("🚧 Локальні завдання запрацюють після оновлення бекенду!");
+}
 
     // ===================== МАГАЗИН =====================
     function renderShop() {
@@ -704,7 +739,6 @@
             list.innerHTML += `<div class="shop-item ${extraClass}"><div class="shop-info"><h4>${t.name}</h4><p>${t.desc}</p></div>${btnHtml}</div>`;
         });
     }
-
     async function buyTitle(name, price) {
         if (myTitles.includes(name)) {
             await fetch(`${API_URL}/user/${userId}/title`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({action:'equip', title:name}) });
