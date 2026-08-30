@@ -941,8 +941,8 @@ async function addPersonalTask() {
                 const r = await rankRes.json();
                 document.getElementById('rankBadge').innerText = r.rank === 1 ? "🥇 1 місце" : r.rank === 2 ? "🥈 2 місце" : r.rank === 3 ? "🥉 3 місце" : `👤 ${r.rank}/${r.total} місце`;
             }
-
             loadAnnouncements();
+            loadSchedule();
         } catch(e) {
             _loadRetry++;
             if (_loadRetry <= 4) {
