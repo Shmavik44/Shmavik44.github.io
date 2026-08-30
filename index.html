@@ -634,9 +634,9 @@
 
     // ===================== ОНОВЛЕННЯ ШАПКИ =====================
     function updateHeaderInfo() {
-        document.getElementById('userName').innerText = `Привіт, ${firstName}!`;
-        document.getElementById('shopCoinBalance').innerText = `💰 ${myCoins}`;
-        document.getElementById('chillCoinBalance')?.innerText !== undefined && (document.getElementById('chillCoinBalance').innerText = `💰 ${myCoins}`);
+    document.getElementById('userName').innerText = `Привіт, ${firstName}!`;
+    document.getElementById('profileCoinBalance').innerText = `💰 ${myCoins}`; // ОНОВЛЕНИЙ РЯДОК
+    document.getElementById('chillCoinBalance')?.innerText !== undefined && (document.getElementById('chillCoinBalance').innerText = `💰 ${myCoins}`);
         const tb = document.getElementById('userTitleBadge');
         if (activeTitle && activeTitle !== "Студент 🤓") { tb.innerText = activeTitle; tb.style.display = "inline-block"; }
         else tb.style.display = "none";
