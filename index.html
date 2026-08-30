@@ -401,21 +401,67 @@
     
 </div>
     
-<!-- ========== ВКЛАДКА: МАГАЗИН ========== -->
-<div class="tab-page" id="tab-shop">
-    <div class="tab-header">
-        <span>🏷️ Магазин</span>
-        <div class="coin-balance" id="shopCoinBalance">💰 0</div>
+<!-- ========== ВКЛАДКА: ПРОФІЛЬ ========== -->
+<div class="tab-page" id="tab-profile">
+    
+    <!-- Шапка профілю -->
+    <div style="text-align: center; padding: 20px 15px; background: var(--sec); border-radius: 14px; margin-bottom: 15px; position: relative;">
+        <div style="font-size: 45px; margin-bottom: 10px;">🎓</div>
+        <h3 id="profileFullName" style="font-size: 18px; margin-bottom: 5px;">Студент</h3>
+        <div class="user-title" id="profileActiveTitle" style="margin-bottom: 10px;">Студент 🤓</div>
+        <div class="coin-balance" id="profileCoinBalance" style="display: inline-block;">💰 0</div>
     </div>
-    <div class="bonus-card">
-        <div>
-            <div style="font-size:15px;font-weight:600;margin-bottom:4px;">Щоденний бонус 🎁</div>
-            <div style="font-size:13px;font-weight:600;color:var(--gold);" id="streakDisplay">🔥 Вогник: 0 днів</div>
-            <div style="font-size:11px;color:var(--hint);margin-top:2px;">+5 🪙 за кожен день підряд!</div>
+
+    <!-- Навігація всередині профілю -->
+    <div class="admin-tabs">
+        <button class="filter-btn active" id="subTabTasksBtn" onclick="switchProfileTab('localTasks')">📝 Мої таски</button>
+        <button class="filter-btn" id="subTabShopBtn" onclick="switchProfileTab('shop')">🏷️ Магаз</button>
+        <button class="filter-btn" id="subTabScheduleBtn" onclick="switchProfileTab('schedule')">📅 Розклад</button>
+    </div>
+
+    <!-- 1. РОЗДІЛ: ЛОКАЛЬНІ ЗАВДАННЯ -->
+    <div id="profileLocalTasksSection">
+        <div style="background:var(--sec);padding:15px;border-radius:14px;margin-bottom:15px;">
+            <div style="font-size:14px;font-weight:600;margin-bottom:12px;">➕ Додати особисте завдання</div>
+            <input type="text" id="myTaskSubject" placeholder="Категорія (напр. Побут, Курсова)"
+                style="width:100%;padding:11px;margin-bottom:8px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);font-family:inherit;outline:none;font-size:13px;background:var(--bg);color:var(--text);">
+            <input type="text" id="myTaskTitle" placeholder="Назва завдання"
+                style="width:100%;padding:11px;margin-bottom:8px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);font-family:inherit;outline:none;font-size:13px;background:var(--bg);color:var(--text);">
+            <input type="date" id="myTaskDate"
+                style="width:100%;padding:11px;margin-bottom:12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1);font-family:inherit;outline:none;font-size:13px;background:var(--bg);color:var(--text);">
+            <button onclick="addPersonalTask()"
+                style="width:100%;background:var(--btn);color:white;padding:12px;border-radius:10px;border:none;font-weight:600;cursor:pointer;font-size:13px;">
+                ✅ Додати собі
+            </button>
         </div>
-        <button class="bonus-btn" id="claimBonusBtn" onclick="claimDailyBonus()">Забрати</button>
+        <div style="font-size:12px;font-weight:600;color:var(--hint);margin-bottom:8px;text-transform:uppercase;">
+            Мої локальні завдання:
+        </div>
+        <div id="myPersonalTasksList">
+            <div style="text-align:center;padding:15px;color:var(--hint);font-size:12px;">Тут будуть твої особисті завдання 📋</div>
+        </div>
     </div>
-    <div id="titlesList"></div>
+
+    <!-- 2. РОЗДІЛ: МАГАЗИН (перенесено зі старого tab-shop) -->
+    <div id="profileShopSection" style="display:none;">
+        <div class="bonus-card">
+            <div>
+                <div style="font-size:15px;font-weight:600;margin-bottom:4px;">Щоденний бонус 🎁</div>
+                <div style="font-size:13px;font-weight:600;color:var(--gold);" id="streakDisplay">🔥 Вогник: 0 днів</div>
+                <div style="font-size:11px;color:var(--hint);margin-top:2px;">+5 🪙 за кожен день підряд!</div>
+            </div>
+            <button class="bonus-btn" id="claimBonusBtn" onclick="claimDailyBonus()">Забрати</button>
+        </div>
+        <div id="titlesList"></div>
+    </div>
+
+    <!-- 3. РОЗДІЛ: РОЗКЛАД -->
+    <div id="profileScheduleSection" style="display:none;">
+        <div style="text-align:center;padding:30px;color:var(--hint);font-size:13px;">
+            <div style="font-size:30px;margin-bottom:10px;">📅</div>
+            Повний розклад на 1 та 2 тиждень з'явиться тут у наступному оновленні.
+        </div>
+    </div>
 </div>
 
 <!-- ========== ВКЛАДКА: ЧІЛ / КАЗИНО (тимчасово прихована) ==========
