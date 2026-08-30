@@ -952,31 +952,36 @@ async function addPersonalTask() {
     }
 
     function renderTasks() {
-        const activeList = document.getElementById('activeTaskList');
-        const completedList = document.getElementById('completedTaskList');
-        const completedSection = document.getElementById('completedSection');
-        const progressWrapper = document.getElementById('progressWrapper');
-        const progressText = document.getElementById('progressText');
-        const progressBar = document.getElementById('progressBar');
-        const streakBadge = document.getElementById('streakBadge');
-        const levelBadge = document.getElementById('levelBadge');
-        const analyticsText = document.getElementById('analyticsText');
+    const activeList = document.getElementById('activeTaskList');
+    const completedList = document.getElementById('completedTaskList');
+    const completedSection = document.getElementById('completedSection');
+    const progressWrapper = document.getElementById('progressWrapper');
+    const progressText = document.getElementById('progressText');
+    const progressBar = document.getElementById('progressBar');
+    const streakBadge = document.getElementById('streakBadge');
+    const levelBadge = document.getElementById('levelBadge');
+    const analyticsText = document.getElementById('analyticsText');
 
-        activeList.innerHTML = ""; completedList.innerHTML = "";
+    activeList.innerHTML = ""; completedList.innerHTML = "";
 
-        if (!globalTasks || !globalTasks.length) {
-            activeList.innerHTML = "<p style='text-align:center;color:var(--hint);font-size:13px;'>Завдань немає 🎉</p>";
-            progressWrapper.style.display = "none"; completedSection.style.display = "none";
-            document.getElementById('headerSubtitle').innerText = "Твої навчальні завдання"; 
-            
-            return;
-        }
+    if (!globalTasks || !globalTasks.length) {
+        activeList.innerHTML = "<p style='text-align:center;color:var(--hint);font-size:13px;'>Завдань немає 🎉</p>";
+        progressWrapper.style.display = "none"; completedSection.style.display = "none";
+        document.getElementById('headerSubtitle').innerText = "Твої навчальні завдання"; 
+        
+        renderPersonalTasks([]); // Очищаємо локальні таски в профілі
+        return;
+    }
 
-        const now = new Date();
-        let activeTasks = globalTasks.filter(t => !t.isCompleted);
-        const completedTasks = globalTasks.filter(t => t.isCompleted);
-        const percent = Math.round((completedTasks.length / globalTasks.length) * 100) || 0;
-        const overdueCount = activeTasks.filter(t => !isNaN(new Date(t.deadline)) && new Date(t.deadline) < now).length;
+    const now = new Date();
+    // БЕРЕМО ВСІ ЗАВДАННЯ ДЛЯ ГОЛОВНОЇ СТРІЧКИ (і універ, і особисті)
+    let activeTasks = globalTasks.filter(t => !t.isCompleted);
+    const completedTasks = globalTasks.filter(t => t.isCompleted);
+    // Відбираємо ТІЛЬКИ особисті для дублювання в Профілі
+    const personalTasks = globalTasks.filter(t => t.subject && t.subject.startsWith('👤'));
+    // Прогрес тепер рахується по ВСІХ твоїх завданнях
+    const percent = Math.round((completedTasks.length / globalTasks.length) * 100) || 0;
+    const overdueCount = activeTasks.filter(t => !isNaN(new Date(t.deadline)) && new Date(t.deadline) < now).length;
 
         // Бейджі
         let badges = [];
@@ -1052,7 +1057,9 @@ async function addPersonalTask() {
             }
         } else completedSection.style.display = "none";
 
-        setTimeout(animateCards, 50);
+        renderPersonalTasks(personalTasks); // Відмальовуємо локальні завдання у профілі
+    setTimeout(animateCards, 50);
+}
     }
 
     function animateCards() {
