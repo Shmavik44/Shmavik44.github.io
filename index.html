@@ -380,8 +380,13 @@
     </style>
 </head>
 <body>
-
-
+    <div id="authLockScreen" style="display:none; position:fixed; inset:0; z-index:9999; background:var(--bg); flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:20px;">
+    <div style="font-size:48px; margin-bottom:16px;">🔒</div>
+    <h2 style="margin:0 0 8px;">Доступ обмежено</h2>
+    <p style="color:var(--hint); font-size:14px; max-width:280px;">
+        Цей застосунок доступний тільки студентам групи. Зверніться до адміністратора для верифікації.
+    </p>
+</div>
 <!-- ========== ВКЛАДКА: ЗАВДАННЯ ========== -->
 <div class="tab-page active" id="tab-home">
     <div class="header" id="mainHeader">
@@ -1026,6 +1031,22 @@ async function addPersonalTask() {
     let _loadRetry = 0;
     async function loadData() {
         try {
+                 // 1. ПЕРЕВІРКА АВТОРИЗАЦІЇ
+        const authRes = await fetch(`${API_URL}/auth/check/${userId}`);
+        if (authRes.ok) {
+            const authData = await authRes.json();
+
+            if (!authData.isVerified) {
+                // Не в базі — блокуємо
+                document.getElementById('authLockScreen').style.display = 'flex';
+                tg.HapticFeedback.notificationOccurred('error');
+                return;
+            }
+
+            // Є в базі — ховаємо екран блокування
+            document.getElementById('authLockScreen').style.opacity = '0';
+            setTimeout(() => document.getElementById('authLockScreen').style.display = 'none', 300);
+        }
             const userRes = await fetch(`${API_URL}/user/${userId}`);
             if (userRes.ok) {
                 const u = await userRes.json();
