@@ -711,14 +711,17 @@
     // Перемикання вкладок всередині профілю
 function switchProfileTab(section) {
     tg.HapticFeedback.selectionChanged();
-    
     document.getElementById('subTabTasksBtn').classList.toggle('active', section === 'localTasks');
     document.getElementById('subTabShopBtn').classList.toggle('active', section === 'shop');
     document.getElementById('subTabScheduleBtn').classList.toggle('active', section === 'schedule');
+    document.getElementById('subTabQueueBtn').classList.toggle('active', section === 'queue'); // Нове
     
     document.getElementById('profileLocalTasksSection').style.display = section === 'localTasks' ? 'block' : 'none';
     document.getElementById('profileShopSection').style.display = section === 'shop' ? 'block' : 'none';
     document.getElementById('profileScheduleSection').style.display = section === 'schedule' ? 'block' : 'none';
+    document.getElementById('profileQueueSection').style.display = section === 'queue' ? 'block' : 'none'; // Нове
+    
+    if (section === 'queue') loadQueue();
 }
 
 // Оновлення шапки профілю
