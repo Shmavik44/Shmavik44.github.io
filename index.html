@@ -327,6 +327,56 @@
         .announcement-card.expanded .ann-text { display: block; }
         .ann-expand-hint { font-size: 10px; color: var(--hint); margin-top: 6px; text-align: right; }
         .announcement-card.expanded .ann-expand-hint { display: none; }
+        /* ===================== АДАПТИВНІСТЬ ДЛЯ ПК ТА ПЛАНШЕТІВ ===================== */
+        @media (min-width: 768px) {
+            /* Задаємо темніший фон по боках (як у десктопному Telegram) */
+            body { background: rgba(128,128,128,0.1); } 
+            
+            /* Центруємо головний контейнер та обмежуємо ширину до 750px */
+            .tab-page {
+                max-width: 750px;
+                margin: 0 auto;
+                left: 0; right: 0;
+                background: var(--bg);
+                border-left: 1px solid rgba(128,128,128,0.2);
+                border-right: 1px solid rgba(128,128,128,0.2);
+                box-shadow: 0 0 30px rgba(0,0,0,0.05);
+                padding: 24px 24px 30px 24px;
+            }
+
+            /* Центруємо нижнє меню під додаток */
+            .bottom-nav {
+                max-width: 750px;
+                margin: 0 auto;
+                left: 0; right: 0;
+                background: var(--bg);
+                border-left: 1px solid rgba(128,128,128,0.2);
+                border-right: 1px solid rgba(128,128,128,0.2);
+                border-top: 1px solid rgba(128,128,128,0.15);
+            }
+
+            /* Коригуємо відступи фільтрів під ширший екран */
+            .filters-container {
+                margin: 0 -24px 15px -24px;
+                padding: 12px 0;
+                background: var(--bg);
+            }
+
+            /* === Ефекти при наведенні курсору миші (hover) === */
+            .task-card { transition: opacity 0.35s ease, transform 0.35s ease, box-shadow 0.2s ease; }
+            .task-card.visible:hover { 
+                transform: translateY(-2px); 
+                box-shadow: 0 6px 15px rgba(0,0,0,0.08); 
+            }
+            
+            .nav-item:hover { background: rgba(128,128,128,0.1); }
+            .filter-btn:hover:not(.active) { opacity: 0.8; }
+            .buy-btn:hover:not(.owned) { transform: scale(1.05); }
+            .lib-folder summary:hover { background: rgba(128,128,128,0.05); }
+            
+            /* Центруємо попап підтвердження */
+            .overlay-confirm .confirm-box { max-width: 400px; }
+        }
     </style>
 </head>
 <body>
