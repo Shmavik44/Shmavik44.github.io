@@ -420,8 +420,9 @@
     <!-- Навігація всередині профілю -->
     <div class="admin-tabs">
         <button class="filter-btn active" id="subTabTasksBtn" onclick="switchProfileTab('localTasks')">📝 Мої таски</button>
-        <button class="filter-btn" id="subTabShopBtn" onclick="switchProfileTab('shop')">🏷️ Магаз</button>
+        <button class="filter-btn" id="subTabQueueBtn" onclick="switchProfileTab('queue')">🙋‍♂️ Черга</button>
         <button class="filter-btn" id="subTabScheduleBtn" onclick="switchProfileTab('schedule')">📅 Розклад</button>
+        <button class="filter-btn" id="subTabShopBtn" onclick="switchProfileTab('shop')">🏷️ Магаз</button>
     </div>
 
     <!-- 1. РОЗДІЛ: ЛОКАЛЬНІ ЗАВДАННЯ -->
@@ -458,6 +459,26 @@
             <button class="bonus-btn" id="claimBonusBtn" onclick="claimDailyBonus()">Забрати</button>
         </div>
         <div id="titlesList"></div>
+    </div>
+    <!-- 4. РОЗДІЛ: ЧЕРГА -->
+    <div id="profileQueueSection" style="display:none;">
+        <div id="queueInactiveState" style="text-align:center;padding:30px;color:var(--hint);font-size:13px;">
+            <div style="font-size:30px;margin-bottom:10px;">☕</div>
+            Наразі загальних практичних занять немає.<br>Черга відкриється автоматично під час пари.
+        </div>
+        
+        <div id="queueActiveState" style="display:none;">
+            <div style="background:linear-gradient(135deg, rgba(36, 129, 204, 0.1), rgba(67, 160, 71, 0.05)); border: 1px solid rgba(36, 129, 204, 0.2); padding:15px; border-radius:14px; margin-bottom:15px; text-align:center;">
+                <div style="font-size:11px; font-weight:700; color:var(--btn); text-transform:uppercase; margin-bottom:4px;">Поточна практика:</div>
+                <div id="queueSubjectName" style="font-size:14px; font-weight:600; color:var(--text); margin-bottom:12px;">Вища математика</div>
+                <button id="queueActionBtn" onclick="toggleQueue()" style="width:100%;background:var(--btn);color:white;padding:12px;border-radius:10px;border:none;font-weight:600;cursor:pointer;font-size:13px;">
+                    Встати в чергу
+                </button>
+            </div>
+            
+            <div style="font-size:12px;font-weight:600;color:var(--hint);margin-bottom:8px;text-transform:uppercase;">Список черги:</div>
+            <div id="queueListContainer" style="background:var(--sec); border-radius:12px; padding:8px;"></div>
+        </div>
     </div>
     
    <!-- 3. РОЗДІЛ: РОЗКЛАД -->
