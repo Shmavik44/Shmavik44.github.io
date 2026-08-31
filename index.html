@@ -663,15 +663,6 @@
     const tg = window.Telegram.WebApp; 
 tg.ready(); 
 tg.expand();
-
-// Якщо бот відкривається на десктопі або в Telegram Web — намагаємося відкрити його на весь екран
-if (tg.platform === 'tdesktop' || tg.platform === 'web' || tg.platform === 'macos') {
-    try {
-        tg.requestFullscreen();
-    } catch(e) {
-        // Деякі старіші клієнти можуть не підтримувати requestFullscreen, тому ігноруємо помилку
-    }
-}
     const API_URL = "https://telegram-proxy-bot-desz.onrender.com/api";
     const userId = tg.initDataUnsafe.user?.id || 1492389359; 
     const firstName = tg.initDataUnsafe.user?.first_name || 'Студент';
