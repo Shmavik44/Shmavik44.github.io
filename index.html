@@ -1043,11 +1043,12 @@ async function addPersonalTask() {
             if (!authRes.ok) throw new Error("Сервер ще вантажиться"); 
             const authData = await authRes.json();
             // Перевіряємо: чи пускає сервер АБО чи це адмін
-            if (!authData.isVerified && !adminIds.includes(String(userId))) {
+           // Блокуємо ТІЛЬКИ якщо сервер чітко сказав, що людини немає в базі
+            if (authData.isVerified === false) {
                 document.getElementById('authLockScreen').style.display = 'flex';
                 document.getElementById('authLockScreen').style.opacity = '1';
                 tg.HapticFeedback.notificationOccurred('error');
-                return; // Жорстко блокуємо подальше завантаження
+                return; // Зупиняємо завантаження
             }
             
             // Якщо перевірка пройдена — знімаємо екран блокування
