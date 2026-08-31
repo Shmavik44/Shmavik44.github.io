@@ -1026,28 +1026,6 @@ async function addPersonalTask() {
     let _loadRetry = 0;
     async function loadData() {
         try {
-           // 1. ПЕРЕВІРКА АВТОРИЗАЦІЇ
-            const authRes = await fetch(`${API_URL}/auth/check/${userId}`);
-            // Якщо сервер тимчасово не відповідає (наприклад, запускається) — кидаємо помилку, 
-            // щоб спрацював авто-ретрай знизу, а не вічне зависання екрану
-            if (!authRes.ok) throw new Error("Сервер ще вантажиться"); 
-            const authData = await authRes.json();
-            // Перевіряємо: чи пускає сервер АБО чи це адмін
-           // Блокуємо ТІЛЬКИ якщо сервер чітко сказав, що людини немає в базі
-            if (authData.isVerified === false) {
-                document.getElementById('authLockScreen').style.display = 'flex';
-                document.getElementById('authLockScreen').style.opacity = '1';
-                tg.HapticFeedback.notificationOccurred('error');
-                return; // Зупиняємо завантаження
-            }
-            
-            // Якщо перевірка пройдена — знімаємо екран блокування
-            document.getElementById('authLockScreen').style.opacity = '0';
-            setTimeout(() => document.getElementById('authLockScreen').style.display = 'none', 300);
-            if (adminIds.includes(String(userId))) {
-                document.getElementById('navAdmin').style.display = 'flex';
-                document.getElementById('tab-admin').style.display = 'block';
-            }
             const userRes = await fetch(`${API_URL}/user/${userId}`);
             if (userRes.ok) {
                 const u = await userRes.json();
