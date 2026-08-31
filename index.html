@@ -732,44 +732,80 @@ function updateProfileHeader() {
 }
 
 async function addPersonalTask() {
-    const subj = document.getElementById('myTaskSubject').value.trim();
-    const title = document.getElementById('myTaskTitle').value.trim();
-    const date = document.getElementById('myTaskDate').value;
-    
-    if (!subj || !title || !date) { 
-        tg.showAlert("Заповни всі поля!"); 
-        tg.HapticFeedback.notificationOccurred('error'); 
-        return; 
-    }
-    
-    tg.HapticFeedback.impactOccurred('medium');
-    
-    try {
-        const res = await fetch(`${API_URL}/tasks/${userId}/personal`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ subject: subj, title: title, deadline: date + "T23:59:59Z" })
-        });
+        const subj = document.getElementById('myTaskSubject').value.trim();
+        const title = document.getElementById('myTaskTitle').value.trim();
+        const date = document.getElementById('myTaskDate').value;
         
-        if (res.ok) {
-            showToast("✅ Особисте завдання додано!");
-            tg.HapticFeedback.notificationOccurred('success');
-            // Очищаємо поля вводу
-            document.getElementById('myTaskSubject').value = "";
-            document.getElementById('myTaskTitle').value = "";
-            document.getElementById('myTaskDate').value = "";
-            // Оновлюємо дані з сервера
-            loadData();
-            // Перекидаємо в загальний список завдань
-            switchTab('home', document.getElementById('navHome'));
-        } else {
-            const err = await res.json().catch(() => ({}));
-            showToast("❌ " + (err.error || "Помилка сервера"));
+        if (!subj || !title || !date) { 
+            tg.showAlert("Заповни всі поля!"); 
+            tg.HapticFeedback.notificationOccurred('error'); 
+            return; 
         }
-    } catch(e) { 
-        showToast("❌ Немає зв'язку із сервером"); 
+        
+        tg.HapticFeedback.impactOccurred('medium');
+        
+        // ВАЖЛИВО: Створюємо час 23:59 саме у ТВОЄМУ часовому поясі, 
+        // а .toISOString() автоматично переведе його для сервера без збоїв у днях
+        const localDeadline = new Date(date + "T23:59:59");
+        
+        try {
+            const res = await fetch(`${API_URL}/tasks/${userId}/personal`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ subject: subj, title: title, deadline: localDeadline.toISOString() })
+            });
+            
+            if (res.ok) {
+                showToast("✅ Особисте завдання додано!");
+                tg.HapticFeedback.notificationOccurred('success');
+                // Очищаємо поля вводу
+                document.getElementById('myTaskSubject').value = "";
+                document.getElementById('myTaskTitle').value = "";
+                document.getElementById('myTaskDate').value = "";
+                // Оновлюємо дані з сервера
+                loadData();
+                // Перекидаємо в загальний список завдань
+                switchTab('home', document.getElementById('navHome'));
+            } else {
+                const err = await res.json().catch(() => ({}));
+                showToast("❌ " + (err.error || "Помилка сервера"));
+            }
+        } catch(e) { 
+            showToast("❌ Немає зв'язку із сервером"); 
+        }
     }
-}
+
+    async function addNewTask() {
+        const subj  = document.getElementById('newTaskSubject').value.trim();
+        const title = document.getElementById('newTaskTitle').value.trim();
+        const date  = document.getElementById('newTaskDate').value;
+        
+        if (!subj || !title || !date) { tg.showAlert("Заповни всі поля!"); tg.HapticFeedback.notificationOccurred('error'); return; }
+        tg.HapticFeedback.impactOccurred('medium');
+        
+        // Те саме робимо і для адмінських завдань
+        const localDeadline = new Date(date + "T23:59:59");
+
+        try {
+            const res = await fetch(`${API_URL}/tasks`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ subject: subj, title: title, deadline: localDeadline.toISOString() })
+            });
+            if (res.ok) {
+                showToast("✅ Завдання додано всім студентам!");
+                tg.HapticFeedback.notificationOccurred('success');
+                document.getElementById('newTaskSubject').value = "";
+                document.getElementById('newTaskTitle').value = "";
+                document.getElementById('newTaskDate').value = "";
+                loadAdminTasks();
+                loadData();
+            } else {
+                const err = await res.json().catch(() => ({}));
+                showToast("❌ " + (err.error || "Помилка сервера"));
+            }
+        } catch(e) { showToast("❌ Немає зв'язку із сервером"); }
+    }
 
     // ===================== МАГАЗИН =====================
     function renderShop() {
