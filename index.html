@@ -1659,7 +1659,7 @@ function renderWeek(weekNum) {
                 let teacher = parts.length > 1 ? parts[1].trim() : '';
 
                // Кольори для бейджів
-                let isLecture = currentType.toLowerCase().includes("лекція");
+                let isLecture = currentType.toLowerCase().includes("лекц");
                 // Лавандово-блакитний для лекцій, ніжно-червоний для практики
                 let badgeBg = isLecture ? "rgba(138, 152, 237, 0.15)" : "rgba(239, 83, 80, 0.12)";
                 let badgeColor = isLecture ? "#7a85e8" : "#ef5350";
