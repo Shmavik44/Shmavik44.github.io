@@ -1658,10 +1658,11 @@ function renderWeek(weekNum) {
                 let className = parts[0].trim();
                 let teacher = parts.length > 1 ? parts[1].trim() : '';
 
-                // Кольори для бейджів: Лекція - синя, Практика - червона
+               // Кольори для бейджів
                 let isLecture = currentType.toLowerCase().includes("лекція");
-                let badgeBg = isLecture ? "rgba(36, 129, 204, 0.1)" : "rgba(229, 57, 53, 0.1)";
-                let badgeColor = isLecture ? "var(--btn)" : "var(--red)";
+                // Лавандово-блакитний для лекцій, ніжно-червоний для практики
+                let badgeBg = isLecture ? "rgba(138, 152, 237, 0.15)" : "rgba(239, 83, 80, 0.12)";
+                let badgeColor = isLecture ? "#7a85e8" : "#ef5350";
 
                 dayHtml += `
                 <div style="background: var(--bg); border: 1px solid rgba(0,0,0,0.06); padding: 14px; border-radius: 14px; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
