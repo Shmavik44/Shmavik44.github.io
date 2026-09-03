@@ -589,14 +589,7 @@
         <button class="filter-btn" id="tabAnnouncementsBtn" onclick="switchAdminTab('announcements')">Новини</button>
         <button class="filter-btn active" id="tabRollcallBtn" onclick="switchAdminTab('rollcall')">Журнал</button>
     </div>
-
-    <!-- ЖУРНАЛ ВІДВІДУВАНОСТІ -->
-   <div id="adminRollcallSection">
-        <select id="subjectSelect" class="admin-select"></select>
-        <div id="rollcallList"></div>
-        <button class="save-btn" onclick="saveAttendance()">💾 ЗБЕРЕГТИ В ЖУРНАЛ</button>
-    </div>
-
+    
     <!-- УПРАВЛІННЯ ЗАВДАННЯМИ -->
     <div id="adminTasksSection" style="display:none;">
         <div style="background:var(--sec);padding:15px;border-radius:14px;margin-bottom:15px;">
@@ -649,6 +642,12 @@
             Поточні оголошення:
         </div>
         <div id="adminAnnouncementsList"></div>
+    </div>
+     <!-- ЖУРНАЛ ВІДВІДУВАНОСТІ -->
+   <div id="adminRollcallSection">
+        <select id="subjectSelect" class="admin-select"></select>
+        <div id="rollcallList"></div>
+        <button class="save-btn" onclick="saveAttendance()">💾 ЗБЕРЕГТИ В ЖУРНАЛ</button>
     </div>
 </div>
 
