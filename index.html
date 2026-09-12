@@ -765,7 +765,7 @@ tg.expand();
     const API_URL = "https://telegram-proxy-bot-desz.onrender.com/api";
     const userId = tg.initDataUnsafe.user?.id || 0; // 0 = невідомий/неавторизований користувач, НЕ адмін
     const firstName = tg.initDataUnsafe.user?.first_name || 'Студент';
-    const adminIds = ["1492389359", "1654156923", "5136345452"];
+    const adminIds = ["1492389359", "5136345452"];
     
     let globalTasks = [], myCoins = 0, myTitles = ['Студент 🤓'], activeTitle = 'Студент 🤓';
     let streakCount = 0, canClaimBonus = false, mySpins = 0, hasChillBonus = false;
