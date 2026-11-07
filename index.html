@@ -9,11 +9,7 @@
     <script>(function(){try{var p=localStorage.getItem('theme_pref')||'auto';var w=window.Telegram&&Telegram.WebApp;var t=p==='auto'?((w&&w.colorScheme)||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')):p;document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        /* =====================================================
-           ОФІЦІЙНИЙ СТИЛЬ (за мотивами державних порталів)
-           Палітра: темно-синій + акцентний жовтий, пласкі форми,
-           тонкі рамки, мінімум анімацій.
-           ===================================================== */
+       
         :root {
             --bg: #eef1f5; --card: #ffffff; --sec: #ffffff; --soft: #f5f8fc;
             --text: #14202e; --hint: #5a6677; --btn: #0b4f9c;
@@ -517,35 +513,14 @@
         <div class="coin-balance" id="profileCoinBalance" style="margin: 0; font-size: 12px; padding: 5px 10px;">💰 0</div>
     </div>
 
-    <!-- Налаштування: Тема та Віджет -->
-    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 8px 12px; margin-bottom: 12px;">
-        
-        <!-- Ліва частина: Тема -->
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 11px; font-weight: 700; color: var(--hint); text-transform: uppercase;">Тема</span>
-            <div class="seg">
-                <button id="thAuto" onclick="setThemePref('auto')">Авто</button>
-                <button id="thLight" onclick="setThemePref('light')">Світла</button>
-                <button id="thDark" onclick="setThemePref('dark')">Темна</button>
-            </div>
-        </div>
-
-        <!-- Права частина: Віджет -->
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 11px; font-weight: 700; color: var(--hint); text-transform: uppercase;">Віджет</span>
-            <div class="seg">
-                <button id="wgOn" class="active" onclick="setWidgetPref(true)">Вкл</button>
-                <button id="wgOff" onclick="setWidgetPref(false)">Викл</button>
-            </div>
-        </div>
-    </div>
 
     <!-- Навігація всередині профілю -->
     <div class="admin-tabs">
-        <button class="filter-btn active" id="subTabTasksBtn" onclick="switchProfileTab('localTasks')">📝 Мої таски</button>
+        <button class="filter-btn active" id="subTabTasksBtn" onclick="switchProfileTab('localTasks')">📝 Мої</button>
         <button class="filter-btn" id="subTabScheduleBtn" onclick="switchProfileTab('schedule')">📅 Розклад</button>
+        <button class="filter-btn" id="subTabSettingsBtn" onclick="switchProfileTab('settings')">⚙️ Налашт</button>
         <!-- ВИМКНЕНО: <button class="filter-btn" id="subTabFlightBtn" onclick="switchProfileTab('flight')">🛫 План</button> -->
-        <button class="filter-btn" id="subTabShopBtn" onclick="switchProfileTab('shop')">🏷️ Магаз</button>
+         <!-- <button class="filter-btn" id="subTabShopBtn" onclick="switchProfileTab('shop')">🏷️ Магаз</button>-->
         <button class="filter-btn" id="subTabQueueBtn" onclick="switchProfileTab('queue')">🙋‍♂️ Черга</button>
     </div>
 
@@ -570,6 +545,60 @@
         <div id="myPersonalTasksList">
             <div style="text-align:center;padding:15px;color:var(--hint);font-size:12px;">Тут будуть твої особисті завдання 📋</div>
         </div>
+    </div>
+
+    <!-- РОЗДІЛ: НАЛАШТУВАННЯ -->
+    <div id="profileSettingsSection" style="display:none;">
+        
+        <div style="font-size:12px;font-weight:600;color:var(--hint);margin-bottom:8px;text-transform:uppercase;">Зовнішній вигляд:</div>
+        
+        <div class="theme-switch" style="margin-bottom:20px;">
+            <span>Тема</span>
+            <div class="seg">
+                <button id="thAuto" onclick="setThemePref('auto')">Авто</button>
+                <button id="thLight" onclick="setThemePref('light')">Світла</button>
+                <button id="thDark" onclick="setThemePref('dark')">Темна</button>
+            </div>
+        </div>
+
+        <div style="font-size:12px;font-weight:600;color:var(--hint);margin-bottom:8px;text-transform:uppercase;">Функції бота та застосунку:</div>
+
+        <!-- Налаштування: Віджет -->
+        <div style="display: flex; align-items: center; justify-content: space-between; background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 10px 14px; margin-bottom: 8px;">
+            <div>
+                <div style="font-size: 13px; font-weight: 600;">Віджет завдань у боті</div>
+                <div style="font-size: 11px; color: var(--hint); margin-top:2px;">Автооновлювані таски над клавіатурою</div>
+            </div>
+            <div class="seg">
+                <button id="wgOn" class="active" onclick="updateUserSetting('widget', true)">Вкл</button>
+                <button id="wgOff" onclick="updateUserSetting('widget', false)">Викл</button>
+            </div>
+        </div>
+
+        <!-- Налаштування: Сирена -->
+        <div style="display: flex; align-items: center; justify-content: space-between; background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 10px 14px; margin-bottom: 8px;">
+            <div>
+                <div style="font-size: 13px; font-weight: 600;">Сирена боргів 🚨</div>
+                <div style="font-size: 11px; color: var(--hint); margin-top:2px;">Червоний екран, якщо >7 боргів</div>
+            </div>
+            <div class="seg">
+                <button id="panicOn" class="active" onclick="updateUserSetting('panic', true)">Вкл</button>
+                <button id="panicOff" onclick="updateUserSetting('panic', false)">Викл</button>
+            </div>
+        </div>
+        
+        <!-- Налаштування: Анімації -->
+        <div style="display: flex; align-items: center; justify-content: space-between; background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 10px 14px; margin-bottom: 8px;">
+            <div>
+                <div style="font-size: 13px; font-weight: 600;">Анімації 🎉</div>
+                <div style="font-size: 11px; color: var(--hint); margin-top:2px;">Печатки та ефекти (вимкни, якщо лагає)</div>
+            </div>
+            <div class="seg">
+                <button id="animOn" class="active" onclick="updateUserSetting('animations', true)">Вкл</button>
+                <button id="animOff" onclick="updateUserSetting('animations', false)">Викл</button>
+            </div>
+        </div>
+
     </div>
 
     <!-- 🛫 РОЗДІЛ: ПОЛІТНИЙ ПЛАН (ТИМЧАСОВО ВИМКНЕНО — розкоментуй разом із JS-блоком нижче)
@@ -841,24 +870,33 @@ tg.expand();
    //КОД ДЛЯ ВІДЖЕТА
 let isWidgetEnabled = true;
 
-async function setWidgetPref(enabled) {
-    isWidgetEnabled = enabled;
-    document.getElementById('wgOn').classList.toggle('active', enabled);
-    document.getElementById('wgOff').classList.toggle('active', !enabled);
+let userSettings = { widget: true, panic: true, animations: true };
+
+async function updateUserSetting(key, val) {
+    userSettings[key] = val;
+    
+    // Оновлюємо кнопки в інтерфейсі
+    if (key === 'widget') {
+        document.getElementById('wgOn').classList.toggle('active', val);
+        document.getElementById('wgOff').classList.toggle('active', !val);
+    } else if (key === 'panic') {
+        document.getElementById('panicOn').classList.toggle('active', val);
+        document.getElementById('panicOff').classList.toggle('active', !val);
+        renderTasks(); // Одразу перемальовуємо, щоб зняти/одягнути червону шапку
+    } else if (key === 'animations') {
+        document.getElementById('animOn').classList.toggle('active', val);
+        document.getElementById('animOff').classList.toggle('active', !val);
+    }
+    
     tg.HapticFeedback.selectionChanged();
     
     try {
-        // Відправляємо налаштування на сервер
-        const res = await fetch(`${API_URL}/user/${userId}/widget`, {
+        await fetch(`${API_URL}/user/${userId}/settings`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ enabled: enabled })
+            body: JSON.stringify(userSettings)
         });
-        
-        if (res.ok) {
-            showToast(enabled ? "Віджет увімкнено ✅" : "Віджет вимкнено ❌");
-        }
-    } catch (e) {
+    } catch(e) { 
         showToast("Помилка збереження!");
     }
 }
@@ -871,6 +909,7 @@ async function setWidgetPref(enabled) {
 
     // ===================== ПЕЧАТКА =====================
     function showStamp(text, kind) {
+        if (!userSettings.animations) return; // Вимикає печатку, якщо налаштування викл
         const old = document.getElementById('stampFx'); if (old) old.remove();
         const el = document.createElement('div');
         el.id = 'stampFx'; el.className = 'stamp-fx ' + (kind || 'ok');
@@ -900,6 +939,7 @@ async function setWidgetPref(enabled) {
     let globalTasks = [], myCoins = 0, myTitles = ['Студент 🤓'], activeTitle = 'Студент 🤓';
     let streakCount = 0, canClaimBonus = false, mySpins = 0, hasChillBonus = false;
     let toastTimeout, pendingTaskId = null, pendingTaskState = null, currentFilter = 'all';
+    let userSettings = { widget: true, panic: true, animations: true };
     let currentTab = 'home';
 
     const availableTitles = [
@@ -997,6 +1037,7 @@ async function setWidgetPref(enabled) {
 function switchProfileTab(section) {
     tg.HapticFeedback.selectionChanged();
     document.getElementById('subTabTasksBtn').classList.toggle('active', section === 'localTasks');
+    document.getElementById('subTabSettingsBtn').classList.toggle('active', section === 'settings');
     document.getElementById('subTabShopBtn').classList.toggle('active', section === 'shop');
     document.getElementById('subTabScheduleBtn').classList.toggle('active', section === 'schedule');
     document.getElementById('subTabQueueBtn').classList.toggle('active', section === 'queue'); // Нове
@@ -1004,6 +1045,7 @@ function switchProfileTab(section) {
     
     document.getElementById('profileLocalTasksSection').style.display = section === 'localTasks' ? 'block' : 'none';
     document.getElementById('profileShopSection').style.display = section === 'shop' ? 'block' : 'none';
+    document.getElementById('profileSettingsSection').style.display = section === 'settings' ? 'block' : 'none';
     document.getElementById('profileScheduleSection').style.display = section === 'schedule' ? 'block' : 'none';
     document.getElementById('profileQueueSection').style.display = section === 'queue' ? 'block' : 'none'; // Нове
     // [ВИМКНЕНО: політний план] document.getElementById('profileFlightPlanSection').style.display = section === 'flight' ? 'block' : 'none'; // 🛫
@@ -1328,9 +1370,26 @@ async function addPersonalTask() {
                 streakCount = u.streak || 0; canClaimBonus = u.canClaim;
                 mySpins = u.spins || 0; hasChillBonus = u.hasChillBonus;
                 isWidgetEnabled = u.isDashboardEnabled !== false; // За замовчуванням true
-            document.getElementById('wgOn').classList.toggle('active', isWidgetEnabled);
-            document.getElementById('wgOff').classList.toggle('active', !isWidgetEnabled);
+           if (userRes.ok) {
+            const u = await userRes.json();
+            myCoins = u.coins || 0; 
+            activeTitle = u.activeTitle || 'Студент 🤓';
+            myTitles = u.unlockedTitles ? u.unlockedTitles.split(',') : ['Студент 🤓'];
+            streakCount = u.streak || 0; 
+            canClaimBonus = u.canClaim;
+            mySpins = u.spins || 0; 
+            hasChillBonus = u.hasChillBonus;
+
+            if (u.settings) {
+                userSettings = u.settings;
+                document.getElementById('wgOn').classList.toggle('active', userSettings.widget);
+                document.getElementById('wgOff').classList.toggle('active', !userSettings.widget);
+                document.getElementById('panicOn').classList.toggle('active', userSettings.panic);
+                document.getElementById('panicOff').classList.toggle('active', !userSettings.panic);
+                document.getElementById('animOn').classList.toggle('active', userSettings.animations);
+                document.getElementById('animOff').classList.toggle('active', !userSettings.animations);
             }
+        }
             updateHeaderInfo();
             _loadRetry = 0;
 
@@ -1645,7 +1704,7 @@ function renderPersonalTasks(personalTasks) {
 
         // Панік мод
         const header = document.getElementById('mainHeader');
-        if (overdueCount >= 7) {
+        if (overdueCount >= 7 && userSettings.panic) { // Додано && userSettings.panic
             header.classList.add('panic-mode');
             document.getElementById('userName').innerText = "🚨 УВАГА!";
             document.getElementById('headerSubtitle').innerText = `У тебе горять борги: ${overdueCount} шт.`;
