@@ -867,39 +867,6 @@ tg.expand();
             const b = document.getElementById(id); if (b) b.classList.toggle('active', p === k);
         });
     }
-   //КОД ДЛЯ ВІДЖЕТА
-let isWidgetEnabled = true;
-
-let userSettings = { widget: true, panic: true, animations: true };
-
-async function updateUserSetting(key, val) {
-    userSettings[key] = val;
-    
-    // Оновлюємо кнопки в інтерфейсі
-    if (key === 'widget') {
-        document.getElementById('wgOn').classList.toggle('active', val);
-        document.getElementById('wgOff').classList.toggle('active', !val);
-    } else if (key === 'panic') {
-        document.getElementById('panicOn').classList.toggle('active', val);
-        document.getElementById('panicOff').classList.toggle('active', !val);
-        renderTasks(); // Одразу перемальовуємо, щоб зняти/одягнути червону шапку
-    } else if (key === 'animations') {
-        document.getElementById('animOn').classList.toggle('active', val);
-        document.getElementById('animOff').classList.toggle('active', !val);
-    }
-    
-    tg.HapticFeedback.selectionChanged();
-    
-    try {
-        await fetch(`${API_URL}/user/${userId}/settings`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(userSettings)
-        });
-    } catch(e) { 
-        showToast("Помилка збереження!");
-    }
-}
     function setThemePref(p) {
         try { localStorage.setItem('theme_pref', p); } catch(e) {}
         applyTheme(); tg.HapticFeedback.selectionChanged();
@@ -941,6 +908,35 @@ async function updateUserSetting(key, val) {
     let toastTimeout, pendingTaskId = null, pendingTaskState = null, currentFilter = 'all';
     let userSettings = { widget: true, panic: true, animations: true };
     let currentTab = 'home';
+
+    // ===================== НАЛАШТУВАННЯ =====================
+async function updateUserSetting(key, val) {
+    userSettings[key] = val;
+    
+    if (key === 'widget') {
+        document.getElementById('wgOn').classList.toggle('active', val);
+        document.getElementById('wgOff').classList.toggle('active', !val);
+    } else if (key === 'panic') {
+        document.getElementById('panicOn').classList.toggle('active', val);
+        document.getElementById('panicOff').classList.toggle('active', !val);
+        renderTasks();
+    } else if (key === 'animations') {
+        document.getElementById('animOn').classList.toggle('active', val);
+        document.getElementById('animOff').classList.toggle('active', !val);
+    }
+    
+    tg.HapticFeedback.selectionChanged();
+    
+    try {
+        await fetch(`${API_URL}/user/${userId}/settings`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userSettings)
+        });
+    } catch(e) { 
+        showToast("Помилка збереження!");
+    }
+}
 
     const availableTitles = [
         { name:"Студент 🤓", price:0, desc:"Базовий статус" },
@@ -1363,14 +1359,7 @@ async function addPersonalTask() {
             }
         }
             const userRes = await fetch(`${API_URL}/user/${userId}`);
-            if (userRes.ok) {
-                const u = await userRes.json();
-                myCoins = u.coins || 0; activeTitle = u.activeTitle || 'Студент 🤓';
-                myTitles = u.unlockedTitles ? u.unlockedTitles.split(',') : ['Студент 🤓'];
-                streakCount = u.streak || 0; canClaimBonus = u.canClaim;
-                mySpins = u.spins || 0; hasChillBonus = u.hasChillBonus;
-                isWidgetEnabled = u.isDashboardEnabled !== false; // За замовчуванням true
-           if (userRes.ok) {
+        if (userRes.ok) {
             const u = await userRes.json();
             myCoins = u.coins || 0; 
             activeTitle = u.activeTitle || 'Студент 🤓';
@@ -1390,7 +1379,7 @@ async function addPersonalTask() {
                 document.getElementById('animOff').classList.toggle('active', !userSettings.animations);
             }
         }
-            updateHeaderInfo();
+        updateHeaderInfo();
             _loadRetry = 0;
 
             const tasksRes = await fetch(`${API_URL}/tasks/${userId}`);
