@@ -517,13 +517,26 @@
         <div class="coin-balance" id="profileCoinBalance" style="margin: 0; font-size: 12px; padding: 5px 10px;">💰 0</div>
     </div>
 
-    <!-- Тема -->
-    <div class="theme-switch">
-        <span>Тема</span>
-        <div class="seg">
-            <button id="thAuto" onclick="setThemePref('auto')">Авто</button>
-            <button id="thLight" onclick="setThemePref('light')">Світла</button>
-            <button id="thDark" onclick="setThemePref('dark')">Темна</button>
+    <!-- Налаштування: Тема та Віджет -->
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 8px 12px; margin-bottom: 12px;">
+        
+        <!-- Ліва частина: Тема -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 11px; font-weight: 700; color: var(--hint); text-transform: uppercase;">Тема</span>
+            <div class="seg">
+                <button id="thAuto" onclick="setThemePref('auto')">Авто</button>
+                <button id="thLight" onclick="setThemePref('light')">Світла</button>
+                <button id="thDark" onclick="setThemePref('dark')">Темна</button>
+            </div>
+        </div>
+
+        <!-- Права частина: Віджет -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 11px; font-weight: 700; color: var(--hint); text-transform: uppercase;">Віджет</span>
+            <div class="seg">
+                <button id="wgOn" class="active" onclick="setWidgetPref(true)">Вкл</button>
+                <button id="wgOff" onclick="setWidgetPref(false)">Викл</button>
+            </div>
         </div>
     </div>
 
@@ -825,6 +838,30 @@ tg.expand();
             const b = document.getElementById(id); if (b) b.classList.toggle('active', p === k);
         });
     }
+   //КОД ДЛЯ ВІДЖЕТА
+let isWidgetEnabled = true;
+
+async function setWidgetPref(enabled) {
+    isWidgetEnabled = enabled;
+    document.getElementById('wgOn').classList.toggle('active', enabled);
+    document.getElementById('wgOff').classList.toggle('active', !enabled);
+    tg.HapticFeedback.selectionChanged();
+    
+    try {
+        // Відправляємо налаштування на сервер
+        const res = await fetch(`${API_URL}/user/${userId}/widget`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ enabled: enabled })
+        });
+        
+        if (res.ok) {
+            showToast(enabled ? "Віджет увімкнено ✅" : "Віджет вимкнено ❌");
+        }
+    } catch (e) {
+        showToast("Помилка збереження!");
+    }
+}
     function setThemePref(p) {
         try { localStorage.setItem('theme_pref', p); } catch(e) {}
         applyTheme(); tg.HapticFeedback.selectionChanged();
@@ -1290,6 +1327,9 @@ async function addPersonalTask() {
                 myTitles = u.unlockedTitles ? u.unlockedTitles.split(',') : ['Студент 🤓'];
                 streakCount = u.streak || 0; canClaimBonus = u.canClaim;
                 mySpins = u.spins || 0; hasChillBonus = u.hasChillBonus;
+                isWidgetEnabled = u.isDashboardEnabled !== false; // За замовчуванням true
+            document.getElementById('wgOn').classList.toggle('active', isWidgetEnabled);
+            document.getElementById('wgOff').classList.toggle('active', !isWidgetEnabled);
             }
             updateHeaderInfo();
             _loadRetry = 0;
