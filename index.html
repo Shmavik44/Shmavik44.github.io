@@ -1032,22 +1032,33 @@ async function updateUserSetting(key, val) {
     // Перемикання вкладок всередині профілю
 function switchProfileTab(section) {
     tg.HapticFeedback.selectionChanged();
-    document.getElementById('subTabTasksBtn').classList.toggle('active', section === 'localTasks');
-    document.getElementById('subTabSettingsBtn').classList.toggle('active', section === 'settings');
-    document.getElementById('subTabShopBtn').classList.toggle('active', section === 'shop');
-    document.getElementById('subTabScheduleBtn').classList.toggle('active', section === 'schedule');
-    document.getElementById('subTabQueueBtn').classList.toggle('active', section === 'queue'); // Нове
-    // [ВИМКНЕНО: політний план] document.getElementById('subTabFlightBtn').classList.toggle('active', section === 'flight'); // 🛫
     
-    document.getElementById('profileLocalTasksSection').style.display = section === 'localTasks' ? 'block' : 'none';
-    document.getElementById('profileShopSection').style.display = section === 'shop' ? 'block' : 'none';
-    document.getElementById('profileSettingsSection').style.display = section === 'settings' ? 'block' : 'none';
-    document.getElementById('profileScheduleSection').style.display = section === 'schedule' ? 'block' : 'none';
-    document.getElementById('profileQueueSection').style.display = section === 'queue' ? 'block' : 'none'; // Нове
-    // [ВИМКНЕНО: політний план] document.getElementById('profileFlightPlanSection').style.display = section === 'flight' ? 'block' : 'none'; // 🛫
+    // Створюємо безпечні міні-функції, які не ламають код, якщо кнопки немає
+    const toggleBtn = (id, isActive) => {
+        const el = document.getElementById(id);
+        if (el) el.classList.toggle('active', isActive);
+    };
+    
+    const toggleSec = (id, isActive) => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = isActive ? 'block' : 'none';
+    };
+
+    // Перемикаємо кнопки
+    toggleBtn('subTabTasksBtn', section === 'localTasks');
+    toggleBtn('subTabScheduleBtn', section === 'schedule');
+    toggleBtn('subTabSettingsBtn', section === 'settings');
+    toggleBtn('subTabShopBtn', section === 'shop');
+    toggleBtn('subTabQueueBtn', section === 'queue');
+    
+    // Перемикаємо секції (розділи)
+    toggleSec('profileLocalTasksSection', section === 'localTasks');
+    toggleSec('profileScheduleSection', section === 'schedule');
+    toggleSec('profileSettingsSection', section === 'settings');
+    toggleSec('profileShopSection', section === 'shop');
+    toggleSec('profileQueueSection', section === 'queue');
     
     if (section === 'queue') loadQueue();
-    // [ВИМКНЕНО: політний план] if (section === 'flight') loadFlightPlan();
 }
 
 // Оновлення шапки профілю
