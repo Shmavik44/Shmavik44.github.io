@@ -1059,6 +1059,14 @@ function switchProfileTab(section) {
     toggleSec('profileQueueSection', section === 'queue');
     
     if (section === 'queue') loadQueue();
+    if (section === 'schedule') {
+        setTimeout(() => {
+            const dayNames = ["Неділя", "Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця", "Субота"];
+            const currentDayName = dayNames[new Date().getDay()];
+            const todayEl = document.getElementById(`day-${currentDayName}`);
+            if (todayEl) todayEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 50);
+    }
 }
 
 // Оновлення шапки профілю
@@ -2143,12 +2151,20 @@ async function loadSchedule() {
         const res = await fetch(`${API_URL}/schedule/${userId}`);
         if (res.ok) {
             mySchedule = await res.json();
-            renderWeek(1); // За замовчуванням відкриваємо 1-й тиждень
+           // Визначаємо поточний тиждень (відлік від 2 березня 2026)
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+            const semesterStart = new Date(2026, 2, 2); // 2 = Березень
+            const daysPassed = Math.floor((now - semesterStart) / 86400000);
+            const weekIndex = Math.floor(Math.max(0, daysPassed) / 7);
+            const currentWeek = (weekIndex % 2 === 0) ? 1 : 2;
+            
+            renderWeek(currentWeek); 
         }
     } catch(e) {}
 }
 
-function renderWeek(weekNum) {
+      function renderWeek(weekNum) {
     document.getElementById('btnWeek1').classList.toggle('active', weekNum === 1);
     document.getElementById('btnWeek2').classList.toggle('active', weekNum === 2);
     
@@ -2161,11 +2177,26 @@ function renderWeek(weekNum) {
     const weekData = weekNum === 1 ? mySchedule.week1 : mySchedule.week2;
     container.innerHTML = "";
     
+    // Знаходимо сьогоднішній день тижня
+    const dayNames = ["Неділя", "Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця", "Субота"];
+    const currentDayName = dayNames[new Date().getDay()];
+    
     weekData.forEach(d => {
-        // Заголовок дня (Понеділок, Вівторок і т.д.)
+        const isToday = (d.day === currentDayName);
+        
+        // Стилі для поточного дня (рамка, фон, відступи)
+        const wrapStyle = isToday 
+            ? "margin-top: 25px; margin-bottom: 25px; padding: 15px 12px; background: rgba(11, 79, 156, 0.04); border: 2px solid var(--btn); border-radius: 16px; box-shadow: 0 4px 12px rgba(11,79,156,0.1);" 
+            : "margin-top: 40px; margin-bottom: 10px;";
+            
+        // Яскравий бейдж
+        const todayBadge = isToday 
+            ? `<span style="background: var(--btn); color: #fff; font-size: 10px; padding: 3px 8px; border-radius: 10px; vertical-align: middle; margin-left: 8px; font-weight: 700; letter-spacing: 0.5px;">СЬОГОДНІ</span>` 
+            : "";
+
         let dayHtml = `
-            <div style="margin-top: 56px; margin-bottom: 10px;">
-                <div style="font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 12px; padding-left: 4px;">📅 ${d.day}</div>
+            <div id="day-${d.day}" style="${wrapStyle}">
+                <div style="font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 12px; padding-left: 4px;">📅 ${d.day} ${todayBadge}</div>
         `;
         
         let blocks = d.text.split('\n\n');
@@ -2175,25 +2206,21 @@ function renderWeek(weekNum) {
             block = block.trim();
             if (!block) return;
             
-            // Визначаємо тип заняття (Лекція чи Практика)
             if (block.startsWith('*') && block.endsWith('*') && !block.includes('Спимо')) {
                 currentType = block.replace(/\*/g, '');
                 return;
             }
             
-            // Якщо пар немає на весь день
             if (block.includes("Спимо") && !block.match(/^\d\./)) {
                dayHtml += `<div style="background: var(--sec); padding: 15px; border-radius: 12px; margin-bottom: 10px; text-align: center; color: var(--hint); font-weight: 600; border: 1px dashed rgba(0,0,0,0.1);">💤 Пар немає, відпочиваємо</div>`;
                return;
             }
 
-            // Розбираємо інформацію про пару
             let match = block.match(/^\d\.\s*\((.*?)\)\s*(.*)/);
             if (match) {
                 let time = match[1];
                 let rest = match[2];
                 
-                // Якщо це просто "вікно" між парами
                 if (rest.includes("Спимо")) {
                     dayHtml += `
                     <div style="background: var(--sec); padding: 12px 15px; border-radius: 12px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; opacity: 0.6;">
@@ -2203,21 +2230,20 @@ function renderWeek(weekNum) {
                     return;
                 }
 
-                // ВИДАЛЯЄМО ПОСИЛАННЯ ТА КУРСИВ
                 let cleanRest = rest.replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1').replace(/_(.*?)_/g, '$1');
-                
                 let parts = cleanRest.split(' — ');
                 let className = parts[0].trim();
                 let teacher = parts.length > 1 ? parts[1].trim() : '';
 
-               // Кольори для бейджів
                 let isLecture = currentType.toLowerCase().includes("лекц");
-                // Лавандово-блакитний для лекцій, ніжно-червоний для практики
                 let badgeBg = isLecture ? "rgba(138, 152, 237, 0.15)" : "rgba(239, 83, 80, 0.12)";
                 let badgeColor = isLecture ? "#7a85e8" : "#ef5350";
+                
+                // Якщо це сьогодні, картки всередині будуть білішими для контрасту
+                let cardBg = isToday ? "var(--card)" : "var(--bg)";
 
                 dayHtml += `
-                <div style="background: var(--bg); border: 1px solid rgba(0,0,0,0.06); padding: 14px; border-radius: 14px; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
+                <div style="background: ${cardBg}; border: 1px solid rgba(0,0,0,0.06); padding: 14px; border-radius: 14px; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <span style="background: ${badgeBg}; color: ${badgeColor}; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase;">${currentType}</span>
                         <span style="font-size: 12px; font-weight: 700; color: var(--hint); background: var(--sec); padding: 4px 8px; border-radius: 6px;">⏱ ${time}</span>
@@ -2227,7 +2253,7 @@ function renderWeek(weekNum) {
                 </div>`;
             }
         });
-        dayHtml += `</div>`;
+        dayHtml += `</div>`; // Закриваємо контейнер дня
         container.innerHTML += dayHtml;
     });
 }
