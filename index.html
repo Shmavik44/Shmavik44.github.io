@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>IC-o51 Ботік</title>
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0a2f5c">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>(function(){try{var p=localStorage.getItem('theme_pref')||'auto';var w=window.Telegram&&Telegram.WebApp;var t=p==='auto'?((w&&w.colorScheme)||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light')):p;document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
@@ -416,6 +417,16 @@
     </p>
 </div>
 
+<div id="pcLoginScreen" style="display:none; position:fixed; inset:0; z-index:10000; background:var(--bg); flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:20px;">
+    <div class="lock-hero"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+    <h2 style="margin:0 0 8px;color:var(--ink);">Вхід на ПК</h2>
+    <p style="color:var(--hint);font-size:14px;max-width:300px;margin-bottom:14px;">Відкрийте міні-апп у Telegram → Профіль → Налаштування → «Вхід на ПК», згенеруйте код і введіть його тут.</p>
+    <input id="pcCodeInput" maxlength="9" placeholder="XXXX-XXXX" autocomplete="off"
+        style="width:220px;padding:12px;font-size:20px;text-align:center;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;">
+    <button onclick="pcLogin()" style="width:220px;background:var(--btn);color:#fff;padding:12px;border:none;border-radius:var(--r);font-weight:700;cursor:pointer;">Увійти</button>
+    <div id="pcLoginError" style="color:var(--red);font-size:13px;margin-top:10px;min-height:18px;"></div>
+</div>
+
 <!-- ========== ВКЛАДКА: ЗАВДАННЯ ========== -->
 <div class="tab-page active" id="tab-home">
     <div class="header" id="mainHeader">
@@ -559,6 +570,16 @@
                 <button id="thLight" onclick="setThemePref('light')">Світла</button>
                 <button id="thDark" onclick="setThemePref('dark')">Темна</button>
             </div>
+            <div id="pcAccessBlock" style="margin-top:20px;">
+    <div style="font-size:12px;font-weight:600;color:var(--hint);margin-bottom:8px;text-transform:uppercase;">Вхід на ПК:</div>
+    <div style="background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;">
+        <div style="font-size:11px;color:var(--hint);margin-bottom:10px;">Код діє 5 хвилин і працює один раз. ⚠️ Нікому його не передавайте!</div>
+        <div id="pcCodeBox" style="display:none;font-size:26px;font-weight:800;letter-spacing:4px;text-align:center;color:var(--ink);margin-bottom:10px;"></div>
+        <button onclick="pcGenerateCode()" style="width:100%;background:var(--btn);color:#fff;padding:11px;border:none;border-radius:var(--r);font-weight:600;cursor:pointer;">💻 Згенерувати код</button>
+        <div id="pcSessionsList" style="margin-top:12px;"></div>
+        <button onclick="pcRevokeAll()" style="width:100%;margin-top:8px;background:var(--err-bg);color:var(--red);padding:10px;border:none;border-radius:var(--r);font-weight:600;cursor:pointer;font-size:12px;">🚫 Вийти на всіх ПК</button>
+    </div>
+</div>
         </div>
 
         <div style="font-size:12px;font-weight:600;color:var(--hint);margin-bottom:8px;text-transform:uppercase;">Функції бота та застосунку:</div>
@@ -899,8 +920,106 @@ tg.expand();
     }
 
     const API_URL = "https://telegram-proxy-bot-desz.onrender.com/api";
-    const userId = tg.initDataUnsafe.user?.id || 0; // 0 = невідомий/неавторизований користувач, НЕ адмін
-    const firstName = tg.initDataUnsafe.user?.first_name || 'Студент';
+// ===================== АВТОРИЗАЦІЯ ЗАПИТІВ (Telegram initData / PC токени) =====================
+let pcAccess = null, pcRefresh = null;
+const _origFetch = window.fetch.bind(window);
+
+window.fetch = async (url, opts = {}) => {
+    if (typeof url !== 'string' || !url.startsWith(API_URL)) return _origFetch(url, opts);
+    opts = { ...opts, headers: { ...(opts.headers || {}) } };
+    if (tg.initData) opts.headers['X-Tg-Init-Data'] = tg.initData;
+    else if (pcAccess) opts.headers['Authorization'] = 'Bearer ' + pcAccess;
+
+    let r = await _origFetch(url, opts);
+    if (r.status === 401 && !tg.initData && !url.includes('/pc/login') && !url.includes('/pc/refresh')) {
+        if (await pcRefreshTokens()) {
+            opts.headers['Authorization'] = 'Bearer ' + pcAccess;
+            r = await _origFetch(url, opts);
+        } else showPcLogin();
+    }
+    return r;
+};
+
+function pcSave(d) {
+    pcAccess = d.access; pcRefresh = d.refresh;
+    try { localStorage.setItem('pc_access', pcAccess); localStorage.setItem('pc_refresh', pcRefresh); } catch(e) {}
+    if (d.userId) { userId = d.userId; firstName = d.firstName || 'Студент'; }
+}
+function pcClear() {
+    pcAccess = pcRefresh = null;
+    try { localStorage.removeItem('pc_access'); localStorage.removeItem('pc_refresh'); } catch(e) {}
+}
+async function pcRefreshTokens() {
+    if (!pcRefresh) return false;
+    try {
+        const r = await _origFetch(`${API_URL}/pc/refresh`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ refresh: pcRefresh }) });
+        if (!r.ok) { if (r.status === 401) pcClear(); return false; }
+        pcSave(await r.json()); return true;
+    } catch(e) { return false; }
+}
+function showPcLogin() { document.getElementById('pcLoginScreen').style.display = 'flex'; }
+
+async function pcLogin() {
+    const code = document.getElementById('pcCodeInput').value.trim();
+    const err = document.getElementById('pcLoginError'); err.innerText = '';
+    if (code.length < 8) { err.innerText = 'Введіть код повністю'; return; }
+    try {
+        const r = await _origFetch(`${API_URL}/pc/login`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code, device: navigator.platform || 'ПК' })
+        });
+        if (r.status === 429) { err.innerText = 'Забагато спроб. Зачекайте 10 хвилин.'; return; }
+        if (!r.ok) { err.innerText = 'Невірний або прострочений код'; return; }
+        pcSave(await r.json());
+        document.getElementById('pcLoginScreen').style.display = 'none';
+        loadData();
+    } catch(e) { err.innerText = "Немає зв'язку із сервером"; }
+}
+
+// ===== Керування кодами/пристроями (в налаштуваннях міні-аппу) =====
+async function pcGenerateCode() {
+    tg.HapticFeedback.impactOccurred('medium');
+    try {
+        const r = await fetch(`${API_URL}/pc/code`, { method: 'POST' });
+        if (!r.ok) { showToast('❌ Не вдалося створити код'); return; }
+        const d = await r.json();
+        const box = document.getElementById('pcCodeBox');
+        box.innerText = d.code; box.style.display = 'block';
+        setTimeout(() => { box.style.display = 'none'; box.innerText = ''; }, d.expiresInSec * 1000);
+    } catch(e) { showToast("❌ Немає зв'язку"); }
+}
+async function loadPcSessions() {
+    const el = document.getElementById('pcSessionsList'); if (!el) return;
+    try {
+        const r = await fetch(`${API_URL}/pc/sessions`); if (!r.ok) return;
+        const list = await r.json();
+        el.innerHTML = list.length ? list.map(s => `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:12px;">
+                <div><b>${escapeHtml(s.deviceName)}</b><br><span style="color:var(--hint);">активний: ${new Date(s.lastUsedAt).toLocaleString('uk-UA')}</span></div>
+                <button onclick="pcRevoke(${s.id})" style="background:none;border:1px solid var(--red);color:var(--red);border-radius:var(--r);padding:5px 9px;cursor:pointer;font-size:11px;">Вийти</button>
+            </div>`).join('') : '<div style="font-size:12px;color:var(--hint);">Активних ПК немає</div>';
+    } catch(e) {}
+}
+async function pcRevoke(id) {
+    await fetch(`${API_URL}/pc/revoke`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) });
+    loadPcSessions();
+}
+async function pcRevokeAll() {
+    if (!confirm('Вийти на всіх ПК?')) return;
+    await fetch(`${API_URL}/pc/revoke-all`, { method: 'POST' });
+    showToast('🚫 Усі ПК відключено'); loadPcSessions();
+}
+
+async function bootstrap() {
+    if (tg.initData) { loadData(); return; }          // відкрито в Telegram
+    // Відкрито на ПК: блок генерації коду не потрібен
+    const blk = document.getElementById('pcAccessBlock'); if (blk) blk.style.display = 'none';
+    try { pcAccess = localStorage.getItem('pc_access'); pcRefresh = localStorage.getItem('pc_refresh'); } catch(e) {}
+    if (pcRefresh && await pcRefreshTokens()) { loadData(); } else showPcLogin();
+}
+
+    let userId = tg.initDataUnsafe.user?.id || 0; // 0 = невідомий/неавторизований користувач, НЕ адмін
+    let firstName = tg.initDataUnsafe.user?.first_name || 'Студент';
     const adminIds = ["1492389359", "5136345452"];
     
     let globalTasks = [], myCoins = 0, myTitles = ['Студент 🤓'], activeTitle = 'Студент 🤓';
@@ -1067,6 +1186,7 @@ function switchProfileTab(section) {
             if (todayEl) todayEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }, 50);
     }
+    if (section === 'settings') loadPcSessions();
 }
 
 // Оновлення шапки профілю
@@ -2322,7 +2442,7 @@ async function toggleQueue() {
 }
     applyTheme();
     updateDocMeta(); setInterval(updateDocMeta, 60000);
-    loadData();
+    bootstrap();
 </script>
 </body>
 </html>
