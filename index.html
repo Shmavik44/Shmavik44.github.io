@@ -405,42 +405,95 @@
             75%  { transform: scale(1.04) rotate(-9deg); }
             100% { transform: scale(1) rotate(-9deg); opacity: 0.95; }
         }
-        /* ===================== РОЗКЛАД ===================== */
-.sch-day { margin-bottom: 14px; background: var(--sec); border: 1px solid var(--line); }
-.sch-day-head { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; background: var(--navy); color: #fff; }
-.sch-day-name { font-size: 13px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
-.sch-day-count { font-size: 11px; font-weight: 600; opacity: 0.75; letter-spacing: 0.3px; }
-.sch-today-tag { font-size: 9.5px; font-weight: 800; letter-spacing: 1px; color: #ffd700; border: 1.5px solid rgba(255,215,0,0.7); padding: 1px 6px; border-radius: 3px; transform: rotate(-4deg); }
-.sch-day.today { border-color: var(--btn); box-shadow: 0 0 0 1px var(--btn); }
-.sch-day.today .sch-day-head { padding-bottom: 13px; }
-.sch-day.today .sch-day-head::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: linear-gradient(90deg, #0057b8 50%, #ffd700 50%); }
+   /* ===================== РОЗКЛАД (v2) ===================== */
+#scheduleContainer { max-width: 760px; margin: 0 auto; }
 
-.sch-lesson { display: flex; align-items: stretch; border-top: 1px solid var(--line); border-left: 4px solid var(--btn); }
-.sch-lesson.practice { border-left-color: var(--amber); }
-.sch-time { width: 76px; flex-shrink: 0; padding: 10px 6px; text-align: center; background: var(--soft); border-right: 1px solid var(--line); display: flex; flex-direction: column; justify-content: center; gap: 2px; font-variant-numeric: tabular-nums; }
-.sch-time b { font-size: 13px; color: var(--text); font-weight: 700; }
-.sch-time span { font-size: 11px; color: var(--hint); }
-.sch-body { flex: 1; min-width: 0; padding: 10px 12px; }
-.sch-meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--btn); }
-.sch-lesson.practice .sch-meta { color: var(--amber); }
-.sch-pair { font-weight: 600; color: var(--hint); letter-spacing: 0.4px; text-transform: none; white-space: nowrap; }
-.sch-title { font-size: 14px; font-weight: 600; line-height: 1.25; margin-top: 4px; color: var(--text); }
-.sch-teacher { font-size: 12px; color: var(--hint); margin-top: 4px; }
-
-.sch-lesson.now { background: var(--info-bg); }
-.sch-lesson.now .sch-time { background: var(--btn); border-right-color: var(--btn); }
-.sch-lesson.now .sch-time b, .sch-lesson.now .sch-time span { color: #fff; }
-.sch-now-tag { font-size: 9.5px; font-weight: 800; letter-spacing: 1px; color: var(--green); border: 1.5px solid var(--green); padding: 1px 6px; border-radius: 3px; transform: rotate(-4deg); }
-.sch-lesson.done { opacity: 0.5; }
-
-.sch-lesson.window { border-left-color: var(--line); }
-.sch-lesson.window .sch-body { padding: 8px 12px; display: flex; align-items: center; font-size: 12px; font-weight: 600; color: var(--hint); }
-.sch-empty { padding: 16px; text-align: center; font-size: 13px; font-weight: 600; color: var(--hint); border-top: 1px solid var(--line); }
-
-@media (min-width: 768px) {
-    #scheduleContainer { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; align-items: start; }
-    .sch-day { margin-bottom: 0; }
+.sch-strip { display: flex; gap: 6px; margin-bottom: 14px; }
+.sch-chip {
+    flex: 1; position: relative; padding: 9px 0 8px; border-radius: 12px;
+    background: var(--card); border: 1px solid var(--line); color: var(--text);
+    cursor: pointer; text-align: center; font-family: inherit;
+    transition: transform .15s ease, background .15s ease;
 }
+.sch-chip:active { transform: scale(0.96); }
+.sch-chip .nm { display: block; font-size: 13px; font-weight: 700; }
+.sch-chip .ct { display: block; font-size: 10px; color: var(--hint); margin-top: 2px; font-weight: 600; }
+.sch-chip.active { background: var(--navy); border-color: var(--navy); color: #fff; box-shadow: 0 4px 12px color-mix(in srgb, var(--navy) 35%, transparent); }
+.sch-chip.active .ct { color: rgba(255,255,255,0.75); }
+.sch-chip.today::after {
+    content: ""; position: absolute; top: 5px; right: 6px; width: 6px; height: 6px;
+    border-radius: 50%; background: #e0a800;
+}
+
+.sch-hero {
+    position: relative; overflow: hidden; border-radius: 16px; padding: 16px 16px 18px; margin-bottom: 16px;
+    background: linear-gradient(135deg, var(--navy), color-mix(in srgb, var(--navy) 70%, #0057b8));
+    color: #fff;
+}
+.sch-hero::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: linear-gradient(90deg, #0057b8 50%, #ffd700 50%); }
+.sch-hero-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.sch-hero h3 { font-size: 20px; font-weight: 800; letter-spacing: 0.2px; }
+.sch-hero .sub { font-size: 12.5px; opacity: 0.8; margin-top: 4px; }
+.sch-hero .tag { font-size: 10px; font-weight: 800; letter-spacing: 1px; color: #ffd700; border: 1.5px solid rgba(255,215,0,0.7); padding: 3px 8px; border-radius: 6px; }
+
+.sch-timeline { position: relative; }
+.sch-row { display: flex; gap: 10px; position: relative; }
+.sch-row::before { content: ""; position: absolute; left: 33px; top: 0; bottom: 0; width: 2px; background: var(--line); }
+.sch-row:first-child::before { top: 20px; }
+.sch-row:last-child::before { bottom: calc(100% - 20px); }
+.sch-row:only-child::before { display: none; }
+
+.sch-t { width: 52px; flex-shrink: 0; text-align: right; padding-top: 12px; font-variant-numeric: tabular-nums; }
+.sch-t b { display: block; font-size: 13px; font-weight: 700; color: var(--text); }
+.sch-t span { display: block; font-size: 11px; color: var(--hint); margin-top: 1px; }
+
+.sch-dot {
+    position: absolute; left: 28px; top: 17px; width: 12px; height: 12px; border-radius: 50%;
+    background: var(--card); border: 3px solid var(--btn); z-index: 1;
+}
+.sch-row.practice .sch-dot { border-color: var(--amber); }
+.sch-row.window .sch-dot { border-color: var(--line); width: 8px; height: 8px; left: 30px; top: 19px; }
+
+.sch-card {
+    flex: 1; min-width: 0; margin: 0 0 12px 18px; padding: 12px 14px; border-radius: 14px;
+    background: var(--card); border: 1px solid var(--line);
+    box-shadow: 0 2px 8px rgba(10, 47, 92, 0.05);
+}
+.sch-card .top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.sch-pill {
+    font-size: 10px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 999px; color: var(--btn);
+    background: color-mix(in srgb, var(--btn) 14%, transparent);
+}
+.sch-row.practice .sch-pill { color: var(--amber); background: color-mix(in srgb, var(--amber) 16%, transparent); }
+.sch-no { font-size: 11px; color: var(--hint); font-weight: 600; }
+.sch-title { font-size: 15px; font-weight: 700; line-height: 1.3; margin-top: 8px; color: var(--text); }
+.sch-teacher { display: flex; align-items: center; gap: 8px; margin-top: 9px; font-size: 12px; color: var(--hint); font-weight: 500; }
+.sch-ava {
+    width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 800; color: #fff; background: var(--navy);
+}
+
+.sch-row.window .sch-card {
+    background: transparent; border: 1px dashed var(--line); box-shadow: none; padding: 9px 14px;
+    font-size: 12px; color: var(--hint); font-weight: 600; margin-bottom: 10px;
+}
+
+.sch-row.done .sch-card { opacity: 0.5; }
+.sch-row.now .sch-card {
+    border-color: var(--btn); background: color-mix(in srgb, var(--btn) 8%, var(--card));
+    box-shadow: 0 6px 18px color-mix(in srgb, var(--btn) 25%, transparent);
+}
+.sch-row.now .sch-dot { background: var(--btn); box-shadow: 0 0 0 5px color-mix(in srgb, var(--btn) 25%, transparent); animation: schPulse 1.8s ease-in-out infinite; }
+.sch-row.now .sch-t b { color: var(--btn); }
+.sch-live { font-size: 10px; font-weight: 800; letter-spacing: 1px; color: var(--green); display: inline-flex; align-items: center; gap: 5px; }
+.sch-live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: schPulse 1.2s ease-in-out infinite; }
+.sch-prog { height: 5px; border-radius: 999px; background: color-mix(in srgb, var(--btn) 18%, transparent); margin-top: 11px; overflow: hidden; }
+.sch-prog i { display: block; height: 100%; background: var(--btn); border-radius: 999px; }
+@keyframes schPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.45; } }
+
+.sch-free { text-align: center; padding: 36px 16px; color: var(--hint); font-size: 14px; font-weight: 600; background: var(--card); border: 1px dashed var(--line); border-radius: 16px; }
+.sch-free .big { font-size: 34px; margin-bottom: 8px; }
 </style>
 </head>
 <body>
@@ -2346,110 +2399,172 @@ async function loadSchedule() {
     } catch(e) {}
 }
 
-      let currentWeekNum = 1;
+      let currentWeekNum = 1;      // який тиждень зараз за календарем
+let schShownWeek = 1;        // який тиждень відкритий
+let schSelectedDay = null;   // обраний день
+const SCH_SHORT = { 'Понеділок':'Пн', 'Вівторок':'Вт', 'Середа':'Ср', 'Четвер':'Чт', "П'ятниця":'Пт', 'Субота':'Сб', 'Неділя':'Нд' };
+const SCH_DAYS = ["Неділя", "Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця", "Субота"];
 
-function schParseRange(t) {
+function schRange(t) {
     const m = t.match(/(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})/);
     return m ? [+m[1] * 60 + +m[2], +m[3] * 60 + +m[4]] : null;
 }
+const schFmt = m => `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`;
 function schPairsWord(n) {
     const l = n % 10, t = n % 100;
     if (t >= 11 && t <= 14) return 'пар';
     return l === 1 ? 'пара' : (l >= 2 && l <= 4) ? 'пари' : 'пар';
 }
+function schDur(min) {
+    const h = Math.floor(min / 60), m = min % 60;
+    return (h ? h + ' год ' : '') + (m ? m + ' хв' : '').trim();
+}
+function schInitials(name) {
+    const p = name.split(/\s+/).filter(Boolean);
+    return ((p[0] || '')[0] || '') + ((p[1] || '')[0] || '');
+}
+
+// Розбір одного дня у список елементів
+function schParseDay(d) {
+    let currentType = 'Практика';
+    const items = [];
+    d.text.split('\n\n').forEach(raw => {
+        const block = raw.trim();
+        if (!block) return;
+        if (/^\*[^*]+\*$/.test(block)) { currentType = block.replace(/\*/g, '').trim(); return; }
+
+        const m = block.match(/^(\d)\.\s*\((.*?)\)\s*([\s\S]*)/);
+        if (!m) return;
+        const pairNo = m[1], time = m[2];
+        let rest = m[3].trim();
+
+        let nextType = null;
+        const tail = rest.match(/\*([^*]+)\*\s*$/);
+        if (tail) { nextType = tail[1].trim(); rest = rest.slice(0, tail.index).trim(); }
+
+        const range = schRange(time);
+        if (rest.includes('Спимо')) {
+            items.push({ kind: 'window', pairNo, range });
+            if (nextType) currentType = nextType;
+            return;
+        }
+
+        let type = currentType;
+        const pref = rest.match(/^(Лекція|Практика)\s+/i);
+        if (pref) { type = pref[1]; rest = rest.slice(pref[0].length); }
+
+        const clean = rest.replace(/\[([^\]]+)\]\([^)]*\)/g, '$1').replace(/_(.*?)_/g, '$1');
+        const parts = clean.split(' — ');
+        items.push({
+            kind: 'lesson', pairNo, range,
+            isLecture: /лекц/i.test(type),
+            title: parts[0].trim(),
+            teacher: parts.length > 1 ? parts.slice(1).join(' — ').trim() : ''
+        });
+        if (nextType) currentType = nextType;
+    });
+
+    // Вікна на початку і в кінці дня нікому не цікаві
+    while (items.length && items[0].kind === 'window') items.shift();
+    while (items.length && items[items.length - 1].kind === 'window') items.pop();
+    return items;
+}
+
+function schPickDay(day) { schSelectedDay = day; renderWeek(schShownWeek); tg.HapticFeedback?.selectionChanged(); }
 
 function renderWeek(weekNum) {
+    schShownWeek = weekNum;
     document.getElementById('btnWeek1').classList.toggle('active', weekNum === 1);
     document.getElementById('btnWeek2').classList.toggle('active', weekNum === 2);
 
     const container = document.getElementById('scheduleContainer');
     if (!mySchedule) {
-        container.innerHTML = `<div style="text-align:center;padding:20px;color:var(--red);font-size:13px;">Помилка завантаження</div>`;
+        container.innerHTML = `<div class="sch-free"><div class="big">⚠️</div>Помилка завантаження</div>`;
         return;
     }
 
-    const weekData = weekNum === 1 ? mySchedule.week1 : mySchedule.week2;
-    const dayNames = ["Неділя", "Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця", "Субота"];
+    const weekData = (weekNum === 1 ? mySchedule.week1 : mySchedule.week2);
+    const parsed = weekData.map(d => ({ day: d.day, items: schParseDay(d) }));
+
     const now = new Date();
     const nowMin = now.getHours() * 60 + now.getMinutes();
-    const todayName = dayNames[now.getDay()];
+    const todayName = SCH_DAYS[now.getDay()];
+    const todayVisible = weekNum === currentWeekNum;
 
-    let html = '';
-    weekData.forEach(d => {
-        const isToday = d.day === todayName && weekNum === currentWeekNum;
-        let currentType = 'Практика';
-        const rows = [];
-        let pairCount = 0;
+    // Який день відкрити: обраний, інакше сьогодні, інакше понеділок
+    if (!schSelectedDay || !parsed.some(p => p.day === schSelectedDay)) {
+        schSelectedDay = parsed.some(p => p.day === todayName) ? todayName : parsed[0].day;
+    }
+    const cur = parsed.find(p => p.day === schSelectedDay);
+    const isToday = todayVisible && cur.day === todayName;
 
-        d.text.split('\n\n').forEach(raw => {
-            const block = raw.trim();
-            if (!block) return;
+    // Смуга днів
+    const strip = parsed.map(p => {
+        const n = p.items.filter(i => i.kind === 'lesson').length;
+        const cls = [p.day === schSelectedDay ? 'active' : '', todayVisible && p.day === todayName ? 'today' : ''].join(' ');
+        return `<button class="sch-chip ${cls}" onclick="schPickDay(&quot;${p.day}&quot;)">
+                    <span class="nm">${SCH_SHORT[p.day] || p.day}</span>
+                    <span class="ct">${n ? n + ' ' + schPairsWord(n) : '—'}</span>
+                </button>`;
+    }).join('');
 
-            // Заголовок типу: *Лекції*, *Практика* ...
-            if (/^\*[^*]+\*$/.test(block)) { currentType = block.replace(/\*/g, '').trim(); return; }
+    // Шапка дня
+    const lessons = cur.items.filter(i => i.kind === 'lesson' && i.range);
+    let sub = 'Пар немає';
+    if (lessons.length) {
+        const start = Math.min(...lessons.map(l => l.range[0]));
+        const end = Math.max(...lessons.map(l => l.range[1]));
+        sub = `${lessons.length} ${schPairsWord(lessons.length)} · ${schFmt(start)}–${schFmt(end)}`;
+    }
+    const hero = `
+        <div class="sch-hero">
+            <div class="sch-hero-top">
+                <h3>${escapeHtml(cur.day)}</h3>
+                ${isToday ? '<span class="tag">СЬОГОДНІ</span>' : ''}
+            </div>
+            <div class="sub">${sub} · ${weekNum}-й тиждень</div>
+        </div>`;
 
-            const m = block.match(/^(\d)\.\s*\((.*?)\)\s*([\s\S]*)/);
-            if (!m) return;
-            const pairNo = m[1], time = m[2];
-            let rest = m[3].trim();
-
-            // Прихований маркер типу в кінці рядка (напр. "... _Викладач_ *Практика*")
-            let nextType = null;
-            const tail = rest.match(/\*([^*]+)\*\s*$/);
-            if (tail) { nextType = tail[1].trim(); rest = rest.slice(0, tail.index).trim(); }
-
-            const range = schParseRange(time);
+    // Таймлайн
+    let body;
+    if (!cur.items.length) {
+        body = `<div class="sch-free"><div class="big">🌿</div>Пар немає, можна відпочити</div>`;
+    } else {
+        body = '<div class="sch-timeline">' + cur.items.map(it => {
+            const r = it.range;
             let state = '';
-            if (isToday && range) state = nowMin >= range[0] && nowMin <= range[1] ? 'now' : (nowMin > range[1] ? 'done' : '');
-            const [from, to] = time.split('-');
-            const timeHtml = `<div class="sch-time"><b>${escapeHtml((from || '').trim())}</b><span>${escapeHtml((to || '').trim())}</span></div>`;
+            if (isToday && r) state = nowMin >= r[0] && nowMin < r[1] ? 'now' : (nowMin >= r[1] ? 'done' : '');
+            const tHtml = r ? `<div class="sch-t"><b>${schFmt(r[0])}</b><span>${schFmt(r[1])}</span></div>` : `<div class="sch-t"></div>`;
 
-            if (rest.includes('Спимо')) {
-                rows.push(`<div class="sch-lesson window ${state}">${timeHtml}<div class="sch-body">Вікно</div></div>`);
-                if (nextType) currentType = nextType;
-                return;
+            if (it.kind === 'window') {
+                const dur = r ? schDur(r[1] - r[0]) : '';
+                return `<div class="sch-row window ${state}">${tHtml}<span class="sch-dot"></span>
+                            <div class="sch-card">Вікно${dur ? ' · ' + dur : ''}</div></div>`;
             }
 
-            // Тип може стояти прямо в рядку: "Лекція Назва ..." / "Практика Назва ..."
-            let type = currentType;
-            const pref = rest.match(/^(Лекція|Практика)\s+/i);
-            if (pref) { type = pref[1]; rest = rest.slice(pref[0].length); }
-
-            const clean = rest.replace(/\[([^\]]+)\]\([^)]*\)/g, '$1').replace(/_(.*?)_/g, '$1');
-            const parts = clean.split(' — ');
-            const title = parts[0].trim();
-            const teacher = parts.length > 1 ? parts.slice(1).join(' — ').trim() : '';
-            const isLecture = /лекц/i.test(type);
-
-            pairCount++;
-            rows.push(`
-                <div class="sch-lesson ${isLecture ? '' : 'practice'} ${state}">
-                    ${timeHtml}
-                    <div class="sch-body">
-                        <div class="sch-meta">
-                            <span>${isLecture ? 'Лекція' : 'Практика'}</span>
-                            ${state === 'now' ? '<span class="sch-now-tag">ЗАРАЗ</span>' : `<span class="sch-pair">пара ${pairNo}</span>`}
-                        </div>
-                        <div class="sch-title">${escapeHtml(title)}</div>
-                        ${teacher ? `<div class="sch-teacher">${escapeHtml(teacher)}</div>` : ''}
+            const pct = state === 'now' && r ? Math.round((nowMin - r[0]) / (r[1] - r[0]) * 100) : 0;
+            return `<div class="sch-row ${it.isLecture ? '' : 'practice'} ${state}">
+                ${tHtml}<span class="sch-dot"></span>
+                <div class="sch-card">
+                    <div class="top">
+                        <span class="sch-pill">${it.isLecture ? 'Лекція' : 'Практика'}</span>
+                        ${state === 'now' ? '<span class="sch-live">ЗАРАЗ</span>' : `<span class="sch-no">пара ${it.pairNo}</span>`}
                     </div>
-                </div>`);
-
-            if (nextType) currentType = nextType;
-        });
-
-        html += `
-            <div class="sch-day ${isToday ? 'today' : ''}" id="day-${d.day}">
-                <div class="sch-day-head">
-                    <div class="sch-day-name">${d.day}${isToday ? '<span class="sch-today-tag">СЬОГОДНІ</span>' : ''}</div>
-                    <div class="sch-day-count">${pairCount ? pairCount + ' ' + schPairsWord(pairCount) : ''}</div>
+                    <div class="sch-title">${escapeHtml(it.title)}</div>
+                    ${it.teacher ? `<div class="sch-teacher"><span class="sch-ava">${escapeHtml(schInitials(it.teacher))}</span>${escapeHtml(it.teacher)}</div>` : ''}
+                    ${state === 'now' ? `<div class="sch-prog"><i style="width:${pct}%"></i></div>` : ''}
                 </div>
-                ${rows.length ? rows.join('') : '<div class="sch-empty">Пар немає</div>'}
             </div>`;
-    });
+        }).join('') + '</div>';
+    }
 
-    container.innerHTML = html;
+    container.innerHTML = `<div class="sch-strip">${strip}</div>${hero}${body}`;
 }
+
+// Оновлюємо «ЗАРАЗ» і прогрес раз на хвилину, поки відкрита вкладка розкладу
+setInterval(() => {
+    if (currentTab === 'schedule' && mySchedule) renderWeek(schShownWeek);
+}, 60000);
     let isCurrentlyInQueue = false;
 
 async function loadQueue() {
