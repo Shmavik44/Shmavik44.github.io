@@ -54,7 +54,7 @@
 
         /* ===================== НИЖНЄ МЕНЮ ===================== */
         .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0;
+            position: fixed; bottom: 0 !important; bottom: 0; left: 0; right: 0;
             background: var(--card);
             border-top: 1px solid var(--line);
             display: flex; justify-content: space-around;
@@ -101,10 +101,6 @@
             border-radius: 0 !important;
             overflow: hidden;
             text-align: left;
-        }
-        .header::after, .tab-header::after {
-            content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 4px;
-            background: linear-gradient(90deg, #0057b8 50%, #ffd700 50%);
         }
         .header h3 { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 2px; letter-spacing: 0; }
         .header p { color: rgba(255,255,255,0.8) !important; font-size: 13px !important; }
@@ -330,15 +326,18 @@
         /* ===================== ПК ТА ПЛАНШЕТИ ===================== */
         @media (min-width: 768px) {
             :root { --pad: 24px; }
-            body { background: var(--line); }
+            body { background: var(--bg); }
             .tab-page {
-                max-width: 750px; margin: 0 auto; left: 0; right: 0;
-                border-left: 1px solid var(--line); border-right: 1px solid var(--line);
+                max-width: 100%; /* Розтягує на весь екран */
+                margin: 0; 
+                border: none;
                 padding: var(--pad) var(--pad) 30px var(--pad);
             }
             .bottom-nav {
-                max-width: 750px; margin: 0 auto; left: 0; right: 0;
-                border-left: 1px solid var(--line); border-right: 1px solid var(--line);
+                max-width: 100%; /* Розтягує меню на весь екран */
+                margin: 0;
+                border: none;
+                border-top: 1px solid var(--line);
             }
             .task-card.visible:hover { border-color: var(--btn); }
             .nav-item:hover { background: var(--soft); }
