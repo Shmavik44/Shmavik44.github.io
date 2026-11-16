@@ -587,6 +587,7 @@
     <div style="background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;">
         <div style="font-size:11px;color:var(--hint);margin-bottom:10px;">Код діє 5 хвилин і працює один раз. ⚠️ Нікому його не передавайте!</div>
         <div id="pcCodeBox" style="display:none;font-size:26px;font-weight:800;letter-spacing:4px;text-align:center;color:var(--ink);margin-bottom:10px;"></div>
+        <a id="magicLinkBtn" href="#" target="_blank" style="display:none; width:100%; background:var(--green); color:#fff; padding:11px; border:none; border-radius:var(--r); font-weight:600; cursor:pointer; text-align:center; text-decoration:none; margin-bottom:10px; box-sizing:border-box;">📱 Відкрити застосунок у браузері</a>
         <button onclick="pcGenerateCode()" style="width:100%;background:var(--btn);color:#fff;padding:11px;border:none;border-radius:var(--r);font-weight:600;cursor:pointer;">💻 Згенерувати код</button>
         <div id="pcSessionsList" style="margin-top:12px;"></div>
         <button onclick="pcRevokeAll()" style="width:100%;margin-top:8px;background:var(--err-bg);color:var(--red);padding:10px;border:none;border-radius:var(--r);font-weight:600;cursor:pointer;font-size:12px;">🚫 Вийти на всіх ПК</button>
@@ -985,9 +986,23 @@ async function pcGenerateCode() {
         const r = await fetch(`${API_URL}/pc/code`, { method: 'POST' });
         if (!r.ok) { showToast('❌ Не вдалося створити код'); return; }
         const d = await r.json();
+        
         const box = document.getElementById('pcCodeBox');
-        box.innerText = d.code; box.style.display = 'block';
-        setTimeout(() => { box.style.display = 'none'; box.innerText = ''; }, d.expiresInSec * 1000);
+        const magicBtn = document.getElementById('magicLinkBtn');
+        
+        box.innerText = d.code; 
+        box.style.display = 'block';
+        
+        // Формуємо магічне посилання. window.location.origin дає поточну адресу сайту
+        const magicUrl = `${window.location.origin}${window.location.pathname}?login_code=${d.code.replace('-', '')}`;
+        magicBtn.href = magicUrl;
+        magicBtn.style.display = 'block';
+        
+        setTimeout(() => { 
+            box.style.display = 'none'; 
+            box.innerText = ''; 
+            magicBtn.style.display = 'none';
+        }, d.expiresInSec * 1000);
     } catch(e) { showToast("❌ Немає зв'язку"); }
 }
 async function loadPcSessions() {
