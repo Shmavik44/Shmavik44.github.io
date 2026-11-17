@@ -450,10 +450,6 @@
 
 /* Пройдені точки заповнені зеленим */
 .sch-row.done .sch-dot { background: var(--green); border-color: var(--green); }
-.sch-row.done .sch-dot::after {
-    content: ""; position: absolute; left: 3px; top: 0px; width: 3px; height: 6px;
-    border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
-}
 /* Поточна точка: зелена і пульсує хвилями */
 .sch-row.now .sch-dot { background: var(--green); border-color: var(--green); box-shadow: none; animation: none; }
 .sch-row.now .sch-dot::before {
