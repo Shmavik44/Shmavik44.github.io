@@ -1439,7 +1439,7 @@ async function loadSchedule() {
             currentWeekNum = currentWeek;
             renderWeek(currentWeek); 
         }
-    } catch(e) {}
+   } catch(e) { console.error('loadSchedule:', e); }
 }
 
       let currentWeekNum = 1;      // який тиждень зараз за календарем
@@ -1577,29 +1577,29 @@ function renderWeek(weekNum) {
             <div class="sub">${sub} · ${weekNum}-й тиждень</div>
         </div>`;
 
-    // Таймлайн
+   // Таймлайн
     let body;
     if (!cur.items.length) {
         body = `<div class="sch-free"><div class="big">🌿</div>Пар немає, можна відпочити</div>`;
     } else {
+        let prevEnd = null;
         body = '<div class="sch-timeline">' + cur.items.map(it => {
             const r = it.range;
             let state = '';
             if (isToday && r) state = nowMin >= r[0] && nowMin < r[1] ? 'now' : (nowMin >= r[1] ? 'done' : '');
             const tHtml = r ? `<div class="sch-t"><b>${schFmt(r[0])}</b><span>${schFmt(r[1])}</span></div>` : `<div class="sch-t"></div>`;
             const lineHtml = schLine(isToday, r, nowMin, prevEnd);
-             if (r) prevEnd = r[1];
+            if (r) prevEnd = r[1];
 
             if (it.kind === 'window') {
                 const dur = r ? schDur(r[1] - r[0]) : '';
-                return `<div class="sch-row window ${state}">${tHtml}<span class="sch-dot"></span>
-                <span class="sch-dot"></span>${lineHtml}
+                return `<div class="sch-row window ${state}">${tHtml}<span class="sch-dot"></span>${lineHtml}
                             <div class="sch-card">Вікно${dur ? ' · ' + dur : ''}</div></div>`;
             }
 
             const pct = state === 'now' && r ? Math.round((nowMin - r[0]) / (r[1] - r[0]) * 100) : 0;
             return `<div class="sch-row ${it.isLecture ? '' : 'practice'} ${state}">
-                ${tHtml}<span class="sch-dot"></span>
+                ${tHtml}<span class="sch-dot"></span>${lineHtml}
                 <div class="sch-card">
                     <div class="top">
                         <span class="sch-pill">${it.isLecture ? 'Лекція' : 'Практика'}</span>
@@ -1614,10 +1614,9 @@ function renderWeek(weekNum) {
     }
 
     container.innerHTML = `<div class="sch-strip">${strip}</div>${hero}${body}`;
-      requestAnimationFrame(() => requestAnimationFrame(() => {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
         container.querySelectorAll('.sch-line i').forEach(el => el.style.height = el.dataset.h + '%');
     }));
-
 }
 
 // Оновлюємо «ЗАРАЗ» і прогрес раз на хвилину, поки відкрита вкладка розкладу
