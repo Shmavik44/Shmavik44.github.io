@@ -1515,6 +1515,15 @@ function schParseDay(d) {
 
 function schPickDay(day) { schSelectedDay = day; renderWeek(schShownWeek); tg.HapticFeedback?.selectionChanged(); }
 
+function schLine(isToday, r, nowMin, prevEnd) {
+    if (!isToday || !r) return '<span class="sch-line"><i data-h="0"></i></span>';
+    // сегмент між попередньою парою і цією: заповнюється, коли час пройшов кінець попередньої
+    const from = prevEnd ?? r[0];
+    const span = Math.max(1, r[1] - from);
+    const pct = Math.max(0, Math.min(100, Math.round((nowMin - from) / span * 100)));
+    return `<span class="sch-line"><i data-h="${pct}"></i></span>`;
+}
+
 function renderWeek(weekNum) {
     schShownWeek = weekNum;
     document.getElementById('btnWeek1').classList.toggle('active', weekNum === 1);
@@ -1578,10 +1587,13 @@ function renderWeek(weekNum) {
             let state = '';
             if (isToday && r) state = nowMin >= r[0] && nowMin < r[1] ? 'now' : (nowMin >= r[1] ? 'done' : '');
             const tHtml = r ? `<div class="sch-t"><b>${schFmt(r[0])}</b><span>${schFmt(r[1])}</span></div>` : `<div class="sch-t"></div>`;
+            const lineHtml = schLine(isToday, r, nowMin, prevEnd);
+             if (r) prevEnd = r[1];
 
             if (it.kind === 'window') {
                 const dur = r ? schDur(r[1] - r[0]) : '';
                 return `<div class="sch-row window ${state}">${tHtml}<span class="sch-dot"></span>
+                <span class="sch-dot"></span>${lineHtml}
                             <div class="sch-card">Вікно${dur ? ' · ' + dur : ''}</div></div>`;
             }
 
@@ -1602,6 +1614,10 @@ function renderWeek(weekNum) {
     }
 
     container.innerHTML = `<div class="sch-strip">${strip}</div>${hero}${body}`;
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        container.querySelectorAll('.sch-line i').forEach(el => el.style.height = el.dataset.h + '%');
+    }));
+
 }
 
 // Оновлюємо «ЗАРАЗ» і прогрес раз на хвилину, поки відкрита вкладка розкладу
