@@ -423,11 +423,19 @@
 .sch-hero .tag { font-size: 9px; font-weight: 800; letter-spacing: 1px; color: #ffd700; border: 1.5px solid rgba(255,215,0,0.7); padding: 2px 7px; border-radius: 5px; }
 
 .sch-timeline { position: relative; }
+.sch-row::before { display: none; }
+
+.sch-line { position: absolute; left: 63px; top: 0; bottom: 0; width: 2px; background: var(--line); overflow: hidden; }
+.sch-line i {
+    display: block; width: 100%; height: 0;
+    background: linear-gradient(180deg, #2ecc71, #1b7a43);
+    transition: height 1.3s cubic-bezier(.22,.9,.3,1);
+}
+.sch-row:first-child .sch-line { top: 24px; }
+.sch-row:last-child .sch-line { bottom: calc(100% - 24px); }
+.sch-row:only-child .sch-line { display: none; }
+
 .sch-row { display: flex; gap: 10px; position: relative; }
-.sch-row::before { content: ""; position: absolute; left: 63px; top: 0; bottom: 0; width: 2px; background: var(--line); }
-.sch-row:first-child::before { top: 20px; }
-.sch-row:last-child::before { bottom: calc(100% - 20px); }
-.sch-row:only-child::before { display: none; }
 
 .sch-t { width: 52px; flex-shrink: 0; text-align: right; padding-top: 12px; font-variant-numeric: tabular-nums; }
 .sch-t b { display: block; font-size: 13px; font-weight: 700; color: var(--text); }
@@ -438,45 +446,26 @@
     background: var(--card); border: 3px solid var(--btn); z-index: 1;
 }
 .sch-row.practice .sch-dot { border-color: var(--amber); }
-.sch-row.window .sch-dot { border-color: var(--line); width: 10px; height: 10px; left: 59px; top: 19px; }
+.sch-row.window .sch-dot { width: 10px; height: 10px; left: 59px; top: 19px; border-color: var(--line); }
 
-.sch-card {
-    flex: 1; min-width: 0; margin: 0 0 12px 22px; padding: 12px 14px; border-radius: 14px;
-    background: var(--card); border: 1px solid var(--line);
-    box-shadow: 0 2px 8px rgba(10, 47, 92, 0.05);
+/* Пройдені точки заповнені зеленим */
+.sch-row.done .sch-dot { background: var(--green); border-color: var(--green); }
+.sch-row.done .sch-dot::after {
+    content: ""; position: absolute; left: 3px; top: 0px; width: 3px; height: 6px;
+    border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
 }
-.sch-card .top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.sch-pill {
-    font-size: 10px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase;
-    padding: 3px 8px; border-radius: 999px; color: var(--btn);
-    background: color-mix(in srgb, var(--btn) 14%, transparent);
+/* Поточна точка: зелена і пульсує хвилями */
+.sch-row.now .sch-dot { background: var(--green); border-color: var(--green); box-shadow: none; animation: none; }
+.sch-row.now .sch-dot::before {
+    content: ""; position: absolute; inset: -3px; border-radius: 50%;
+    border: 2px solid var(--green); animation: schRipple 1.8s ease-out infinite;
 }
-.sch-row.practice .sch-pill { color: var(--amber); background: color-mix(in srgb, var(--amber) 16%, transparent); }
-.sch-no { font-size: 11px; color: var(--hint); font-weight: 600; }
-.sch-title { font-size: 15px; font-weight: 700; line-height: 1.3; margin-top: 8px; color: var(--text); }
-.sch-teacher { display: flex; align-items: center; gap: 8px; margin-top: 9px; font-size: 12px; color: var(--hint); font-weight: 500; }
-.sch-ava {
-    width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-    font-size: 10px; font-weight: 800; color: #fff; background: var(--navy);
+.sch-row.done .sch-dot::after {
+    content: ""; position: absolute; left: 2px; top: -1px; width: 3px; height: 6px;
+    border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
 }
-
-.sch-row.window .sch-card {
-    background: transparent; border: 1px dashed var(--line); box-shadow: none; padding: 9px 14px;
-    font-size: 12px; color: var(--hint); font-weight: 600; margin-bottom: 10px;
-}
-
-.sch-row.done .sch-card { opacity: 0.5; }
-.sch-row.now .sch-card {
-    border-color: var(--btn); background: color-mix(in srgb, var(--btn) 8%, var(--card));
-    box-shadow: 0 6px 18px color-mix(in srgb, var(--btn) 25%, transparent);
-}
-.sch-row.now .sch-dot { background: var(--btn); box-shadow: 0 0 0 5px color-mix(in srgb, var(--btn) 25%, transparent); animation: schPulse 1.8s ease-in-out infinite; }
-.sch-row.now .sch-t b { color: var(--btn); }
-.sch-live { font-size: 10px; font-weight: 800; letter-spacing: 1px; color: var(--green); display: inline-flex; align-items: center; gap: 5px; }
-.sch-live::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: schPulse 1.2s ease-in-out infinite; }
-.sch-prog { height: 5px; border-radius: 999px; background: color-mix(in srgb, var(--btn) 18%, transparent); margin-top: 11px; overflow: hidden; }
-.sch-prog i { display: block; height: 100%; background: var(--btn); border-radius: 999px; }
-@keyframes schPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.45; } }
+@keyframes schRipple { 0% { transform: scale(0.8); opacity: 0.9; } 100% { transform: scale(2.4); opacity: 0; } }
+.sch-row.done .sch-card { opacity: 0.55; }
 
 .sch-free { text-align: center; padding: 36px 16px; color: var(--hint); font-size: 14px; font-weight: 600; background: var(--card); border: 1px dashed var(--line); border-radius: 16px; }
 .sch-free .big { font-size: 34px; margin-bottom: 8px; }
