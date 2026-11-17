@@ -469,3 +469,21 @@
 
 .sch-free { text-align: center; padding: 36px 16px; color: var(--hint); font-size: 14px; font-weight: 600; background: var(--card); border: 1px dashed var(--line); border-radius: 16px; }
 .sch-free .big { font-size: 34px; margin-bottom: 8px; }
+.sch-card {
+    flex: 1; min-width: 0; margin: 0 0 12px 22px; padding: 12px 14px; border-radius: 14px;
+    background: var(--card); border: 1px solid var(--line);
+    box-shadow: 0 2px 8px rgba(10, 47, 92, 0.05);
+}
+.sch-card .top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.sch-pill { font-size: 10px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; color: var(--btn); background: color-mix(in srgb, var(--btn) 14%, transparent); }
+.sch-row.practice .sch-pill { color: var(--amber); background: color-mix(in srgb, var(--amber) 16%, transparent); }
+.sch-no { font-size: 11px; color: var(--hint); font-weight: 600; }
+.sch-title { font-size: 15px; font-weight: 700; line-height: 1.3; margin-top: 8px; color: var(--text); }
+.sch-teacher { display: flex; align-items: center; gap: 8px; margin-top: 9px; font-size: 12px; color: var(--hint); font-weight: 500; }
+.sch-ava { width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: #fff; background: var(--navy); }
+.sch-row.window .sch-card { background: transparent; border: 1px dashed var(--line); box-shadow: none; padding: 9px 14px; font-size: 12px; color: var(--hint); font-weight: 600; margin-bottom: 10px; }
+.sch-row.now .sch-card { border-color: var(--btn); background: color-mix(in srgb, var(--btn) 8%, var(--card)); box-shadow: 0 6px 18px color-mix(in srgb, var(--btn) 25%, transparent); }
+.sch-row.now .sch-t b { color: var(--btn); }
+.sch-live { font-size: 10px; font-weight: 800; letter-spacing: 1px; color: var(--green); }
+.sch-prog { height: 5px; border-radius: 999px; background: color-mix(in srgb, var(--btn) 18%, transparent); margin-top: 11px; overflow: hidden; }
+.sch-prog i { display: block; height: 100%; background: var(--btn); border-radius: 999px; }
